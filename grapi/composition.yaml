@@ -46,7 +46,7 @@ spec:
             chart:
               name: grapi
               repository: oci://public.ecr.aws/p7h7z5g3
-              version: 0.2.8
+              version: 0.3.0
             namespace: # patched
             values:
               name: # patched
@@ -67,7 +67,7 @@ spec:
               deployimages: false
               imagetag: ""
               # beimage: grpl/grapi
-              # beimagetag: 0.2.8
+              # beimagetag: 0.3.0
               translations: false
               apiregistry: false
               graphql: false

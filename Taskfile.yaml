@@ -1,0 +1,734 @@
+---
+version: '3'
+silent: true
+
+vars:
+  PACKAGE: "grsf.xpkg"
+  CONFIGPKG: "grpl/grsf"
+  CPSYS: "grpl-system"
+  TESTNS: "grpl-test"
+  VERSION_FILE: "version.txt"
+  CURRENT_VERSION:
+    sh: |
+      if [ ! -f "{{.VERSION_FILE}}" ]; then
+        echo "0.3.0" > {{.VERSION_FILE}}
+      fi
+      cat {{.VERSION_FILE}}
+  BEBASEIMAGE: "grpl/grapi"
+  BEBASEIMAGEVERSION: "0.3.8"
+  UIBASEIMAGE: "grpl/gruim"
+  UIBASEIMAGEVERSION: "0.3.4"
+  STAGE: '{{.STAGE | default "dev"}}'
+  GIT_HASH:
+    sh: git log -n 1 --format=%h 2>/dev/null || echo "local"
+  TAG_EXT:
+    sh: |
+      if [ "{{.STAGE}}" = "prd" ]; then
+        echo ""
+      elif [ "{{.STAGE}}" = "uat" ]; then
+        echo ".{{.STAGE}}-{{.GIT_HASH}}"
+      elif [ "{{.STAGE}}" = "pr" ]; then
+        PR_NR="${GITHUB_PR_NUMBER:-local}"
+        echo ".{{.STAGE}}-${PR_NR}"
+      else
+        echo ".{{.STAGE}}"
+      fi
+  TAG:
+    sh: |
+      if [ "{{.STAGE}}" = "prd" ]; then
+        echo "{{.CURRENT_VERSION}}"
+      else
+        echo "{{.CURRENT_VERSION}}{{.TAG_EXT}}"
+      fi
+  REGISTRY: '{{.REGISTRY | default "docker.io"}}'
+  FULL_IMAGE: "{{.REGISTRY}}/{{.CONFIGPKG}}:{{.TAG}}"
+  SED:
+    sh: if [ "$(uname -s)" = "Darwin" ]; then echo "gsed"; else echo "sed"; fi
+  GREP:
+    sh: if [ "$(uname -s)" = "Darwin" ]; then echo "ggrep"; else echo "grep"; fi
+
+env:
+  CPSYS: "{{.CPSYS}}"
+  PACKAGE: "{{.PACKAGE}}"
+  CONFIGPKG: "{{.CONFIGPKG}}"
+  VERSION: "{{.TAG}}"
+  TESTNS: "{{.TESTNS}}"
+  BEBASEIMAGE: "{{.BEBASEIMAGE}}"
+  BEBASEIMAGEVERSION: "{{.BEBASEIMAGEVERSION}}"
+  UIBASEIMAGE: "{{.UIBASEIMAGE}}"
+  UIBASEIMAGEVERSION: "{{.UIBASEIMAGEVERSION}}"
+  SED: "{{.SED}}"
+  GREP: "{{.GREP}}"
+
+tasks:
+
+  info:
+    desc: Display build information
+    cmds:
+      - |
+        echo "======================================"
+        echo "Platform-ref-grapple Build Info"
+        echo "======================================"
+        echo "Version: {{.CURRENT_VERSION}}"
+        echo "Stage: {{.STAGE}}"
+        echo "Tag: {{.TAG}}"
+        echo "Package: {{.CONFIGPKG}}:{{.TAG}}"
+        echo "Loopback Image: {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}}"
+        echo "======================================"
+
+  check-loopback-image:
+    desc: Check if loopback image is present in local docker registry
+    cmds:
+      - |
+        echo "Checking if loopback image {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} is present..."
+        if docker image inspect {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} >/dev/null 2>&1; then
+          echo "✓ Loopback image {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} is present"
+        else
+          echo "✗ Loopback image {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} is NOT present"
+          echo "ERROR: The loopback image must be present before running createCRDS.sh"
+          echo "       Otherwise, all CRDs will be deleted!"
+          exit 1
+        fi
+
+  pull-loopback-image:
+    desc: Pull the loopback image from registry
+    cmds:
+      - |
+        echo "Pulling loopback image {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}}..."
+        docker pull {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}}
+        if [ $? -eq 0 ]; then
+          echo "✓ Successfully pulled loopback image"
+        else
+          echo "✗ Failed to pull loopback image"
+          echo "ERROR: Cannot proceed without the loopback image"
+          exit 1
+        fi
+
+  pull-ui-image:
+    desc: Pull the UI (gruim) image from registry
+    cmds:
+      - |
+        echo "Pulling UI image {{.UIBASEIMAGE}}:{{.UIBASEIMAGEVERSION}}..."
+        docker pull {{.UIBASEIMAGE}}:{{.UIBASEIMAGEVERSION}}
+        if [ $? -eq 0 ]; then
+          echo "✓ Successfully pulled UI image"
+        else
+          echo "✗ Failed to pull UI image"
+          echo "ERROR: Cannot proceed without the UI image"
+          exit 1
+        fi
+
+  ensure-loopback-image:
+    desc: Ensure loopback image is available (check first, pull if needed)
+    cmds:
+      - |
+        echo "Ensuring loopback image {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} is available..."
+        if docker image inspect {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} >/dev/null 2>&1; then
+          echo "✓ Loopback image is already present"
+        else
+          echo "Loopback image not found locally, pulling from registry..."
+          task pull-loopback-image
+        fi
+
+  ensure-ui-image:
+    desc: Ensure UI image is available (check first, pull if needed)
+    cmds:
+      - |
+        echo "Ensuring UI image {{.UIBASEIMAGE}}:{{.UIBASEIMAGEVERSION}} is available..."
+        if docker image inspect {{.UIBASEIMAGE}}:{{.UIBASEIMAGEVERSION}} >/dev/null 2>&1; then
+          echo "✓ UI image is already present"
+        else
+          echo "UI image not found locally, pulling from registry..."
+          task pull-ui-image
+        fi
+
+  ensure-images:
+    desc: Ensure all required images (loopback and UI) are available
+    cmds:
+      - task: ensure-loopback-image
+      - task: ensure-ui-image
+
+  create-crds:
+    desc: Create CRDs from loopback image (DANGEROUS - requires image to be present!)
+    deps: [ensure-images]
+    cmds:
+      - |
+        echo "Creating CRDs from loopback image..."
+        
+        # Check if yq is installed
+        if ! command -v yq >/dev/null 2>&1; then
+          echo "yq not found, installing..."
+          sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
+          sudo chmod +x /usr/bin/yq
+        fi
+        
+        echo "----"
+        echo "Extending CRD for DataSources"
+        
+        # Extract connectors.json from loopback image
+        docker run --rm {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} cat /usr/local/lib/node_modules/\@loopback/cli/lib/connectors.json > connectors.json
+        
+        BASELOCATIONDS=".spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.datasources.items"
+        dstypes=("mysql" "postgresql" "kv-redis" "kv-memory" "memory")
+        yq -i "del(${BASELOCATIONDS}.properties.spec.properties.*)" grapi/definition.yaml
+        
+        for z in ${dstypes[@]}; do
+          dstype=$z
+          echo "Extending CRD for datasource type: $dstype"
+          desc="Please specify the specs for datasource type ${dstype}"
+          yq -i "${BASELOCATIONDS}.properties.spec.properties += {\"${dstype}\": { \"description\": \"${desc}\", \"type\": \"object\", \"properties\": {} } }" grapi/definition.yaml
+          
+          setting="name"
+          desc="Please provide a name for the datasource"
+          type="string"
+          yq -i "${BASELOCATIONDS}.properties.spec.properties.${dstype}.properties += {\"${setting}\": { \"description\": \"${desc}\", \"type\": \"${type}\" } }" grapi/definition.yaml
+          
+          setting="connector"
+          desc="Please provide the connector type for the datasource - Default: ${dstype}"
+          type="string"
+          yq -i "${BASELOCATIONDS}.properties.spec.properties.${dstype}.properties += {\"${setting}\": { \"description\": \"${desc}\", \"type\": \"${type}\", \"default\": \"${dstype}\" } }" grapi/definition.yaml
+          
+          cat connectors.json | jq -r ".\"${dstype}\".settings | keys[]" | while read -r setting; do
+            desc="Spec for ${setting} for datasource ${dstype}"
+            type="string"
+            yq -i "${BASELOCATIONDS}.properties.spec.properties.${dstype}.properties += {\"${setting}\": { \"description\": \"${desc}\", \"type\": \"${type}\" } }" grapi/definition.yaml
+          done
+        done
+        
+        rm connectors.json
+        
+        echo "----"
+        BASELOCATION=".spec.versions[0].schema.openAPIV3Schema.properties.spec.properties"
+        
+        clis=("discover" "controller" "model" "repository" "rest-crud" "service" "openapi" "relation")
+        crds=("discoveries" "controllers" "models" "repositories" "restcruds" "services" "openapis" "relations")
+        c=0
+        
+        for z in ${clis[@]}; do
+          echo "---"
+          cli=$z
+          crd=${crds[${c}]}
+          echo "Extending CRD for $crd"
+          echo "cli: $cli"
+          echo "crd: $crd"
+          
+          docker run --rm {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} cat /usr/local/lib/node_modules/\@loopback/cli/generators/${cli}/index.js > ${cli}.js
+          yq -i "del(${BASELOCATION}.${crd}.items.properties.spec.properties.*)" grapi/definition.yaml
+          
+          for i in $({{.GREP}} "this.option(" ${cli}.js | {{.SED}} "s,this.option(',," | {{.SED}} "s,'\, {.*,,g" | tr -d '\r'); do
+            name=$i
+            type=$({{.GREP}} "this.option(.*${name}" -A6 ${cli}.js | {{.GREP}} -m1 "type:" | {{.SED}} "s,^.*type: ,,g" | {{.SED}} "s|,.*||g" | {{.SED}} "s|}.*||g" | tr '[:upper:]' '[:lower:]')
+            desc=$({{.GREP}} "this.option(.*${name}" -A6 ${cli}.js | {{.GREP}} -m1 -A2 "description:" | {{.SED}} "s,^.*description: g.f(,,g" | {{.GREP}} -o "'.*'" | head -n 1 | {{.SED}} "s,',,g")
+            echo "Patching: $name --- $type"
+            yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${desc}\", \"type\": \"${type}\" } }" grapi/definition.yaml
+          done
+          
+          if [ "${crd}" = "discoveries" ]; then
+            name=disableCamelCase
+            type=boolean
+            echo "Patching: $name --- $type"
+            yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${name}\", \"type\": \"${type}\" } }" grapi/definition.yaml
+          fi
+          
+          if [ "${crd}" = "models" ]; then
+            name=name
+            type=string
+            echo "Patching: $name --- $type"
+            yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${name}\", \"type\": \"${type}\" } }" grapi/definition.yaml
+            
+            name=properties
+            type=object
+            echo "Patching: $name --- $type"
+            yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${name}\", \"type\": \"${type}\" } }" grapi/definition.yaml
+            yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties.properties.additionalProperties += {\"type\": \"object\" }" grapi/definition.yaml
+            
+            {{.GREP}} "  name:" ${cli}.js | while read -r line ; do
+              if [[ "$line" != *"name: \`Entity"* ]] && [[ "$line" != *"name: 'modelBaseClass"* ]] && [[ "$line" != *"name: 'allowAdditionalProperties"* ]]; then
+                n=$(echo $line | sed 's,name:,,g' | sed -e 's/[^[:alnum:]|-]//g')
+                if [ "$n" = "propName" ]; then
+                  t=string
+                elif [ "$n" = "default" ]; then
+                  t=string
+                else
+                  t=$({{.GREP}} "$line" ${cli}.js -A5 | grep "type: " | sed 's,type:,,g' | sed -e 's/[^[:alnum:]|-]//g')
+                  if [ "$t" = "list" ]; then t=string; fi
+                  if [ "$t" = "confirm" ]; then t=boolean; fi
+                fi
+                
+                if [ "$n" != "propName" ]; then
+                  echo "Patching: $n --- $t"
+                  case $n in
+                    "type")
+                      d="Please define the type of the field (e.g. 'string', 'array', 'number')"
+                      ;;
+                    "required")
+                      d="Please define whether the field is required (boolean, e.g. true / false) (if the field is generated, it is NOT required)"
+                      ;;
+                    "id")
+                      d="Please define if the field is an ID (unique identifier for this model)"
+                      ;;
+                    "default")
+                      d="Please define the default value for the field (e.g. 'myvalue')"
+                      ;;
+                    "generated")
+                      d="Please define, if the field is autogenerated by the underlying system (e.g. database) (boolean, e.g. true / false) (false, if defaultFn is defined)"
+                      ;;
+                    "itemType")
+                      d="Please define the type of the item if type = array (e.g. 'string', 'number')"
+                      ;;
+                    *)
+                      d=${n}
+                      ;;
+                  esac
+                  yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties.properties.additionalProperties.properties += {\"${n}\": { \"description\": \"${d}\", \"type\": \"${t}\" } }" grapi/definition.yaml
+                fi
+              fi
+            done
+            
+            # Add length field
+            name=length
+            type=string
+            description="Please define the length of the field (e.g. 20 (for 20 characters))"
+            echo "Patching: $name --- $type"
+            yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties.properties.additionalProperties.properties += {\"${name}\": { \"description\": \"${description}\", \"type\": \"${type}\" } }" grapi/definition.yaml
+            
+            # Add defaultFn field
+            name=defaultFn
+            type=string
+            description="Please define the default function for the field (e.g. 'uuid' (for ID string fields), 'now' (for date fields))"
+            echo "Patching: $name --- $type"
+            yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties.properties.additionalProperties.properties += {\"${name}\": { \"description\": \"${description}\", \"type\": \"${type}\" } }" grapi/definition.yaml
+          fi
+          
+          rm ${z}.js
+          ((c++))
+        done
+        
+        # Extend CRD for CACHECONFIGS
+        echo "----"
+        echo "Extending CRD for CACHECONFIGS"
+        crd=cacheconfigs
+        BASELOCATION=".spec.versions[0].schema.openAPIV3Schema.properties.spec.properties"
+        yq -i "del(${BASELOCATION}.${crd}.items.properties.spec.properties.*)" grapi/definition.yaml
+        
+        name="redisDS"
+        desc="Please specify here the name of the cache datasource (kv-redis datasource) to be used as cache storage"
+        type="string"
+        echo "Patching: $name --- $type"
+        yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${desc}\", \"type\": \"${type}\" } }" grapi/definition.yaml
+        
+        name="cacheTTL"
+        desc="Please specify here the cache TTL for the cache storage in seconds\nexample:\n60000"
+        type="integer"
+        echo "Patching: $name --- $type"
+        yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${desc}\", \"type\": \"${type}\" } }" grapi/definition.yaml
+        
+        name="openApis"
+        desc="Please specify here the name of the openapi specification that shall be cached\nOnly specify a reference to the name of the openapi resource in the grapi (grapple API)"
+        type="string"
+        echo "Patching: $name --- $type"
+        yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${desc}\", \"type\": \"${type}\" } }" grapi/definition.yaml
+        
+        name="exclude"
+        desc="Please specify here, which endpoints shall be excluded from the cache\nexample:\n*:employees/*"
+        type="string"
+        echo "Patching: $name --- $type"
+        yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${desc}\", \"type\": \"${type}\" } }" grapi/definition.yaml
+        
+        name="include"
+        desc="Please specify here, which endpoints shall be included in the cache\nexample:\n*:customers/*\nif specified, everything else is excluded."
+        type="string"
+        echo "Patching: $name --- $type"
+        yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${desc}\", \"type\": \"${type}\" } }" grapi/definition.yaml
+        
+        # Extend CRD for Fuzzy Search
+        echo "----"
+        echo "Extending CRD for fuzzysearch"
+        crd=fuzzysearch
+        BASELOCATION=".spec.versions[0].schema.openAPIV3Schema.properties.spec.properties"
+        yq -i "del(${BASELOCATION}.${crd}.items.properties.spec.properties.*)" grapi/definition.yaml
+        
+        name="fuzzy"
+        desc="Please specify here if a fuzzy search should be made available for each endpoint"
+        type="boolean"
+        default="true"
+        echo "Patching: $name --- $type"
+        yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${desc}\", \"type\": \"${type}\" , \"default\": ${default} } }" grapi/definition.yaml
+        
+        name="centralFuzzy"
+        desc="Please specify here if a central fuzzy endpoint over all endpoints shall be made available"
+        type="boolean"
+        default="false"
+        echo "Patching: $name --- $type"
+        yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${desc}\", \"type\": \"${type}\" , \"default\": ${default} } }" grapi/definition.yaml
+        
+        name="datasource"
+        desc="Please specify here the name of the datasource for which\nthe fuzzy search endpoint shall be generated\nSpecify only the name of the datasource as a reference"
+        type="string"
+        echo "Patching: $name --- $type"
+        yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${desc}\", \"type\": \"${type}\" } }" grapi/definition.yaml
+        
+        name="appName"
+        desc="Please specify here the application name for the fuzzy endpoint"
+        type="string"
+        echo "Patching: $name --- $type"
+        yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${desc}\", \"type\": \"${type}\" } }" grapi/definition.yaml
+        
+        name="include"
+        desc="Please specify here includes for the fuzzy endpoint\nexample:\n*:customers/*"
+        type="string"
+        echo "Patching: $name --- $type"
+        yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${desc}\", \"type\": \"${type}\" } }" grapi/definition.yaml
+        
+        name="exclude"
+        desc="Please specify here excludes for the fuzzy endpoint\nexample:\n*:employees/*"
+        type="string"
+        echo "Patching: $name --- $type"
+        yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${desc}\", \"type\": \"${type}\" } }" grapi/definition.yaml
+        
+        echo "✓ CRDs created successfully"
+
+  cleanup-build:
+    desc: Clean up previous build artifacts
+    cmds:
+      - |
+        echo "Cleaning up previous builds..."
+        rm -rf target 2>/dev/null || true
+        mkdir -p target 2>/dev/null || true
+        echo "✓ Cleanup complete"
+
+  update-image-versions:
+    desc: Update image versions in compositions
+    cmds:
+      - |
+        echo "Updating image versions in compositions..."
+        SPACER=""
+        if [ "$(uname -s)" = "Darwin" ]; then 
+          SPACER=" '' "
+        fi
+        
+        {{.SED}} -i ${SPACER} "s,beimage:.*,beimage: {{.BEBASEIMAGE}},g" grapi/composition.yaml
+        {{.SED}} -i ${SPACER} "s,beimagetag:.*,beimagetag: {{.BEBASEIMAGEVERSION}},g" grapi/composition.yaml
+        {{.SED}} -i ${SPACER} "s,uiimage:.*,uiimage: {{.UIBASEIMAGE}},g" gruim/composition.yaml
+        {{.SED}} -i ${SPACER} "s,uiimagetag:.*,uiimagetag: {{.UIBASEIMAGEVERSION}},g" gruim/composition.yaml
+        
+        if [ "$(uname -s)" = "Darwin" ]; then 
+          rm -f grapi/composition.yaml'' 2>/dev/null || true
+          rm -f gruim/composition.yaml'' 2>/dev/null || true
+        fi
+        echo "✓ Image versions updated"
+
+  build-package:
+    desc: Build the crossplane package
+    cmds:
+      - |
+        echo "Building crossplane package..."
+        kubectl crossplane build configuration \
+          --name={{.PACKAGE}} \
+          --ignore=".gitpod.yml,examples/*,hack/*,.github/*/*,target/*,*.sh,cluster/*,cluster/*/*,network/*,test/*,test/*/*,grsf/*"
+        
+        if [ $? -eq 0 ]; then
+          mv {{.PACKAGE}} ./target/
+          echo "✓ Package built successfully: target/{{.PACKAGE}}"
+        else
+          echo "✗ Failed to build package"
+          exit 1
+        fi
+
+  build:
+    desc: Full build process (create CRDs, update versions, build package)
+    cmds:
+      - task: info
+      - task: cleanup-build
+      - task: create-crds
+      - task: update-image-versions
+      - task: build-package
+      - |
+        echo ""
+        echo "======================================"
+        echo "✓ Build completed successfully!"
+        echo "Package: target/{{.PACKAGE}}"
+        echo "Version: {{.TAG}}"
+        echo "======================================"
+
+  publish:
+    desc: Publish the package to the registry
+    deps: [check-version-exists]
+    cmds:
+      - |
+        echo "Publishing package {{.CONFIGPKG}}:{{.TAG}}..."
+        if [ ! -f "target/{{.PACKAGE}}" ]; then
+          echo "✗ Package not found. Please run 'task build' first."
+          exit 1
+        fi
+        
+        kubectl crossplane push configuration {{.CONFIGPKG}}:{{.TAG}} -f target/{{.PACKAGE}}
+        
+        if [ $? -eq 0 ]; then
+          echo "✓ Package published successfully to {{.CONFIGPKG}}:{{.TAG}}"
+        else
+          echo "✗ Failed to publish package"
+          exit 1
+        fi
+
+  check-version-exists:
+    desc: Check if version already exists in registry (prevent overwriting)
+    cmds:
+      - |
+        if [ "{{.STAGE}}" = "prd" ]; then
+          echo "Checking if version {{.TAG}} already exists..."
+          
+          # Try to pull the package to check if it exists
+          if kubectl crossplane pull {{.CONFIGPKG}}:{{.TAG}} -o /tmp/check-version-$$.xpkg 2>/dev/null; then
+            rm -f /tmp/check-version-$$.xpkg
+            echo "======================================"
+            echo "✗ ERROR: Version {{.TAG}} already exists!"
+            echo "======================================"
+            echo "Publishing this version would overwrite the existing package"
+            echo "and could break production clusters!"
+            echo ""
+            echo "Current version: {{.TAG}}"
+            echo "Please bump the version before publishing."
+            echo "======================================"
+            exit 1
+          else
+            rm -f /tmp/check-version-$$.xpkg 2>/dev/null || true
+            echo "✓ Version {{.TAG}} does not exist yet, safe to publish"
+          fi
+        else
+          echo "Non-production stage ({{.STAGE}}), skipping version check"
+        fi
+
+  test:
+    desc: Run tests
+    cmds:
+      - |
+        echo "Running tests..."
+        echo "Preparing for testing..."
+        kubectl create ns {{.TESTNS}} 2>/dev/null || true
+        
+        echo "Checking all crossplane packages are ready..."
+        for i in $(kubectl get pkg -o name); do 
+          kubectl wait --for=condition=Healthy $i --timeout=300s
+        done
+        
+        echo "Checking XRDs are available..."
+        CRD=grapi && echo "Waiting for ${CRD} to be deployed..." && until kubectl explain ${CRD} >/dev/null 2>&1; do echo -n .; sleep 1; done && echo "${CRD} deployed"
+        CRD=compositegrappleapis && echo "Waiting for ${CRD} to be deployed..." && until kubectl explain ${CRD} >/dev/null 2>&1; do echo -n .; sleep 1; done && echo "${CRD} deployed"
+        CRD=composition/grapi.grsf.grpl.io && echo "Waiting for ${CRD} to be deployed..." && until kubectl get ${CRD} >/dev/null 2>&1; do echo -n .; sleep 1; done && echo "${CRD} deployed"
+        
+        echo "Checking composition is available..."
+        
+        echo "Deploying test cases..."
+        cat <<EOF | kubectl apply -n {{.TESTNS}} -f -
+        apiVersion: grsf.grpl.io/v1alpha1
+        kind: GrappleApi
+        metadata:
+          name: mygrapi
+          namespace: {{.TESTNS}}
+        spec:
+          name: mygrapiid
+        EOF
+        
+        echo "Deploying grapi test cases..."
+        TESTPATH=test/grapi
+        if [ -d "${TESTPATH}" ]; then
+          for i in $(ls ${TESTPATH}/*.yaml 2>/dev/null | sed "s,${TESTPATH}/,,g"); do
+            n=$(echo ${i} | sed "s,.yaml,,g")
+            ns=gat-${n:0:3}
+            kubectl create ns ${ns} 2>/dev/null || true
+            kubectl apply -n ${ns} -f ${TESTPATH}/${i}
+          done
+        fi
+        
+        echo ""
+        echo "Displaying status of packages and XRDs..."
+        kubectl get pkg
+        echo ""
+        kubectl get xrd
+        echo ""
+        echo "----"
+        echo ""
+        kubectl get composition
+        echo ""
+        echo "----"
+        echo ""
+        kubectl get composite
+        kubectl get claim -n {{.TESTNS}}
+        echo ""
+        echo "----"
+        echo ""
+        echo "Displaying status of test case..."
+        kubectl get grapi,all -n {{.TESTNS}}
+        
+        echo "✓ Tests completed"
+
+  deploy:
+    desc: Deploy/install the configuration package to cluster
+    cmds:
+      - |
+        echo "Deploying configuration to cluster..."
+        echo "Note: deploy.sh is mostly commented out. Using direct installation instead."
+        
+        if [ ! -f "target/{{.PACKAGE}}" ]; then
+          echo "Package not found. Building first..."
+          task build
+        fi
+        
+        echo "Installing configuration package..."
+        kubectl crossplane install configuration {{.CONFIGPKG}}:{{.TAG}}
+        
+        echo "Waiting for package to become healthy..."
+        kubectl wait --for=condition=Healthy configuration.pkg.crossplane.io/{{.CONFIGPKG}} --timeout=300s 2>/dev/null || true
+        
+        echo "✓ Deployment initiated"
+        echo ""
+        echo "To check status, run:"
+        echo "  kubectl get pkg"
+        echo "  kubectl get configuration"
+
+  version-bump:
+    desc: Bump the patch version
+    cmds:
+      - |
+        echo "Current version: {{.CURRENT_VERSION}}"
+        
+        # Split the version into major, minor, and patch components
+        IFS='.' read -r major minor patch <<< "{{.CURRENT_VERSION}}"
+        
+        # Increment the patch version
+        patch=$((patch + 1))
+        
+        # If patch reaches 100, reset to 0 and increment minor version
+        if [ "$patch" -ge 100 ]; then
+          patch=0
+          minor=$((minor + 1))
+        fi
+        
+        # If minor reaches 100, reset to 0 and increment major version
+        if [ "$minor" -ge 100 ]; then
+          minor=0
+          major=$((major + 1))
+        fi
+        
+        NEW_VERSION="${major}.${minor}.${patch}"
+        echo "New version: $NEW_VERSION"
+        echo $NEW_VERSION > {{.VERSION_FILE}}
+        
+        echo "✓ Version bumped from {{.CURRENT_VERSION}} to $NEW_VERSION"
+
+  version-bump-minor:
+    desc: Bump the minor version
+    cmds:
+      - |
+        echo "Current version: {{.CURRENT_VERSION}}"
+        
+        IFS='.' read -r major minor patch <<< "{{.CURRENT_VERSION}}"
+        
+        # Increment minor, reset patch
+        minor=$((minor + 1))
+        patch=0
+        
+        if [ "$minor" -ge 100 ]; then
+          minor=0
+          major=$((major + 1))
+        fi
+        
+        NEW_VERSION="${major}.${minor}.${patch}"
+        echo "New version: $NEW_VERSION"
+        echo $NEW_VERSION > {{.VERSION_FILE}}
+        
+        echo "✓ Version bumped from {{.CURRENT_VERSION}} to $NEW_VERSION"
+
+  version-bump-major:
+    desc: Bump the major version
+    cmds:
+      - |
+        echo "Current version: {{.CURRENT_VERSION}}"
+        
+        IFS='.' read -r major minor patch <<< "{{.CURRENT_VERSION}}"
+        
+        # Increment major, reset minor and patch
+        major=$((major + 1))
+        minor=0
+        patch=0
+        
+        NEW_VERSION="${major}.${minor}.${patch}"
+        echo "New version: $NEW_VERSION"
+        echo $NEW_VERSION > {{.VERSION_FILE}}
+        
+        echo "✓ Version bumped from {{.CURRENT_VERSION}} to $NEW_VERSION"
+
+  build-and-publish:
+    desc: Build and publish in one step
+    cmds:
+      - task: build
+      - task: publish
+
+  ci-pr:
+    desc: CI pipeline for pull requests
+    cmds:
+      - task: info
+      - task: build
+        vars: {STAGE: pr}
+      - |
+        echo "✓ PR build completed successfully"
+
+  ci-develop:
+    desc: CI pipeline for develop branch
+    cmds:
+      - task: info
+      - task: build
+        vars: {STAGE: uat}
+      - task: publish
+        vars: {STAGE: uat}
+      - |
+        echo "✓ Develop build and publish completed successfully"
+
+  ci-main:
+    desc: CI pipeline for main branch
+    cmds:
+      - task: info
+      - task: build
+        vars: {STAGE: prd}
+      - task: publish
+        vars: {STAGE: prd}
+      - |
+        echo "✓ Production build and publish completed successfully"
+
+  install-tools:
+    desc: Install required tools (yq, etc.)
+    cmds:
+      - |
+        echo "Checking for required tools..."
+        
+        # Check yq
+        if ! command -v yq >/dev/null 2>&1; then
+          echo "Installing yq..."
+          sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
+          sudo chmod +x /usr/bin/yq
+          echo "✓ yq installed"
+        else
+          echo "✓ yq is already installed"
+        fi
+        
+        # Check kubectl crossplane plugin
+        if ! kubectl crossplane version >/dev/null 2>&1; then
+          echo "Installing kubectl crossplane plugin..."
+          curl -sL https://raw.githubusercontent.com/crossplane/crossplane/master/install.sh | sh
+          sudo cp kubectl-crossplane /usr/local/bin/
+          echo "✓ kubectl crossplane plugin installed"
+        else
+          echo "✓ kubectl crossplane plugin is already installed"
+        fi
+
+  clean:
+    desc: Clean all build artifacts and generated files
+    cmds:
+      - |
+        echo "Cleaning all build artifacts..."
+        rm -rf target 2>/dev/null || true
+        rm -f *.xpkg 2>/dev/null || true
+        rm -f access-key secret-access-key 2>/dev/null || true
+        echo "✓ Clean complete"
+

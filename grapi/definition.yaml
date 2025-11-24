@@ -228,7 +228,7 @@ spec:
                 beimagetag:
                   description: |
                     Please specify here the image tag for the grapi (grapple API) base image.
-                    (Default: "0.2.8")
+                    (Default: "0.3.0")
                   type: string
                 autoscaling:
                   description: |

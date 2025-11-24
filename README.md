@@ -18,6 +18,64 @@ These platform APIs are composed using the following Crossplane providers:
 App deployments can securely connect to the infrastructure they need using secrets distributed
 directly to the app namespace.
 
+## 🚀 Automated Pipeline
+
+This repository includes an automated build and publish pipeline using **GitHub Actions** and **Taskfile**.
+
+### Pipeline Overview
+
+**One unified workflow** handles both PRs and branch pushes:
+
+- **Pull Requests → feature/grapi**: Build and validate (no publish)
+- **Push → feature/grapi**: Build and publish to registry
+
+### Key Features
+
+✅ **Automated CRD Generation** - Dynamically generates CRDs from grapi loopback and gruim UI images  
+✅ **Safety Mechanisms** - Ensures required images exist before CRD generation  
+✅ **Automatic Publishing** - Publishes on merge to feature/grapi  
+✅ **Version Management** - Semantic versioning in `version.txt`
+✅ **All-in-One** - All logic consolidated in Taskfile (no separate scripts needed)
+
+### Local Development
+
+```bash
+# Install Task runner
+brew install go-task/tap/go-task  # macOS
+# or: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b ~/.local/bin
+
+# Install required tools
+task install-tools
+
+# Build locally
+task build
+
+# See all available tasks
+task --list
+```
+
+### Quick Commands
+
+```bash
+task info              # Display build information
+task build             # Full build (CRDs + package)
+task publish           # Publish to registry
+task test              # Run tests
+task version-bump      # Bump version
+task clean             # Clean artifacts
+```
+
+### Current Version
+
+**Version**: `0.3.0` (see `version.txt`)
+
+**Note**: Versions `0.2.x` are reserved for the legacy system. Never publish versions ≤ `0.2.8`!
+
+### GitHub Secrets Required
+
+- `DOCKER_USERNAME` - Docker Hub username
+- `DOCKER_PASSWORD` - Docker Hub password/token
+
 ## Quick Start
 
 ### Platform Ops/SRE: Run your own internal cloud platform

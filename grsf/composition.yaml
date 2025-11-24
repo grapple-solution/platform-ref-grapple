@@ -22,7 +22,7 @@ spec:
             chart:
               name: grsf
               repository: oci://public.ecr.aws/p7h7z5g3
-              version: 0.2.8
+              version: 0.3.0
             namespace: # patched
             values:
               clusterdomain: # patched
@@ -65,7 +65,7 @@ spec:
             chart:
               name: grsf-config
               repository: oci://public.ecr.aws/p7h7z5g3
-              version: 0.2.8
+              version: 0.3.0
             wait: true
             namespace: # patched
             values:
