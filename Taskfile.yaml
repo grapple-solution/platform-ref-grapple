@@ -722,14 +722,16 @@ tasks:
         fi
         
         # Check kubectl crossplane plugin
-        if ! kubectl crossplane version >/dev/null 2>&1; then
+        if ! command -v crossplane >/dev/null 2>&1; then
           echo "Installing kubectl crossplane plugin..."
           curl -sL https://raw.githubusercontent.com/crossplane/crossplane/master/install.sh | sh
-          sudo mv crossplane /usr/local/bin/kubectl-crossplane
-          sudo chmod +x /usr/local/bin/kubectl-crossplane
-          echo "kubectl crossplane plugin installed"
+          sudo mv crossplane /usr/local/bin/crossplane
+          sudo chmod +x /usr/local/bin/crossplane
+          # Create kubectl plugin symlink
+          sudo ln -sf /usr/local/bin/crossplane /usr/local/bin/kubectl-crossplane
+          echo "crossplane CLI installed"
         else
-          echo "kubectl crossplane plugin is already installed"
+          echo "crossplane CLI is already installed"
         fi
 
   clean:
