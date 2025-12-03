@@ -53,16 +53,16 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             echo "stage=pr" >> $GITHUB_OUTPUT
-            echo "should_publish=false" >> $GITHUB_OUTPUT
-            echo "Building for Pull Request"
+            echo "should_publish=true" >> $GITHUB_OUTPUT
+            echo "Building and publishing for Pull Request"
           elif [ "${{ github.event_name }}" == "push" ]; then
             echo "stage=prd" >> $GITHUB_OUTPUT
             echo "should_publish=true" >> $GITHUB_OUTPUT
             echo "Building for feature/grapi branch (will publish)"
           else
             echo "stage=dev" >> $GITHUB_OUTPUT
-            echo "should_publish=false" >> $GITHUB_OUTPUT
-            echo "Manual workflow dispatch"
+            echo "should_publish=true" >> $GITHUB_OUTPUT
+            echo "Manual workflow dispatch (will publish)"
           fi
 
       - name: Display build info

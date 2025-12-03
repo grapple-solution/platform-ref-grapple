@@ -497,10 +497,17 @@ tasks:
           exit 1
         fi
         
-        crossplane xpkg push {{.CONFIGPKG}}:{{.TAG}} -f target/{{.PACKAGE}}
+        # Login to Docker Hub for crossplane xpkg push (uses DOCKER_USERNAME and DOCKER_PASSWORD env vars)
+        if [ -n "$DOCKER_USERNAME" ] && [ -n "$DOCKER_PASSWORD" ]; then
+          echo "Logging in to Docker Hub..."
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        fi
+        
+        echo "Pushing package to docker.io/{{.CONFIGPKG}}:{{.TAG}}..."
+        crossplane xpkg push docker.io/{{.CONFIGPKG}}:{{.TAG}} -f target/{{.PACKAGE}}
         
         if [ $? -eq 0 ]; then
-          echo "[OK] Package published successfully to {{.CONFIGPKG}}:{{.TAG}}"
+          echo "[OK] Package published successfully to docker.io/{{.CONFIGPKG}}:{{.TAG}}"
         else
           echo "[ERROR] Failed to publish package"
           exit 1
@@ -513,8 +520,8 @@ tasks:
         if [ "{{.STAGE}}" = "prd" ]; then
           echo "Checking if version {{.TAG}} already exists..."
           
-          # Try to pull the package to check if it exists
-          if kubectl crossplane pull {{.CONFIGPKG}}:{{.TAG}} -o /tmp/check-version-$$.xpkg 2>/dev/null; then
+          # Try to extract/pull the package to check if it exists
+          if crossplane xpkg extract docker.io/{{.CONFIGPKG}}:{{.TAG}} -o /tmp/check-version-$$.xpkg 2>/dev/null; then
             rm -f /tmp/check-version-$$.xpkg
             echo "======================================"
             echo "[ERROR] ERROR: Version {{.TAG}} already exists!"
