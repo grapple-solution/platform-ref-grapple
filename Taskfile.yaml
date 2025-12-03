@@ -168,7 +168,7 @@ tasks:
         echo "Extending CRD for DataSources"
         
         # Extract connectors.json from loopback image
-        docker run --rm -it {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} cat /usr/local/lib/node_modules/\@loopback/cli/lib/connectors.json > connectors.json
+        docker run --rm {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} cat /usr/local/lib/node_modules/\@loopback/cli/lib/connectors.json > connectors.json
         
         BASELOCATIONDS=".spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.datasources.items"
         dstypes=("mysql" "postgresql" "kv-redis" "kv-memory" "memory")
@@ -215,7 +215,7 @@ tasks:
           echo "cli: $cli"
           echo "crd: $crd"
           
-          docker run --rm -it {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} cat /usr/local/lib/node_modules/\@loopback/cli/generators/${cli}/index.js > ${cli}.js
+          docker run --rm {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} cat /usr/local/lib/node_modules/\@loopback/cli/generators/${cli}/index.js > ${cli}.js
           
           # Try to delete existing properties (may not exist, which is ok)
           yq -i "del(${BASELOCATION}.${crd}.items.properties.spec.properties.*)" grapi/definition.yaml 2>/dev/null || true
