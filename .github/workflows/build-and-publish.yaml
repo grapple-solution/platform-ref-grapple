@@ -113,7 +113,7 @@ jobs:
             TAG="${VERSION}.${STAGE}-${GIT_HASH}"
           fi
           
-          echo "## 🚀 Build Completed" >> $GITHUB_STEP_SUMMARY
+          echo "## Build Completed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Event:** \`${{ github.event_name }}\`" >> $GITHUB_STEP_SUMMARY
           echo "**Stage:** \`${STAGE}\`" >> $GITHUB_STEP_SUMMARY
@@ -123,14 +123,14 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           
           if [ "${{ steps.stage.outputs.should_publish }}" = "true" ]; then
-            echo "✅ Package built and **published** successfully" >> $GITHUB_STEP_SUMMARY
+            echo "Package built and **published** successfully" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "### Install" >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
             echo "kubectl crossplane install configuration grpl/grsf:${TAG}" >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           else
-            echo "✅ Package built successfully (not published for PRs)" >> $GITHUB_STEP_SUMMARY
+            echo "Package built successfully (not published for PRs)" >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: Comment on PR
@@ -143,13 +143,13 @@ jobs:
             const prNumber = context.payload.pull_request.number;
             const tag = `${version}.pr-${prNumber}`;
             
-            const comment = `## 🚀 Build Completed Successfully
+            const comment = `## Build Completed Successfully
             
             **Version:** \`${tag}\`
             **Package:** \`grpl/grsf:${tag}\`
             **Commit:** \`${context.sha.substring(0, 7)}\`
             
-            ✅ Build artifacts are available for download.
+            Build artifacts are available for download.
             
             > **Note:** Packages are built but not published for pull requests.
             > They will be published when merged to \`feature/grapi\` branch.

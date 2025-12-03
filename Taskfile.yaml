@@ -82,9 +82,9 @@ tasks:
       - |
         echo "Checking if loopback image {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} is present..."
         if docker image inspect {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} >/dev/null 2>&1; then
-          echo "✓ Loopback image {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} is present"
+          echo "[OK] Loopback image {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} is present"
         else
-          echo "✗ Loopback image {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} is NOT present"
+          echo "[ERROR] Loopback image {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} is NOT present"
           echo "ERROR: The loopback image must be present before running createCRDS.sh"
           echo "       Otherwise, all CRDs will be deleted!"
           exit 1
@@ -97,9 +97,9 @@ tasks:
         echo "Pulling loopback image {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}}..."
         docker pull {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}}
         if [ $? -eq 0 ]; then
-          echo "✓ Successfully pulled loopback image"
+          echo "[OK] Successfully pulled loopback image"
         else
-          echo "✗ Failed to pull loopback image"
+          echo "[ERROR] Failed to pull loopback image"
           echo "ERROR: Cannot proceed without the loopback image"
           exit 1
         fi
@@ -111,9 +111,9 @@ tasks:
         echo "Pulling UI image {{.UIBASEIMAGE}}:{{.UIBASEIMAGEVERSION}}..."
         docker pull {{.UIBASEIMAGE}}:{{.UIBASEIMAGEVERSION}}
         if [ $? -eq 0 ]; then
-          echo "✓ Successfully pulled UI image"
+          echo "[OK] Successfully pulled UI image"
         else
-          echo "✗ Failed to pull UI image"
+          echo "[ERROR] Failed to pull UI image"
           echo "ERROR: Cannot proceed without the UI image"
           exit 1
         fi
@@ -124,7 +124,7 @@ tasks:
       - |
         echo "Ensuring loopback image {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} is available..."
         if docker image inspect {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} >/dev/null 2>&1; then
-          echo "✓ Loopback image is already present"
+          echo "[OK] Loopback image is already present"
         else
           echo "Loopback image not found locally, pulling from registry..."
           task pull-loopback-image
@@ -136,7 +136,7 @@ tasks:
       - |
         echo "Ensuring UI image {{.UIBASEIMAGE}}:{{.UIBASEIMAGEVERSION}} is available..."
         if docker image inspect {{.UIBASEIMAGE}}:{{.UIBASEIMAGEVERSION}} >/dev/null 2>&1; then
-          echo "✓ UI image is already present"
+          echo "[OK] UI image is already present"
         else
           echo "UI image not found locally, pulling from registry..."
           task pull-ui-image
@@ -386,7 +386,7 @@ tasks:
         echo "Patching: $name --- $type"
         yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${desc}\", \"type\": \"${type}\" } }" grapi/definition.yaml
         
-        echo "✓ CRDs created successfully"
+        echo "[OK] CRDs created successfully"
 
   cleanup-build:
     desc: Clean up previous build artifacts
@@ -395,7 +395,7 @@ tasks:
         echo "Cleaning up previous builds..."
         rm -rf target 2>/dev/null || true
         mkdir -p target 2>/dev/null || true
-        echo "✓ Cleanup complete"
+        echo "[OK] Cleanup complete"
 
   update-image-versions:
     desc: Update image versions in compositions
@@ -416,7 +416,7 @@ tasks:
           rm -f grapi/composition.yaml'' 2>/dev/null || true
           rm -f gruim/composition.yaml'' 2>/dev/null || true
         fi
-        echo "✓ Image versions updated"
+        echo "[OK] Image versions updated"
 
   build-package:
     desc: Build the crossplane package
@@ -429,9 +429,9 @@ tasks:
         
         if [ $? -eq 0 ]; then
           mv {{.PACKAGE}} ./target/
-          echo "✓ Package built successfully: target/{{.PACKAGE}}"
+          echo "[OK] Package built successfully: target/{{.PACKAGE}}"
         else
-          echo "✗ Failed to build package"
+          echo "[ERROR] Failed to build package"
           exit 1
         fi
 
@@ -446,7 +446,7 @@ tasks:
       - |
         echo ""
         echo "======================================"
-        echo "✓ Build completed successfully!"
+        echo "[OK] Build completed successfully!"
         echo "Package: target/{{.PACKAGE}}"
         echo "Version: {{.TAG}}"
         echo "======================================"
@@ -458,16 +458,16 @@ tasks:
       - |
         echo "Publishing package {{.CONFIGPKG}}:{{.TAG}}..."
         if [ ! -f "target/{{.PACKAGE}}" ]; then
-          echo "✗ Package not found. Please run 'task build' first."
+          echo "[ERROR] Package not found. Please run 'task build' first."
           exit 1
         fi
         
         kubectl crossplane push configuration {{.CONFIGPKG}}:{{.TAG}} -f target/{{.PACKAGE}}
         
         if [ $? -eq 0 ]; then
-          echo "✓ Package published successfully to {{.CONFIGPKG}}:{{.TAG}}"
+          echo "[OK] Package published successfully to {{.CONFIGPKG}}:{{.TAG}}"
         else
-          echo "✗ Failed to publish package"
+          echo "[ERROR] Failed to publish package"
           exit 1
         fi
 
@@ -482,7 +482,7 @@ tasks:
           if kubectl crossplane pull {{.CONFIGPKG}}:{{.TAG}} -o /tmp/check-version-$$.xpkg 2>/dev/null; then
             rm -f /tmp/check-version-$$.xpkg
             echo "======================================"
-            echo "✗ ERROR: Version {{.TAG}} already exists!"
+            echo "[ERROR] ERROR: Version {{.TAG}} already exists!"
             echo "======================================"
             echo "Publishing this version would overwrite the existing package"
             echo "and could break production clusters!"
@@ -493,7 +493,7 @@ tasks:
             exit 1
           else
             rm -f /tmp/check-version-$$.xpkg 2>/dev/null || true
-            echo "✓ Version {{.TAG}} does not exist yet, safe to publish"
+            echo "[OK] Version {{.TAG}} does not exist yet, safe to publish"
           fi
         else
           echo "Non-production stage ({{.STAGE}}), skipping version check"
@@ -561,7 +561,7 @@ tasks:
         echo "Displaying status of test case..."
         kubectl get grapi,all -n {{.TESTNS}}
         
-        echo "✓ Tests completed"
+        echo "[OK] Tests completed"
 
   deploy:
     desc: Deploy/install the configuration package to cluster
@@ -581,7 +581,7 @@ tasks:
         echo "Waiting for package to become healthy..."
         kubectl wait --for=condition=Healthy configuration.pkg.crossplane.io/{{.CONFIGPKG}} --timeout=300s 2>/dev/null || true
         
-        echo "✓ Deployment initiated"
+        echo "[OK] Deployment initiated"
         echo ""
         echo "To check status, run:"
         echo "  kubectl get pkg"
@@ -615,7 +615,7 @@ tasks:
         echo "New version: $NEW_VERSION"
         echo $NEW_VERSION > {{.VERSION_FILE}}
         
-        echo "✓ Version bumped from {{.CURRENT_VERSION}} to $NEW_VERSION"
+        echo "[OK] Version bumped from {{.CURRENT_VERSION}} to $NEW_VERSION"
 
   version-bump-minor:
     desc: Bump the minor version
@@ -638,7 +638,7 @@ tasks:
         echo "New version: $NEW_VERSION"
         echo $NEW_VERSION > {{.VERSION_FILE}}
         
-        echo "✓ Version bumped from {{.CURRENT_VERSION}} to $NEW_VERSION"
+        echo "[OK] Version bumped from {{.CURRENT_VERSION}} to $NEW_VERSION"
 
   version-bump-major:
     desc: Bump the major version
@@ -657,7 +657,7 @@ tasks:
         echo "New version: $NEW_VERSION"
         echo $NEW_VERSION > {{.VERSION_FILE}}
         
-        echo "✓ Version bumped from {{.CURRENT_VERSION}} to $NEW_VERSION"
+        echo "[OK] Version bumped from {{.CURRENT_VERSION}} to $NEW_VERSION"
 
   build-and-publish:
     desc: Build and publish in one step
@@ -672,7 +672,7 @@ tasks:
       - task: build
         vars: {STAGE: pr}
       - |
-        echo "✓ PR build completed successfully"
+        echo "[OK] PR build completed successfully"
 
   ci-develop:
     desc: CI pipeline for develop branch
@@ -683,7 +683,7 @@ tasks:
       - task: publish
         vars: {STAGE: uat}
       - |
-        echo "✓ Develop build and publish completed successfully"
+        echo "[OK] Develop build and publish completed successfully"
 
   ci-main:
     desc: CI pipeline for main branch
@@ -694,7 +694,7 @@ tasks:
       - task: publish
         vars: {STAGE: prd}
       - |
-        echo "✓ Production build and publish completed successfully"
+        echo "[OK] Production build and publish completed successfully"
 
   install-tools:
     desc: Install required tools (yq, etc.)
@@ -707,19 +707,20 @@ tasks:
           echo "Installing yq..."
           sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
           sudo chmod +x /usr/bin/yq
-          echo "✓ yq installed"
+          echo "yq installed"
         else
-          echo "✓ yq is already installed"
+          echo "yq is already installed"
         fi
         
         # Check kubectl crossplane plugin
         if ! kubectl crossplane version >/dev/null 2>&1; then
           echo "Installing kubectl crossplane plugin..."
           curl -sL https://raw.githubusercontent.com/crossplane/crossplane/master/install.sh | sh
-          sudo cp kubectl-crossplane /usr/local/bin/
-          echo "✓ kubectl crossplane plugin installed"
+          sudo mv crossplane /usr/local/bin/kubectl-crossplane
+          sudo chmod +x /usr/local/bin/kubectl-crossplane
+          echo "kubectl crossplane plugin installed"
         else
-          echo "✓ kubectl crossplane plugin is already installed"
+          echo "kubectl crossplane plugin is already installed"
         fi
 
   clean:
@@ -730,5 +731,5 @@ tasks:
         rm -rf target 2>/dev/null || true
         rm -f *.xpkg 2>/dev/null || true
         rm -f access-key secret-access-key 2>/dev/null || true
-        echo "✓ Clean complete"
+        echo "[OK] Clean complete"
 
