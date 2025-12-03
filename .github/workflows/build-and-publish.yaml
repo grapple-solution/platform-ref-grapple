@@ -84,12 +84,13 @@ jobs:
           task build STAGE=${{ steps.stage.outputs.stage }}
 
       - name: Publish package
-        if: steps.stage.outputs.should_publish == 'true'
+        if: success() && steps.stage.outputs.should_publish == 'true'
         run: |
           echo "Publishing package for stage: ${{ steps.stage.outputs.stage }}"
           task publish STAGE=${{ steps.stage.outputs.stage }}
 
       - name: Upload build artifacts
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-${{ steps.stage.outputs.stage }}-${{ github.run_number }}
@@ -99,6 +100,7 @@ jobs:
           retention-days: 30
 
       - name: Create build summary
+        if: success()
         run: |
           VERSION=$(cat version.txt)
           GIT_HASH=$(git log -n 1 --format=%h)
@@ -134,7 +136,7 @@ jobs:
           fi
 
       - name: Comment on PR
-        if: github.event_name == 'pull_request'
+        if: success() && github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
@@ -153,6 +155,33 @@ jobs:
             
             > **Note:** Packages are built but not published for pull requests.
             > They will be published when merged to \`feature/grapi\` branch.
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: prNumber,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: Comment on PR failure
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const version = fs.readFileSync('version.txt', 'utf8').trim();
+            const prNumber = context.payload.pull_request.number;
+            const tag = `${version}.pr-${prNumber}`;
+            
+            const comment = `## Build Failed
+            
+            **Version:** \`${tag}\`
+            **Commit:** \`${context.sha.substring(0, 7)}\`
+            
+            The build has failed. Please check the workflow logs for details.
+            
+            [View workflow run](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
             `;
             
             github.rest.issues.createComment({

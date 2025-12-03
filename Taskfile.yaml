@@ -153,6 +153,8 @@ tasks:
     deps: [ensure-images]
     cmds:
       - |
+        set -e  # Exit on any error
+        set -o pipefail  # Exit on pipe failures
         echo "Creating CRDs from loopback image..."
         
         # Check if yq is installed
@@ -217,15 +219,31 @@ tasks:
           echo "cli: $cli"
           echo "crd: $crd"
           
-          docker run --rm {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} cat /usr/local/lib/node_modules/\@loopback/cli/generators/${cli}/index.js > ${cli}.js
-          yq -i "del(${BASELOCATION}.${crd}.items.properties.spec.properties.*)" grapi/definition.yaml
+          docker run --rm {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} cat /usr/local/lib/node_modules/\@loopback/cli/generators/${cli}/index.js > ${cli}.js || {
+            echo "[ERROR] Failed to extract ${cli}.js from loopback image"
+            exit 1
+          }
+          
+          if ! yq -i "del(${BASELOCATION}.${crd}.items.properties.spec.properties.*)" grapi/definition.yaml 2>/dev/null; then
+            echo "[ERROR] Failed to delete existing properties for ${crd}, this might be expected if they don't exist"
+          fi
           
           for i in $({{.GREP}} "this.option(" ${cli}.js | {{.SED}} "s,this.option(',," | {{.SED}} "s,'\, {.*,,g" | tr -d '\r'); do
             name=$i
             type=$({{.GREP}} "this.option(.*${name}" -A6 ${cli}.js | {{.GREP}} -m1 "type:" | {{.SED}} "s,^.*type: ,,g" | {{.SED}} "s|,.*||g" | {{.SED}} "s|}.*||g" | tr '[:upper:]' '[:lower:]')
             desc=$({{.GREP}} "this.option(.*${name}" -A6 ${cli}.js | {{.GREP}} -m1 -A2 "description:" | {{.SED}} "s,^.*description: g.f(,,g" | {{.GREP}} -o "'.*'" | head -n 1 | {{.SED}} "s,',,g")
+            
+            # Skip if name or type is empty
+            if [ -z "$name" ] || [ -z "$type" ]; then
+              echo "Skipping invalid field: name='$name', type='$type'"
+              continue
+            fi
+            
             echo "Patching: $name --- $type"
-            yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${desc}\", \"type\": \"${type}\" } }" grapi/definition.yaml
+            if ! yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${desc}\", \"type\": \"${type}\" } }" grapi/definition.yaml; then
+              echo "[ERROR] Failed to patch field: $name"
+              exit 1
+            fi
           done
           
           if [ "${crd}" = "discoveries" ]; then
@@ -239,13 +257,22 @@ tasks:
             name=name
             type=string
             echo "Patching: $name --- $type"
-            yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${name}\", \"type\": \"${type}\" } }" grapi/definition.yaml
+            if ! yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${name}\", \"type\": \"${type}\" } }" grapi/definition.yaml; then
+              echo "[ERROR] Failed to patch model name field"
+              exit 1
+            fi
             
             name=properties
             type=object
             echo "Patching: $name --- $type"
-            yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${name}\", \"type\": \"${type}\" } }" grapi/definition.yaml
-            yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties.properties.additionalProperties += {\"type\": \"object\" }" grapi/definition.yaml
+            if ! yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${name}\", \"type\": \"${type}\" } }" grapi/definition.yaml; then
+              echo "[ERROR] Failed to patch model properties field"
+              exit 1
+            fi
+            if ! yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties.properties.additionalProperties += {\"type\": \"object\" }" grapi/definition.yaml; then
+              echo "[ERROR] Failed to set additionalProperties for model properties"
+              exit 1
+            fi
             
             {{.GREP}} "  name:" ${cli}.js | while read -r line ; do
               if [[ "$line" != *"name: \`Entity"* ]] && [[ "$line" != *"name: 'modelBaseClass"* ]] && [[ "$line" != *"name: 'allowAdditionalProperties"* ]]; then
@@ -285,7 +312,10 @@ tasks:
                       d=${n}
                       ;;
                   esac
-                  yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties.properties.additionalProperties.properties += {\"${n}\": { \"description\": \"${d}\", \"type\": \"${t}\" } }" grapi/definition.yaml
+                  if ! yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties.properties.additionalProperties.properties += {\"${n}\": { \"description\": \"${d}\", \"type\": \"${t}\" } }" grapi/definition.yaml; then
+                    echo "[ERROR] Failed to patch property: $n"
+                    exit 1
+                  fi
                 fi
               fi
             done
