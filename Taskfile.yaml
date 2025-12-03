@@ -431,7 +431,7 @@ tasks:
     cmds:
       - |
         echo "Building crossplane package..."
-        kubectl crossplane xpkg build \
+        crossplane xpkg build \
           --package-root=. \
           --package-file={{.PACKAGE}} \
           --ignore=".gitpod.yml,examples/*,hack/*,.github/*/*,target/*,*.sh,cluster/*,cluster/*/*,network/*,test/*,test/*/*,grsf/*"
@@ -471,7 +471,7 @@ tasks:
           exit 1
         fi
         
-        kubectl crossplane xpkg push {{.CONFIGPKG}}:{{.TAG}} -f target/{{.PACKAGE}}
+        crossplane xpkg push {{.CONFIGPKG}}:{{.TAG}} -f target/{{.PACKAGE}}
         
         if [ $? -eq 0 ]; then
           echo "[OK] Package published successfully to {{.CONFIGPKG}}:{{.TAG}}"
@@ -585,7 +585,7 @@ tasks:
         fi
         
         echo "Installing configuration package..."
-        kubectl crossplane xpkg install configuration {{.CONFIGPKG}}:{{.TAG}}
+        crossplane xpkg install configuration {{.CONFIGPKG}}:{{.TAG}}
         
         echo "Waiting for package to become healthy..."
         kubectl wait --for=condition=Healthy configuration.pkg.crossplane.io/{{.CONFIGPKG}} --timeout=300s 2>/dev/null || true
