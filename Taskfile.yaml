@@ -497,10 +497,20 @@ tasks:
           exit 1
         fi
         
-        # Login to Docker Hub for crossplane xpkg push (uses DOCKER_USERNAME and DOCKER_PASSWORD env vars)
+        # Setup Docker credentials for crossplane xpkg push
         if [ -n "$DOCKER_USERNAME" ] && [ -n "$DOCKER_PASSWORD" ]; then
-          echo "Logging in to Docker Hub..."
-          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          echo "Setting up Docker Hub credentials..."
+          
+          # Create docker config directory
+          mkdir -p ~/.docker
+          
+          # Create auth token (base64 encoded username:password)
+          AUTH_TOKEN=$(echo -n "${DOCKER_USERNAME}:${DOCKER_PASSWORD}" | base64 | tr -d '\n')
+          
+          # Create docker config.json with credentials for docker.io endpoints
+          echo "{\"auths\":{\"https://index.docker.io/v1/\":{\"auth\":\"${AUTH_TOKEN}\"},\"index.docker.io\":{\"auth\":\"${AUTH_TOKEN}\"},\"docker.io\":{\"auth\":\"${AUTH_TOKEN}\"}}}" > ~/.docker/config.json
+          
+          echo "Docker credentials configured"
         fi
         
         echo "Pushing package to docker.io/{{.CONFIGPKG}}:{{.TAG}}..."
