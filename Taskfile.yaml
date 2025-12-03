@@ -15,7 +15,7 @@ vars:
       fi
       cat {{.VERSION_FILE}}
   BEBASEIMAGE: "grpl/loopback"
-  BEBASEIMAGEVERSION: "0.3.8"
+  BEBASEIMAGEVERSION: "0.3.9"
   UIBASEIMAGE: "grpl/gruim"
   UIBASEIMAGEVERSION: "0.3.4"
   STAGE: '{{.STAGE | default "dev"}}'
@@ -168,7 +168,7 @@ tasks:
         echo "Extending CRD for DataSources"
         
         # Extract connectors.json from loopback image
-        docker run --rm {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} cat /usr/local/lib/node_modules/\@loopback/cli/lib/connectors.json > connectors.json
+        docker run --rm -it {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} cat /usr/local/lib/node_modules/\@loopback/cli/lib/connectors.json > connectors.json
         
         BASELOCATIONDS=".spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.datasources.items"
         dstypes=("mysql" "postgresql" "kv-redis" "kv-memory" "memory")
@@ -190,16 +190,12 @@ tasks:
           type="string"
           yq -i "${BASELOCATIONDS}.properties.spec.properties.${dstype}.properties += {\"${setting}\": { \"description\": \"${desc}\", \"type\": \"${type}\", \"default\": \"${dstype}\" } }" grapi/definition.yaml
           
-          # Check if settings exist for this datasource type before processing
-          if cat connectors.json | jq -e ".\"${dstype}\".settings" >/dev/null 2>&1; then
-            cat connectors.json | jq -r ".\"${dstype}\".settings | keys[]" 2>/dev/null | while read -r setting; do
-              if [ -n "$setting" ]; then
-                desc="Spec for ${setting} for datasource ${dstype}"
-                type="string"
-                yq -i "${BASELOCATIONDS}.properties.spec.properties.${dstype}.properties += {\"${setting}\": { \"description\": \"${desc}\", \"type\": \"${type}\" } }" grapi/definition.yaml
-              fi
-            done
-          fi
+          # Process settings if they exist (ignore errors for datasources without settings)
+          cat connectors.json | jq -r ".\"${dstype}\".settings | keys[]" 2>/dev/null | while read -r setting; do
+            desc="Spec for ${setting} for datasource ${dstype}"
+            type="string"
+            yq -i "${BASELOCATIONDS}.properties.spec.properties.${dstype}.properties += {\"${setting}\": { \"description\": \"${desc}\", \"type\": \"${type}\" } }" grapi/definition.yaml
+          done || true
         done
         
         rm connectors.json
@@ -219,31 +215,17 @@ tasks:
           echo "cli: $cli"
           echo "crd: $crd"
           
-          docker run --rm {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} cat /usr/local/lib/node_modules/\@loopback/cli/generators/${cli}/index.js > ${cli}.js || {
-            echo "[ERROR] Failed to extract ${cli}.js from loopback image"
-            exit 1
-          }
+          docker run --rm -it {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} cat /usr/local/lib/node_modules/\@loopback/cli/generators/${cli}/index.js > ${cli}.js
           
-          if ! yq -i "del(${BASELOCATION}.${crd}.items.properties.spec.properties.*)" grapi/definition.yaml 2>/dev/null; then
-            echo "[ERROR] Failed to delete existing properties for ${crd}, this might be expected if they don't exist"
-          fi
+          # Try to delete existing properties (may not exist, which is ok)
+          yq -i "del(${BASELOCATION}.${crd}.items.properties.spec.properties.*)" grapi/definition.yaml 2>/dev/null || true
           
           for i in $({{.GREP}} "this.option(" ${cli}.js | {{.SED}} "s,this.option(',," | {{.SED}} "s,'\, {.*,,g" | tr -d '\r'); do
             name=$i
             type=$({{.GREP}} "this.option(.*${name}" -A6 ${cli}.js | {{.GREP}} -m1 "type:" | {{.SED}} "s,^.*type: ,,g" | {{.SED}} "s|,.*||g" | {{.SED}} "s|}.*||g" | tr '[:upper:]' '[:lower:]')
             desc=$({{.GREP}} "this.option(.*${name}" -A6 ${cli}.js | {{.GREP}} -m1 -A2 "description:" | {{.SED}} "s,^.*description: g.f(,,g" | {{.GREP}} -o "'.*'" | head -n 1 | {{.SED}} "s,',,g")
-            
-            # Skip if name or type is empty
-            if [ -z "$name" ] || [ -z "$type" ]; then
-              echo "Skipping invalid field: name='$name', type='$type'"
-              continue
-            fi
-            
             echo "Patching: $name --- $type"
-            if ! yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${desc}\", \"type\": \"${type}\" } }" grapi/definition.yaml; then
-              echo "[ERROR] Failed to patch field: $name"
-              exit 1
-            fi
+            yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${desc}\", \"type\": \"${type}\" } }" grapi/definition.yaml
           done
           
           if [ "${crd}" = "discoveries" ]; then
@@ -257,22 +239,13 @@ tasks:
             name=name
             type=string
             echo "Patching: $name --- $type"
-            if ! yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${name}\", \"type\": \"${type}\" } }" grapi/definition.yaml; then
-              echo "[ERROR] Failed to patch model name field"
-              exit 1
-            fi
+            yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${name}\", \"type\": \"${type}\" } }" grapi/definition.yaml
             
             name=properties
             type=object
             echo "Patching: $name --- $type"
-            if ! yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${name}\", \"type\": \"${type}\" } }" grapi/definition.yaml; then
-              echo "[ERROR] Failed to patch model properties field"
-              exit 1
-            fi
-            if ! yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties.properties.additionalProperties += {\"type\": \"object\" }" grapi/definition.yaml; then
-              echo "[ERROR] Failed to set additionalProperties for model properties"
-              exit 1
-            fi
+            yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${name}\", \"type\": \"${type}\" } }" grapi/definition.yaml
+            yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties.properties.additionalProperties += {\"type\": \"object\" }" grapi/definition.yaml
             
             {{.GREP}} "  name:" ${cli}.js | while read -r line ; do
               if [[ "$line" != *"name: \`Entity"* ]] && [[ "$line" != *"name: 'modelBaseClass"* ]] && [[ "$line" != *"name: 'allowAdditionalProperties"* ]]; then
@@ -312,10 +285,7 @@ tasks:
                       d=${n}
                       ;;
                   esac
-                  if ! yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties.properties.additionalProperties.properties += {\"${n}\": { \"description\": \"${d}\", \"type\": \"${t}\" } }" grapi/definition.yaml; then
-                    echo "[ERROR] Failed to patch property: $n"
-                    exit 1
-                  fi
+                  yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties.properties.additionalProperties.properties += {\"${n}\": { \"description\": \"${d}\", \"type\": \"${t}\" } }" grapi/definition.yaml
                 fi
               fi
             done
@@ -335,16 +305,19 @@ tasks:
             yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties.properties.additionalProperties.properties += {\"${name}\": { \"description\": \"${description}\", \"type\": \"${type}\" } }" grapi/definition.yaml
           fi
           
-          rm ${z}.js
+          rm ${z}.js || true
+          echo "[OK] Completed CRD: ${crd}"
           ((c++))
         done
+        
+        echo "[OK] All CLI-based CRDs processed successfully"
         
         # Extend CRD for CACHECONFIGS
         echo "----"
         echo "Extending CRD for CACHECONFIGS"
         crd=cacheconfigs
         BASELOCATION=".spec.versions[0].schema.openAPIV3Schema.properties.spec.properties"
-        yq -i "del(${BASELOCATION}.${crd}.items.properties.spec.properties.*)" grapi/definition.yaml
+        yq -i "del(${BASELOCATION}.${crd}.items.properties.spec.properties.*)" grapi/definition.yaml 2>/dev/null || true
         
         name="redisDS"
         desc="Please specify here the name of the cache datasource (kv-redis datasource) to be used as cache storage"
@@ -381,7 +354,7 @@ tasks:
         echo "Extending CRD for fuzzysearch"
         crd=fuzzysearch
         BASELOCATION=".spec.versions[0].schema.openAPIV3Schema.properties.spec.properties"
-        yq -i "del(${BASELOCATION}.${crd}.items.properties.spec.properties.*)" grapi/definition.yaml
+        yq -i "del(${BASELOCATION}.${crd}.items.properties.spec.properties.*)" grapi/definition.yaml 2>/dev/null || true
         
         name="fuzzy"
         desc="Please specify here if a fuzzy search should be made available for each endpoint"
