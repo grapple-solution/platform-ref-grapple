@@ -432,9 +432,9 @@ tasks:
       - |
         echo "Building crossplane package..."
         crossplane xpkg build \
-          --package-root=. \
-          --package-file={{.PACKAGE}} \
-          --ignore=".gitpod.yml,examples/*,hack/*,.github/*/*,target/*,*.sh,cluster/*,cluster/*/*,network/*,test/*,test/*/*,grsf/*"
+          --output={{.PACKAGE}} \
+          --ignore=".gitpod.yml,.git,examples,hack,.github,target,*.sh,cluster,network,test,grsf" \
+          .
         
         if [ $? -eq 0 ]; then
           mv {{.PACKAGE}} ./target/
