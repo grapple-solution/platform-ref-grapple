@@ -14,7 +14,7 @@ vars:
         echo "0.3.0" > {{.VERSION_FILE}}
       fi
       cat {{.VERSION_FILE}}
-  BEBASEIMAGE: "grpl/grapi"
+  BEBASEIMAGE: "grpl/loopback"
   BEBASEIMAGEVERSION: "0.3.8"
   UIBASEIMAGE: "grpl/gruim"
   UIBASEIMAGEVERSION: "0.3.4"
