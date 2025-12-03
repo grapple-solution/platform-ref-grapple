@@ -431,10 +431,36 @@ tasks:
     cmds:
       - |
         echo "Building crossplane package..."
+        
+        # Create a temporary build directory with only the files we need
+        rm -rf .build-tmp 2>/dev/null || true
+        mkdir -p .build-tmp
+        
+        # Copy crossplane.yaml (required)
+        cp crossplane.yaml .build-tmp/
+        
+        # Copy all definition and composition files
+        for dir in grapi gras gruim gr mapi mds muim; do
+          if [ -d "$dir" ]; then
+            mkdir -p ".build-tmp/$dir"
+            cp -r "$dir"/*.yaml .build-tmp/"$dir"/ 2>/dev/null || true
+          fi
+        done
+        
+        # Copy examples
+        if [ -d "examples" ]; then
+          mkdir -p .build-tmp/examples
+          cp -r examples/*.yaml .build-tmp/examples/ 2>/dev/null || true
+        fi
+        
+        # Build from the clean directory
         crossplane xpkg build \
-          --output={{.PACKAGE}} \
-          --ignore=".gitpod.yml,.git,examples,hack,.github,target,*.sh,cluster,network,test,grsf" \
-          .
+          --package-root=.build-tmp \
+          --package-file={{.PACKAGE}} \
+          --examples-root=.build-tmp/examples
+        
+        # Cleanup
+        rm -rf .build-tmp
         
         if [ $? -eq 0 ]; then
           mv {{.PACKAGE}} ./target/
