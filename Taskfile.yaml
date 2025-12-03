@@ -307,7 +307,7 @@ tasks:
           
           rm ${z}.js || true
           echo "[OK] Completed CRD: ${crd}"
-          ((c++))
+          c=$((c + 1))
         done
         
         echo "[OK] All CLI-based CRDs processed successfully"
