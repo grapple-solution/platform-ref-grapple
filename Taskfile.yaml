@@ -188,11 +188,16 @@ tasks:
           type="string"
           yq -i "${BASELOCATIONDS}.properties.spec.properties.${dstype}.properties += {\"${setting}\": { \"description\": \"${desc}\", \"type\": \"${type}\", \"default\": \"${dstype}\" } }" grapi/definition.yaml
           
-          cat connectors.json | jq -r ".\"${dstype}\".settings | keys[]" | while read -r setting; do
-            desc="Spec for ${setting} for datasource ${dstype}"
-            type="string"
-            yq -i "${BASELOCATIONDS}.properties.spec.properties.${dstype}.properties += {\"${setting}\": { \"description\": \"${desc}\", \"type\": \"${type}\" } }" grapi/definition.yaml
-          done
+          # Check if settings exist for this datasource type before processing
+          if cat connectors.json | jq -e ".\"${dstype}\".settings" >/dev/null 2>&1; then
+            cat connectors.json | jq -r ".\"${dstype}\".settings | keys[]" 2>/dev/null | while read -r setting; do
+              if [ -n "$setting" ]; then
+                desc="Spec for ${setting} for datasource ${dstype}"
+                type="string"
+                yq -i "${BASELOCATIONDS}.properties.spec.properties.${dstype}.properties += {\"${setting}\": { \"description\": \"${desc}\", \"type\": \"${type}\" } }" grapi/definition.yaml
+              fi
+            done
+          fi
         done
         
         rm connectors.json
