@@ -454,10 +454,10 @@ tasks:
         fi
         
         # Build from the clean directory
-        crossplane xpkg build \
+        # Using kubectl crossplane for v1.16 compatibility
+        kubectl crossplane build configuration \
           --package-root=.build-tmp \
-          --package-file={{.PACKAGE}} \
-          --examples-root=.build-tmp/examples
+          --name={{.PACKAGE}}
         
         # Cleanup
         rm -rf .build-tmp
@@ -514,7 +514,7 @@ tasks:
         fi
         
         echo "Pushing package to docker.io/{{.CONFIGPKG}}:{{.TAG}}..."
-        crossplane xpkg push docker.io/{{.CONFIGPKG}}:{{.TAG}} -f target/{{.PACKAGE}}
+        kubectl crossplane push configuration docker.io/{{.CONFIGPKG}}:{{.TAG}} -f target/{{.PACKAGE}}
         
         if [ $? -eq 0 ]; then
           echo "[OK] Package published successfully to docker.io/{{.CONFIGPKG}}:{{.TAG}}"
