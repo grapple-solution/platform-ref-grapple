@@ -1,0 +1,104 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: compositemanageduimodules.grsf.grpl.io
+  # annotations:
+  #   upbound.io/ui-schema: |-
+  #     ---
+  #     configSections:
+  #     - title: Network Info
+  #       description: Information about this network fabric
+  #       items:
+  #       - name: id
+  #         controlType: singleInput
+  #         type: string
+  #         path: ".spec.id"
+  #         title: Network ID
+  #         description: Network ID that other objects will use to refer (and connect) to this network fabric
+  #         default: multik8s-network
+  #         validation:
+  #         - required: true
+  #           customError: Network ID is required.
+  #       - name: provider
+  #         controlType: singleSelect
+  #         path: ".spec.compositionSelector.matchLabels[provider]"
+  #         title: Cloud Provider
+  #         description: Select which cloud provider this network should be created in.
+  #         default: AWS
+  #         enum:
+  #         - AWS
+  #         - GCP
+  #         validation:
+  #         - required: true
+  #           customError: Cloud provider is required.
+  #     - title: Cluster Info
+  #       description: The cluster used with this network fabric
+  #       items:
+  #       - name: clusterRef
+  #         controlType: singleInput
+  #         type: string
+  #         path: ".spec.clusterRef.id"
+  #         title: Cluster Ref
+  #         description: ID of the Cluster object that will use this network fabric
+  #         default: multik8s-cluster
+  #         validation:
+  #         - required: true
+  #           customError: Cluster ref is required.
+spec:
+  claimNames:
+    kind: ManagedUIModule
+    plural: manageduimodules
+    shortNames:
+    - muim
+    - muims
+    - manageduim
+    - manageduims
+    - manageduimodule
+    - manageduimodules
+    - muimodule
+    - muimodules
+  group: grsf.grpl.io
+  names:
+    kind: CompositeManagedUIModule
+    plural: compositemanageduimodules
+    shortNames:
+    - xmuim
+    - xmuims
+    - xmanageduim
+    - xmanageduims
+    - xmanageduimodule
+    - xmanageduimodules
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              description: Specification of the desired actions after deploying a managed UI modules (muim). muim.spec is the specification of the desired behavior of the managed UI modules
+              properties:
+                name:
+                  type: string
+                muimversion:
+                  description: 'Please specify here the version of muim'
+                  type: string
+                group:
+                  description: 'Please specify here the group'
+                  type: string
+                remoteentry:
+                  description: 'Please specify here the remoteEntry.js url'
+                  type: string
+                uitype:
+                  description: 'Please specify here the ui module specification type (e.g. ModuleFederation)'
+                  type: string
+                  default: "ModuleFederation"
+                uitypeformat:
+                  description: 'Please specify here the ui module specification format (e.g. js)'
+                  type: string
+                  default: "js"
+                endpoint:
+                  description: 'Please specify here the api endpoint url'
+                  type: string

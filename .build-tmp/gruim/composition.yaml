@@ -1,0 +1,197 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: gruim.grsf.grpl.io
+  labels:
+    crossplane.io/xrd: compositegrappleuimodules.grsf.grpl.io
+    provider: gruim
+spec:
+  # writeConnectionSecretsToNamespace: grpl-system
+  compositeTypeRef:
+    apiVersion: grsf.grpl.io/v1alpha1
+    kind: CompositeGrappleUiModule
+  resources:
+    - base:
+        apiVersion: helm.crossplane.io/v1beta1
+        kind: Release
+        metadata:
+          annotations: 
+            crossplane.io/external-name: # patched
+        spec:
+          forProvider:
+            chart:
+              name: gruim
+              repository: oci://public.ecr.aws/p7h7z5g3
+              version: 0.3.0
+            namespace: # patched
+            values:
+              name: # patched
+              asname: ""
+              gruimversion: "0.0.1"
+              clusterdomain: ""
+              dev: false
+              ingress: true
+              ssl: false
+              sslissuer: letsencrypt-prod-cloud20x
+              buildimages: false
+              buildimagecache: true
+              runimages: true
+              deployimages: false
+              imagetag: ""
+              # uiimage: grpl/gruim
+              # uiimagetag: 0.3.0
+              uimodules: true
+              monitoring: false
+              mapi: ""
+              # openapi: "https://ht-classicmodels-classicmodelsas-as.uat.grapple.solutions/openapi.json"
+              # endpoint: "https://ht-classicmodels-classicmodelsas-as.uat.grapple.solutions"
+              openapi: ""
+              endpoint: ""
+              style: ""
+              config: ""
+              additionalpackages: ""
+              custommodules: []
+            set: 
+              - name: gruimversion
+                valueFrom:
+                  secretKeyRef: 
+                    name: grsf-config
+                    namespace: grpl-system
+                    key: gruimversion
+              - name: clusterdomain
+                valueFrom:
+                  secretKeyRef: 
+                    name: grsf-config
+                    namespace: grpl-system
+                    key: clusterdomain
+              - name: dev_config
+                valueFrom:
+                  secretKeyRef: 
+                    name: grsf-config
+                    namespace: grpl-system
+                    key: dev
+              - name: sslissuer
+                valueFrom:
+                  secretKeyRef: 
+                    name: grsf-config
+                    namespace: grpl-system
+                    key: sslissuer
+              - name: uiimage_config
+                valueFrom:
+                  secretKeyRef: 
+                    name: grsf-config
+                    namespace: grpl-system
+                    key: uiimage
+              - name: uiimagetag_config
+                valueFrom:
+                  secretKeyRef: 
+                    name: grsf-config
+                    namespace: grpl-system
+                    key: uiimagetag
+              - name: GRAPPLE_LICENSE
+                valueFrom:
+                  secretKeyRef: 
+                    name: grsf-config
+                    namespace: grpl-system
+                    key: GRAPPLE_LICENSE
+            # set: 
+            #   - name: externalDatabase.host
+            #     valueFrom: 
+            #       secretKeyRef: 
+            #         name: 
+            #         namespace: grpl-system
+            #         key: endpoint
+            #   - name: externalDatabase.user
+            #     valueFrom: 
+            #       secretKeyRef: 
+            #         name: 
+            #         namespace: grpl-system
+            #         key: username
+            #   - name: externalDatabase.password
+            #     valueFrom: 
+            #       secretKeyRef: 
+            #         name: 
+            #         namespace: grpl-system
+            #         key: password
+          writeConnectionSecretsToRef: 
+            namespace: grpl-test
+            name: myrelease-secret
+          providerConfigRef: 
+            # name: providerconfigs.helm.crossplane.io/helm-provider-config
+            name: helm-provider-config
+      patches:
+        - fromFieldPath: spec.claimRef.namespace
+          toFieldPath: spec.forProvider.namespace
+          policy:
+            fromFieldPath: Required
+        - fromFieldPath: spec.claimRef.name
+          toFieldPath: metadata.annotations[crossplane.io/external-name]
+          policy:
+            fromFieldPath: Required
+          transforms:
+            - type: string
+              string:
+                fmt: "%s-gruim"
+        - fromFieldPath: spec.claimRef.name
+          toFieldPath: spec.forProvider.values.name
+          policy:
+            fromFieldPath: Required
+          transforms:
+            - type: string
+              string:
+                fmt: "%s-gruim"
+        - fromFieldPath: spec.asname
+          toFieldPath: spec.forProvider.values.asname
+        - fromFieldPath: spec.gruimversion
+          toFieldPath: spec.forProvider.values.gruimversion
+        - fromFieldPath: spec.clusterdomain
+          toFieldPath: spec.forProvider.values.clusterdomain
+        - fromFieldPath: spec.dev
+          toFieldPath: spec.forProvider.values.dev
+        - fromFieldPath: spec.ingress
+          toFieldPath: spec.forProvider.values.ingress
+        - fromFieldPath: spec.ssl
+          toFieldPath: spec.forProvider.values.ssl
+        - fromFieldPath: spec.sslissuer
+          toFieldPath: spec.forProvider.values.sslissuer
+        - fromFieldPath: spec.customheader
+          toFieldPath: spec.forProvider.values.customheader
+        - fromFieldPath: spec.buildimages
+          toFieldPath: spec.forProvider.values.buildimages
+        - fromFieldPath: spec.buildimagecache
+          toFieldPath: spec.forProvider.values.buildimagecache
+        - fromFieldPath: spec.runimages
+          toFieldPath: spec.forProvider.values.runimages
+        - fromFieldPath: spec.deployimages
+          toFieldPath: spec.forProvider.values.deployimages
+        - fromFieldPath: spec.imagetag
+          toFieldPath: spec.forProvider.values.imagetag
+        - fromFieldPath: spec.autoscaling
+          toFieldPath: spec.forProvider.values.autoscaling
+        - fromFieldPath: spec.resources.deployimages.spec
+          toFieldPath: spec.forProvider.values.resourcesui
+        - fromFieldPath: spec.resources.runimages.spec
+          toFieldPath: spec.forProvider.values.imgresourcesui
+        - fromFieldPath: spec.uiimage
+          toFieldPath: spec.forProvider.values.uiimage
+        - fromFieldPath: spec.uiimagetag
+          toFieldPath: spec.forProvider.values.uiimagetag
+        - fromFieldPath: spec.uimodules
+          toFieldPath: spec.forProvider.values.uimodules
+        - fromFieldPath: spec.monitoring
+          toFieldPath: spec.forProvider.values.monitoring
+
+        - fromFieldPath: spec.mapi
+          toFieldPath: spec.forProvider.values.mapi
+        - fromFieldPath: spec.openapi
+          toFieldPath: spec.forProvider.values.openapi
+        - fromFieldPath: spec.endpoint
+          toFieldPath: spec.forProvider.values.endpoint
+        - fromFieldPath: spec.style
+          toFieldPath: spec.forProvider.values.style
+        - fromFieldPath: spec.config
+          toFieldPath: spec.forProvider.values.config
+        - fromFieldPath: spec.additionalpackages
+          toFieldPath: spec.forProvider.values.additionalpackages
+        - fromFieldPath: spec.custommodules
+          toFieldPath: spec.forProvider.values.custommodules

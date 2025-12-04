@@ -1,0 +1,119 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: compositemanageddatasources.grsf.grpl.io
+  # annotations:
+  #   upbound.io/ui-schema: |-
+  #     ---
+  #     configSections:
+  #     - title: Network Info
+  #       description: Information about this network fabric
+  #       items:
+  #       - name: id
+  #         controlType: singleInput
+  #         type: string
+  #         path: ".spec.id"
+  #         title: Network ID
+  #         description: Network ID that other objects will use to refer (and connect) to this network fabric
+  #         default: multik8s-network
+  #         validation:
+  #         - required: true
+  #           customError: Network ID is required.
+  #       - name: provider
+  #         controlType: singleSelect
+  #         path: ".spec.compositionSelector.matchLabels[provider]"
+  #         title: Cloud Provider
+  #         description: Select which cloud provider this network should be created in.
+  #         default: AWS
+  #         enum:
+  #         - AWS
+  #         - GCP
+  #         validation:
+  #         - required: true
+  #           customError: Cloud provider is required.
+  #     - title: Cluster Info
+  #       description: The cluster used with this network fabric
+  #       items:
+  #       - name: clusterRef
+  #         controlType: singleInput
+  #         type: string
+  #         path: ".spec.clusterRef.id"
+  #         title: Cluster Ref
+  #         description: ID of the Cluster object that will use this network fabric
+  #         default: multik8s-cluster
+  #         validation:
+  #         - required: true
+  #           customError: Cluster ref is required.
+spec:
+  claimNames:
+    kind: ManagedDataSource
+    plural: manageddatasources
+    shortNames:
+    - mds
+    - mdatasource
+    - manageddatasource
+    - managedds
+  group: grsf.grpl.io
+  names:
+    kind: CompositeManagedDataSource
+    plural: compositemanageddatasources
+    shortNames:
+    - xmds
+    - xmdatasource
+    - xmanageddatasource
+    - xmanagedds
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              description: Specification of the desired actions after deploying a managed DataSource (mds). mds.spec is the specification of the desired behavior of the managed DataSource
+              properties:
+                name:
+                  type: string
+                mdsversion:
+                  description: 'Please specify here the version of mapi'
+                  type: string
+                group:
+                  description: 'Please specify here the group'
+                  type: string
+                connector:
+                  description: 'Please specify here the connector'
+                  type: string
+                  default: "mysql"
+                host:
+                  description: 'Please specify here the host name (e.g. localhost)'
+                  type: string
+                  default: "localhost"
+                port:
+                  description: 'Please specify here the port number (e.g. 3306)'
+                  type: string
+                  default: "3306"
+                username:
+                  description: 'Please specify here the username'
+                  type: string
+                password:
+                  description: 'Please specify here the password'
+                  type: string
+                connectionsecret:
+                  description: 'Please specify here the name of the connection secret'
+                  type: string
+                # externalsecrets:
+                #   description: 'Please add here the externalsecrets for this grapi'
+                #   type: array
+                #   items:
+                #     type: object
+                #     properties:
+                #       name:
+                #         description: please specify the name for the object
+                #         type: string
+                #       spec:
+                #         description: please specify the spec for the externalsecrets - verify against kubectl get crd externalsecrets.external-secrets.io -o yaml
+                #         type: object
+                #         # allows to specify anything in the object... no verification whatsoever...
+                #         x-kubernetes-preserve-unknown-fields: true                      

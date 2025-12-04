@@ -1,0 +1,59 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: compositegrappleresources.grsf.grpl.io
+spec:
+  claimNames:
+    kind: GrappleResource
+    plural: grappleresources
+    shortNames:
+    - gr
+    - gresoure
+  group: grsf.grpl.io
+  names:
+    kind: CompositeGrappleResource
+    plural: compositegrappleresources
+    shortNames:
+    - xgr
+    - xgresoure
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              description: |
+                  Specification of the desired behavior of the grapple resource (gr). 
+              properties:
+                resource_kind:
+                  description: | 
+                    Type of the grapple resource
+                    (Default: "gras")
+                  type: string
+                  default: gras
+                resource_name:
+                  description: | 
+                    Name of the grapple resource
+                    (Default: "")
+                  type: string
+                resource_namespace:
+                  description: |
+                    Define the namespace of the grapple resource
+                    (Default: "")
+                  type: string
+                resource_group:
+                  description: | 
+                    Resource group of the grapple resource
+                    (Default: "grsf.grpl.io")
+                  type: string
+                  default: "grsf.grpl.io"
+                resource_version:
+                  description: | 
+                    Resource Version of the grapple resource
+                    (Default: "v1alpha1")
+                  type: string
+                  default: "v1alpha1"

@@ -1,0 +1,202 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: compositegrappleapplicationsets.grsf.grpl.io
+spec:
+  claimNames:
+    kind: GrappleApplicationSet
+    plural: grappleapplicationsets
+    shortNames:
+    - as
+    - applicationset
+    - gras
+    - grplas
+    - grappleas
+    - grapplicationset
+    - grplapplicationset
+    - grappleapplicationset
+    - grapplicationsets
+    - grplapplicationsets
+    - grappleapplicationsets
+  group: grsf.grpl.io
+  names:
+    kind: CompositeGrappleApplicationSet
+    plural: compositegrappleapplicationsets
+    shortNames:
+    - xas
+    - xapplicationset
+    - xgras
+    - xgrplas
+    - xgrappleas
+    - xgrapplicationset
+    - xgrplapplicationset
+    - xgrappleapplicationset
+    - xgrapplicationsets
+    - xgrplapplicationsets
+    - xgrappleapplicationsets
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              description: |
+                  Specification of the desired behavior of the grapple ApplicationSet (gras). 
+                  gras.spec is the specification of the desired behavior of the ApplicationSet.
+              properties:
+                name:
+                  description: |
+                    This field can be used to tweak the name of the gras.
+                    It is optional and shall only be used if required. 
+                    Default: ""
+                  type: string
+                asname:
+                  description: | 
+                    This field can be used to tweak the name of the parent gras (grapple ApplicationSet). 
+                    It is optional and shall only be used if required.
+                    (Default: "")
+                  type: string
+                grasversion:
+                  description: 'Please specify here the version of the gras (grapple ApplicationSet)'
+                  type: string
+                # clusterdomain:
+                #   description: 'Please specify here the clusterdomain of the target cluster - only use this field if not specified in the grapple config or the gras.'
+                #   type: string
+                customheader:
+                  description: | 
+                    Please specify here the custom header content protecting the gras (grapple ApplicationSet) 
+                    (Default: "")
+                  type: string
+                dev:
+                  description: |
+                    Please specify here if the DEV mode shall be activated for the whole gras (grapple ApplicationSet)
+                    (Default: false)
+                  type: boolean
+                # ingress:
+                #   description: 'Please specify here if ingress shall be enabled for the whole gras (grapple ApplicationSet) (Default: false)'
+                #   type: boolean
+                # ssl:
+                #   description: 'Please specify here if ssl shall be configured for the whole gras (grapple ApplicationSet) (Default: false)'
+                #   type: boolean
+                # sslissuer:
+                #   description: 'Please specify here the ssl issuer for the whole gras (grapple ApplicationSet) (Default: "")'
+                #   type: string
+                autoscaling:
+                  description: | 
+                    Please define here the scaling definitions for this gras (grapple ApplicationSet)
+                  type: object
+                  properties:
+                    replicas:
+                      description: | 
+                        Please specify the number of replicas for the resources in this gras (grapple ApplicationSet)
+                        Default: 1
+                      type: integer
+                    minReplicas:
+                      description: | 
+                        Please specify the minimum number of replicas for the resources in this gras (grapple ApplicationSet)
+                        Default: 1
+                      type: integer
+                    maxReplicas:
+                      description: | 
+                        Please specify the maximum number of replicas for the resources in this gras (grapple ApplicationSet)
+                        Default: 20
+                      type: integer
+                    targetCPUUtilizationPercentage:
+                      description: | 
+                        Please specify the targetCPUUtilizationPercentage for the resources in this gras (grapple ApplicationSet)
+                        Default: 60
+                      type: integer
+                    # targetMemoryUtilizationPercentage:
+                    #   description: | 
+                    #     Please specify the targetMemoryUtilizationPercentage for the resources in this gras (grapple ApplicationSet)
+                    #     Default: undefined
+                    #   type: integer
+                resources:
+                  description: | 
+                    Please add here the resource definitions for this gras (grapple ApplicationSet)
+                  type: object
+                  properties:
+                    runimages:
+                      description: | 
+                        Please specify the resource definitions for the resources in this gras (grapple ApplicationSet) in runimages mode
+                        runimages mode builds the deployment and requires more resources
+                      type: object
+                      properties:
+                        spec:
+                          description: |
+                            Please specify resource definitions for the resources in this gras (grapple ApplicationSet) in runimages mode
+                            verify against "kubectl explain pod.spec.containers.resources"
+                            example/default:
+                              resources:
+                                requests:
+                                  memory: "256Mi"
+                                  cpu: "250m"
+                                limits:
+                                  # when changing memory here, please consider also chaning max_old_space_size in env of be deployment.
+                                  memory: "2Gi"
+                                  cpu: "3000m"
+                          type: object
+                          # allows to specify anything in the object... no verification whatsoever...
+                          x-kubernetes-preserve-unknown-fields: true
+                    deployimages:
+                      description: | 
+                        Please specify the resource definitions for the resources in this gras (grapple ApplicationSet) in deployimages mode
+                        deployimages mode deploys the pre-baked images requires therefore less resources
+                      type: object
+                      properties:
+                        spec:
+                          description: |
+                            Please specify resource definitions for the resources in this gras (grapple ApplicationSet) in deployimages mode
+                            verify against "kubectl explain pod.spec.containers.resources"
+                            example/default:
+                              resources:
+                                requests:
+                                  memory: "256Mi"
+                                  cpu: "250m"
+                                limits:
+                                  # when changing memory here, please consider also chaning max_old_space_size in env of be deployment.
+                                  memory: "1024Mi"
+                                  cpu: "2000m"
+                          type: object
+                          # allows to specify anything in the object... no verification whatsoever...
+                          x-kubernetes-preserve-unknown-fields: true
+                grapis:
+                  description: | 
+                    Please add here the grapis (grapple APIs) 
+                    for this gras (grapple ApplicationSet)
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        description: please specify the name for the grapi (grapple API)
+                        type: string
+                      spec:
+                        description: |
+                          please specify the spec for the grapi (grapple API)
+                          verify against "kubectl explain grapi.spec"
+                        type: object
+                        # allows to specify anything in the object... no verification whatsoever...
+                        x-kubernetes-preserve-unknown-fields: true  
+                gruims:
+                  description: | 
+                    Please add here the gruims (grapple UI modules) 
+                    for this gras (grapple ApplicationSet)
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        description: please specify the name for the gruim (grapple UI module)
+                        type: string
+                      spec:
+                        description: | 
+                          please specify the spec for the gruim (grapple UI module)
+                          verify against "kubectl explain gruim.spec"
+                        type: object
+                        # allows to specify anything in the object... no verification whatsoever...
+                        x-kubernetes-preserve-unknown-fields: true  
