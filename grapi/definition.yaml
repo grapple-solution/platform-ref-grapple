@@ -552,6 +552,23 @@ spec:
                                 description: 'Please provide the connector type for the datasource - Default: kv-memory'
                                 type: string
                                 default: kv-memory
+                          memory:
+                            description: Please specify the specs for datasource type memory
+                            type: object
+                            properties:
+                              name:
+                                description: Please provide a name for the datasource
+                                type: string
+                              connector:
+                                description: 'Please provide the connector type for the datasource - Default: memory'
+                                type: string
+                                default: memory
+                              file:
+                                description: Spec for file for datasource memory
+                                type: string
+                              localStorage:
+                                description: Spec for localStorage for datasource memory
+                                type: string
                 discoveries:
                   description: |
                     Please add here all the discoveries that shall be executed within this grapi (grapple API)
