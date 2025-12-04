@@ -517,9 +517,19 @@ tasks:
         
         echo "Pushing package to docker.io/{{.CONFIGPKG}}:{{.TAG}}..."
         # Load the xpkg as a Docker image and push with docker (crossplane xpkg push corrupts the package)
-        IMAGEID=$(docker load -i target/{{.PACKAGE}} | grep "Loaded image ID" | cut -d: -f3 | tr -d ' ')
-        echo "Loaded image ID: ${IMAGEID}"
+        LOAD_OUTPUT=$(docker load -i target/{{.PACKAGE}} 2>&1)
+        echo "${LOAD_OUTPUT}"
+        IMAGEID=$(echo "${LOAD_OUTPUT}" | grep "Loaded image ID" | awk '{print $NF}')
+        
+        if [ -z "${IMAGEID}" ]; then
+          echo "[ERROR] Failed to extract image ID from docker load output"
+          exit 1
+        fi
+        
+        echo "Tagging image ${IMAGEID} as docker.io/{{.CONFIGPKG}}:{{.TAG}}"
         docker tag ${IMAGEID} docker.io/{{.CONFIGPKG}}:{{.TAG}}
+        
+        echo "Pushing to docker.io/{{.CONFIGPKG}}:{{.TAG}}..."
         docker push docker.io/{{.CONFIGPKG}}:{{.TAG}}
         
         if [ $? -eq 0 ]; then
