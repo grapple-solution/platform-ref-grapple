@@ -516,7 +516,11 @@ tasks:
         fi
         
         echo "Pushing package to docker.io/{{.CONFIGPKG}}:{{.TAG}}..."
-        crossplane xpkg push docker.io/{{.CONFIGPKG}}:{{.TAG}} -f target/{{.PACKAGE}}
+        # Load the xpkg as a Docker image and push with docker (crossplane xpkg push corrupts the package)
+        docker load -i target/{{.PACKAGE}}
+        IMAGEID=$(docker images -q --format "{{.ID}}" | head -1)
+        docker tag ${IMAGEID} docker.io/{{.CONFIGPKG}}:{{.TAG}}
+        docker push docker.io/{{.CONFIGPKG}}:{{.TAG}}
         
         if [ $? -eq 0 ]; then
           echo "[OK] Package published successfully to docker.io/{{.CONFIGPKG}}:{{.TAG}}"
