@@ -517,8 +517,8 @@ tasks:
         
         echo "Pushing package to docker.io/{{.CONFIGPKG}}:{{.TAG}}..."
         # Load the xpkg as a Docker image and push with docker (crossplane xpkg push corrupts the package)
-        docker load -i target/{{.PACKAGE}}
-        IMAGEID=$(docker images -q --format "{{.ID}}" | head -1)
+        IMAGEID=$(docker load -i target/{{.PACKAGE}} | grep "Loaded image ID" | cut -d: -f3 | tr -d ' ')
+        echo "Loaded image ID: ${IMAGEID}"
         docker tag ${IMAGEID} docker.io/{{.CONFIGPKG}}:{{.TAG}}
         docker push docker.io/{{.CONFIGPKG}}:{{.TAG}}
         
