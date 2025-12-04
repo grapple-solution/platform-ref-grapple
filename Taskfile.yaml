@@ -459,13 +459,13 @@ tasks:
           --package-root=. \
           --package-file=../target/{{.PACKAGE}} \
           --examples-root=./examples 2>&1 | tee /tmp/build.log
+        BUILD_STATUS=$?
         cd ..
         
         # Cleanup
         rm -rf .build-tmp
         
-        if [ $? -eq 0 ]; then
-          mv {{.PACKAGE}} ./target/
+        if [ $BUILD_STATUS -eq 0 ] && [ -f "target/{{.PACKAGE}}" ]; then
           echo "[OK] Package built successfully: target/{{.PACKAGE}}"
         else
           echo "[ERROR] Failed to build package"
