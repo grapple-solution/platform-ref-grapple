@@ -10,6 +10,7 @@ spec:
   compositeTypeRef:
     apiVersion: grsf.grpl.io/v1alpha1
     kind: CompositeGrappleSolutionFramework
+  mode: Resources
   resources:
     - base:
         apiVersion: helm.crossplane.io/v1beta1
