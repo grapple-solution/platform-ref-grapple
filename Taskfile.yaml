@@ -444,6 +444,7 @@ tasks:
           if [ -d "$dir" ]; then
             mkdir -p ".build-tmp/$dir"
             cp -r "$dir"/*.yaml .build-tmp/"$dir"/ 2>/dev/null || true
+            echo "[OK] Copied $dir ($(ls -1 "$dir"/*.yaml 2>/dev/null | wc -l) files)"
           fi
         done
         
@@ -451,6 +452,17 @@ tasks:
         if [ -d "examples" ]; then
           mkdir -p .build-tmp/examples
           cp -r examples/*.yaml .build-tmp/examples/ 2>/dev/null || true
+        fi
+        
+        echo "[OK] Verifying grsf/composition.yaml before build..."
+        if grep -q "resources:" .build-tmp/grsf/composition.yaml; then
+          echo "[OK] grsf composition has resources field"
+          # Show the spec section for verification
+          grep -A 3 "^spec:" .build-tmp/grsf/composition.yaml | head -5
+        else
+          echo "[ERROR] grsf composition is missing resources field!"
+          grep -A 15 "^spec:" .build-tmp/grsf/composition.yaml
+          exit 1
         fi
         
         # Build from the clean directory

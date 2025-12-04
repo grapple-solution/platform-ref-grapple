@@ -81,7 +81,24 @@ jobs:
           GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           echo "Building package for stage: ${{ steps.stage.outputs.stage }}"
+          echo "[OK] Cleaning previous builds..."
+          rm -rf .build-tmp target/*.xpkg
           task build STAGE=${{ steps.stage.outputs.stage }}
+          echo "[OK] Build complete. Verifying package contents..."
+          VERIFY_DIR=$(mktemp -d)
+          cd "$VERIFY_DIR"
+          tar -xzf $GITHUB_WORKSPACE/target/grsf.xpkg
+          tar -xzf *.tar.gz
+          echo "[OK] Checking for grsf composition resources field..."
+          if grep -A 5 "name: grsf.grsf.grpl.io" package.yaml | grep -q "resources:"; then
+            echo "[OK] Package contains resources field"
+          else
+            echo "[ERROR] Package is missing resources field!"
+            echo "=== GRSF Composition ==="
+            grep -A 20 "name: grsf.grsf.grpl.io" package.yaml
+            exit 1
+          fi
+          rm -rf "$VERIFY_DIR"
 
       - name: Publish package
         if: success() && steps.stage.outputs.should_publish == 'true'
