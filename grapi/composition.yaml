@@ -6,7 +6,7 @@ metadata:
     crossplane.io/xrd: compositegrappleapis.grsf.grpl.io
     provider: grapi
 spec:
-  # writeConnectionSecretsToNamespace: grpl-system
+  # writeConnectionSecretsToNamespace:grpl-system
   compositeTypeRef:
     apiVersion: grsf.grpl.io/v1alpha1
     kind: CompositeGrappleApi
