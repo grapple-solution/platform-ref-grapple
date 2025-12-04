@@ -1,0 +1,124 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: compositemanagedapis.grsf.grpl.io
+  # annotations:
+  #   upbound.io/ui-schema: |-
+  #     ---
+  #     configSections:
+  #     - title: Network Info
+  #       description: Information about this network fabric
+  #       items:
+  #       - name: id
+  #         controlType: singleInput
+  #         type: string
+  #         path: ".spec.id"
+  #         title: Network ID
+  #         description: Network ID that other objects will use to refer (and connect) to this network fabric
+  #         default: multik8s-network
+  #         validation:
+  #         - required: true
+  #           customError: Network ID is required.
+  #       - name: provider
+  #         controlType: singleSelect
+  #         path: ".spec.compositionSelector.matchLabels[provider]"
+  #         title: Cloud Provider
+  #         description: Select which cloud provider this network should be created in.
+  #         default: AWS
+  #         enum:
+  #         - AWS
+  #         - GCP
+  #         validation:
+  #         - required: true
+  #           customError: Cloud provider is required.
+  #     - title: Cluster Info
+  #       description: The cluster used with this network fabric
+  #       items:
+  #       - name: clusterRef
+  #         controlType: singleInput
+  #         type: string
+  #         path: ".spec.clusterRef.id"
+  #         title: Cluster Ref
+  #         description: ID of the Cluster object that will use this network fabric
+  #         default: multik8s-cluster
+  #         validation:
+  #         - required: true
+  #           customError: Cluster ref is required.
+spec:
+  claimNames:
+    kind: ManagedApi
+    plural: managedapis
+    shortNames:
+    - mapi
+    - mapis
+    - managedapi
+  group: grsf.grpl.io
+  names:
+    kind: CompositeManagedApi
+    plural: compositemanagedapis
+    shortNames:
+    - xmapi
+    - xmapis
+    - xmanagedapi
+    - xmanagedapis
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              description: Specification of the desired actions after deploying a managed API (mapi). mapi.spec is the specification of the desired behavior of the managed API
+              properties:
+                name:
+                  type: string
+                mapiversion:
+                  description: 'Please specify here the version of mapi'
+                  type: string
+                group:
+                  description: 'Please specify here the group'
+                  type: string
+                spec:
+                  description: 'Please specify here the specification url'
+                  type: string
+                spectype:
+                  description: 'Please specify here the specification type (e.g. openapi)'
+                  type: string
+                  default: "openapi"
+                specformat:
+                  description: 'Please specify here the specification format (e.g. json)'
+                  type: string
+                  default: "json"
+                endpoint:
+                  description: 'Please specify here the api endpoint url'
+                  type: string
+                hash:
+                  description: 'hash of the openapi spec (field is generated)'
+                  type: string
+                autorestartgruim:
+                  description: 'auto-restart the gruim on a change in the grapi spec'
+                  type: boolean
+                  default: false
+                # auth:
+                #   description: 'Please specify here if authentication shall be enabled for the deployment (default: false)'
+                #   type: boolean
+                # graphql:
+                #   description: 'Please specify whether to deploy a graphql interface for the api'
+                #   type: boolean
+                # externalsecrets:
+                #   description: 'Please add here the externalsecrets for this grapi'
+                #   type: array
+                #   items:
+                #     type: object
+                #     properties:
+                #       name:
+                #         description: please specify the name for the object
+                #         type: string
+                #       spec:
+                #         description: please specify the spec for the externalsecrets - verify against kubectl get crd externalsecrets.external-secrets.io -o yaml
+                #         type: object
+                #         # allows to specify anything in the object... no verification whatsoever...
+                #         x-kubernetes-preserve-unknown-fields: true                      

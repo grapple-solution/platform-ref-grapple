@@ -479,6 +479,50 @@ tasks:
         
         if [ $BUILD_STATUS -eq 0 ] && [ -f "target/{{.PACKAGE}}" ]; then
           echo "[OK] Package built successfully: target/{{.PACKAGE}}"
+          
+          # Verify the built package contains resources field
+          echo "[OK] Verifying built package contents..."
+          VERIFY_DIR=$(mktemp -d)
+          PACKAGE_PATH="$(pwd)/target/{{.PACKAGE}}"
+          cd "$VERIFY_DIR"
+          tar -xf "$PACKAGE_PATH"
+          # Find and extract the largest tar.gz (contains package.yaml)
+          LARGEST_FILE=""
+          LARGEST_SIZE=0
+          for f in *.tar.gz; do
+            if [ -f "$f" ]; then
+              SIZE=$(stat -c%s "$f" 2>/dev/null || echo 0)
+              if [ "$SIZE" -gt "$LARGEST_SIZE" ]; then
+                LARGEST_SIZE=$SIZE
+                LARGEST_FILE=$f
+              fi
+            fi
+          done
+          
+          if [ -n "$LARGEST_FILE" ]; then
+            tar -xzf "$LARGEST_FILE"
+          fi
+          
+          if [ -f "package.yaml" ]; then
+            if grep -A 5 "name: grsf.grsf.grpl.io" package.yaml | grep -q "resources:"; then
+              echo "[OK] Built package contains grsf resources field"
+            else
+              echo "[ERROR] Built package is MISSING grsf resources field!"
+              echo "=== GRSF Composition in built package ==="
+              grep -A 20 "name: grsf.grsf.grpl.io" package.yaml || echo "grsf composition not found"
+              cd - >/dev/null
+              rm -rf "$VERIFY_DIR"
+              exit 1
+            fi
+          else
+            echo "[ERROR] package.yaml not found in built package!"
+            ls -la
+            cd - >/dev/null
+            rm -rf "$VERIFY_DIR"
+            exit 1
+          fi
+          cd - >/dev/null
+          rm -rf "$VERIFY_DIR"
         else
           echo "[ERROR] Failed to build package"
           exit 1
