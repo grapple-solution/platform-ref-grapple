@@ -34,7 +34,7 @@ metadata:
     # have had a chance to update.
     company: grapple
     maintainer: Patrick Riegler <patrick.riegler@ripro-consulting.com>
-    keywords: grpl, grapple, gsf, grapi, gruim, gras
+    keywords: grpl, grapple, gsf, grapi, gruim
     source: github.com/cloud20x/platform-ref-grapple
     license: Apache-2.0
     descriptionShort: |
