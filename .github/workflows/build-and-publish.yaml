@@ -81,21 +81,7 @@ jobs:
           GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           echo "Building package for stage: ${{ steps.stage.outputs.stage }}"
-          echo "[OK] Cleaning previous builds..."
-          rm -rf .build-tmp target/*.xpkg
           task build STAGE=${{ steps.stage.outputs.stage }}
-          echo "[OK] Build complete. Verifying package contents..."
-          VERIFY_DIR=$(mktemp -d)
-          cd "$VERIFY_DIR"
-          echo "=== Extracting .xpkg ==="
-          tar -xf $GITHUB_WORKSPACE/target/grsf.xpkg
-          echo "=== Directory structure after first extraction ==="
-          ls -laR
-          echo "=== File sizes ==="
-          find . -type f -exec ls -lh {} \;
-          echo "=== This is for debugging - will update script in next iteration ==="
-          cd $GITHUB_WORKSPACE
-          rm -rf "$VERIFY_DIR"
 
       - name: Publish package
         if: success() && steps.stage.outputs.should_publish == 'true'
