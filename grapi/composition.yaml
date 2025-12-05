@@ -6,35 +6,11 @@ metadata:
     crossplane.io/xrd: compositegrappleapis.grsf.grpl.io
     provider: grapi
 spec:
-  # writeConnectionSecretsToNamespace: grpl-system
+  # writeConnectionSecretsToNamespace:grpl-system
   compositeTypeRef:
     apiVersion: grsf.grpl.io/v1alpha1
     kind: CompositeGrappleApi
   resources:
-    # - base:
-    #     apiVersion: kubernetes.crossplane.io/v1alpha1
-    #     kind: Object
-    #     spec:
-    #       forProvider:
-    #         manifest:
-    #           apiVersion: v1
-    #           kind: Pod
-    #           metadata:
-    #             name: mypod
-    #             namespace: grpl-test
-    #           spec:
-    #             containers:
-    #             - image: nginx:latest
-    #               name: mypod
-    #       writeConnectionSecretsToRef: 
-    #         namespace: grpl-test
-    #         name: mypod-secret
-    #       providerConfigRef: 
-    #         # name: providerconfigs.kubernetes.crossplane.io/kubernetes-provider
-    #         name: kubernetes-provider
-    #   patches:
-    #     - fromFieldPath: metadata.namespace
-    #       toFieldPath: metadata.namespace
     - base:
         apiVersion: helm.crossplane.io/v1beta1
         kind: Release

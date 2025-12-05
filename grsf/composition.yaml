@@ -76,12 +76,12 @@ spec:
                 webhook:
                   port: 9443
             set:
-            - name: external-secrets.webhook.certDir
-              valueFrom:
-                secretKeyRef:
-                  name: grsf-secret
-                  namespace: grpl-system
-                  key: ca.crt
+              - name: external-secrets.webhook.certDir
+                valueFrom:
+                  secretKeyRef:
+                    name: grsf-secret
+                    namespace: grpl-system
+                    key: ca.crt
           writeConnectionSecretToRef: 
             namespace: grpl-system
             name: grsf-config-secret

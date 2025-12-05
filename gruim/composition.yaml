@@ -39,7 +39,7 @@ spec:
               deployimages: false
               imagetag: ""
               # uiimage: grpl/gruim
-              # uiimagetag: 0.2.8
+              # uiimagetag: 0.3.0
               uimodules: true
               monitoring: false
               mapi: ""

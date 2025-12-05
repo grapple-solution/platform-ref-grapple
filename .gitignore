@@ -2,3 +2,13 @@
 
 access-key
 secret-access-key
+
+# Build artifacts
+target/
+
+# Remote taskfile
+.remote-taskfile.yaml
+
+# Temporary files
+*.bak
+.DS_Store

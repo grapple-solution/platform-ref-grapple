@@ -1,0 +1,136 @@
+name: Build and Publish
+
+on:
+  pull_request:
+    branches:
+      - feature/grapi
+  push:
+    branches:
+      - feature/grapi
+  workflow_dispatch: {}
+
+env:
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        if: env.DOCKER_USERNAME != ''
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'latest'
+
+      - name: Install Task
+        uses: arduino/setup-task@v2
+        with:
+          version: '3.x'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install required tools
+        run: |
+          task install-tools
+
+      - name: Determine stage
+        id: stage
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "stage=pr" >> $GITHUB_OUTPUT
+            echo "should_publish=true" >> $GITHUB_OUTPUT
+            echo "Building and publishing for Pull Request"
+          elif [ "${{ github.event_name }}" == "push" ]; then
+            echo "stage=prd" >> $GITHUB_OUTPUT
+            echo "should_publish=true" >> $GITHUB_OUTPUT
+            echo "Building for feature/grapi branch (will publish)"
+          else
+            echo "stage=dev" >> $GITHUB_OUTPUT
+            echo "should_publish=true" >> $GITHUB_OUTPUT
+            echo "Manual workflow dispatch (will publish)"
+          fi
+
+      - name: Display build info
+        env:
+          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          task info STAGE=${{ steps.stage.outputs.stage }}
+
+      - name: Ensure required images are available
+        run: |
+          echo "Checking for required images (grapi and gruim)..."
+          task ensure-images
+
+      - name: Build package
+        env:
+          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          echo "Building package for stage: ${{ steps.stage.outputs.stage }}"
+          task build STAGE=${{ steps.stage.outputs.stage }}
+
+      - name: Publish package
+        if: success() && steps.stage.outputs.should_publish == 'true'
+        run: |
+          echo "Publishing package for stage: ${{ steps.stage.outputs.stage }}"
+          task publish STAGE=${{ steps.stage.outputs.stage }}
+
+      - name: Upload build artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts-${{ steps.stage.outputs.stage }}-${{ github.run_number }}
+          path: |
+            target/*.xpkg
+            version.txt
+          retention-days: 30
+
+      - name: Create build summary
+        if: success()
+        run: |
+          VERSION=$(cat version.txt)
+          GIT_HASH=$(git log -n 1 --format=%h)
+          STAGE=${{ steps.stage.outputs.stage }}
+          
+          if [ "$STAGE" = "prd" ]; then
+            TAG="${VERSION}"
+          elif [ "$STAGE" = "pr" ]; then
+            PR_NR="${{ github.event.pull_request.number }}"
+            TAG="${VERSION}.pr-${PR_NR}"
+          else
+            TAG="${VERSION}.${STAGE}-${GIT_HASH}"
+          fi
+          
+          echo "## Build Completed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Event:** \`${{ github.event_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Stage:** \`${STAGE}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** \`${TAG}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Package:** \`grpl/grsf:${TAG}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${GITHUB_SHA:0:7}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.stage.outputs.should_publish }}" = "true" ]; then
+            echo "Package built and **published** successfully" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Install" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+            echo "kubectl crossplane install configuration grpl/grsf:${TAG}" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Package built successfully (not published for PRs)" >> $GITHUB_STEP_SUMMARY
+          fi
