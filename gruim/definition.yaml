@@ -171,7 +171,7 @@ spec:
                   type: string
                   description: |
                     Please specify here the image tag for the gruim (grapple UI modules) base image.
-                    (Default: "0.3.0")
+                    (Default: "0.2.8")
                 autoscaling:
                   description: | 
                     Please define here the scaling definitions for this gruim (grapple UI module)
