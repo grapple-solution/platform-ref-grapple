@@ -4,7 +4,7 @@ silent: true
 
 vars:
   PACKAGE: "grsf.xpkg"
-  CONFIGPKG: "zaialpha/grsf"
+  CONFIGPKG: "grpl/grsf"
   CPSYS: "grpl-system"
   TESTNS: "grpl-test"
   VERSION_FILE: "version.txt"
