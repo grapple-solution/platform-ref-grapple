@@ -465,7 +465,7 @@ tasks:
         
         # Build from the clean directory
         cd .build-tmp
-        crossplane pkg build \
+        crossplane xpkg build \
           --package-root=. \
           --package-file=../target/{{.PACKAGE}} \
           --examples-root=./examples 2>&1 | tee /tmp/build.log
@@ -832,15 +832,10 @@ tasks:
         else
           echo "yq is already installed"
         fi
-        
         # Check kubectl crossplane plugin
         if ! command -v crossplane >/dev/null 2>&1; then
           echo "Installing crossplane CLI v2.0.0..."
-          curl -sL "https://releases.crossplane.io/stable/v2.0.0/bin/linux_amd64/crossplane" -o crossplane
-          sudo mv crossplane /usr/local/bin/crossplane
-          sudo chmod +x /usr/local/bin/crossplane
-          # Create kubectl plugin symlink
-          sudo ln -sf /usr/local/bin/crossplane /usr/local/bin/kubectl-crossplane
+          curl -sL "https://raw.githubusercontent.com/crossplane/crossplane/main/install.sh" | XP_VERSION=v2.0.0 sh
           echo "crossplane CLI v2.0.0 installed"
         else
           CLI_VERSION=$(crossplane version 2>&1 | grep "Client Version" | awk '{print $3}' || echo 'unknown')
