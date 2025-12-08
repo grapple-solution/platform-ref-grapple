@@ -642,7 +642,7 @@ tasks:
         
         echo "Deploying test cases..."
         cat <<EOF | kubectl apply -n {{.TESTNS}} -f -
-        apiVersion: grsf.grpl.io/v1alpha1
+        apiVersion: grsf.grpl.io/v1
         kind: GrappleApi
         metadata:
           name: mygrapi

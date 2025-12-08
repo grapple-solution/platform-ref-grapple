@@ -7,7 +7,7 @@ metadata:
 spec:
   writeConnectionSecretsToNamespace: grpl-system
   compositeTypeRef:
-    apiVersion: multik8s.platformref.crossplane.io/v1alpha1
+    apiVersion: multik8s.platformref.crossplane.io/v1
     kind: Services
   resources:
     - base:

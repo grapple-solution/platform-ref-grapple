@@ -7,11 +7,11 @@ metadata:
 spec:
   writeConnectionSecretsToNamespace: grpl-system
   compositeTypeRef:
-    apiVersion: multik8s.platformref.crossplane.io/v1alpha1
+    apiVersion: multik8s.platformref.crossplane.io/v1
     kind: CompositeCluster
   resources:
     - base:
-        apiVersion: multik8s.platformref.crossplane.io/v1alpha1
+        apiVersion: multik8s.platformref.crossplane.io/v1
         kind: GKE
       connectionDetails:
         - fromConnectionSecretKey: kubeconfig
@@ -35,7 +35,7 @@ spec:
         - fromFieldPath: spec.parameters.networkRef.id
           toFieldPath: spec.parameters.networkRef.id
     - base:
-        apiVersion: multik8s.platformref.crossplane.io/v1alpha1
+        apiVersion: multik8s.platformref.crossplane.io/v1
         kind: Services
       patches:
         - fromFieldPath: spec.id

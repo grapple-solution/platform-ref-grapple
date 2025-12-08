@@ -8,7 +8,7 @@ metadata:
 spec:
   # writeConnectionSecretsToNamespace:grpl-system
   compositeTypeRef:
-    apiVersion: grsf.grpl.io/v1alpha1
+    apiVersion: grsf.grpl.io/v1
     kind: CompositeGrappleApi
   resources:
     - base:

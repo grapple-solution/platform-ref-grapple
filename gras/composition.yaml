@@ -8,7 +8,7 @@ metadata:
 spec:
   # writeConnectionSecretsToNamespace: grpl-system
   compositeTypeRef:
-    apiVersion: grsf.grpl.io/v1alpha1
+    apiVersion: grsf.grpl.io/v1
     kind: CompositeGrappleApplicationSet
   resources:
     - base:
@@ -167,7 +167,7 @@ spec:
 
 
     # - base:
-    #     apiVersion: kubernetes.crossplane.io/v1alpha1
+    #     apiVersion: kubernetes.crossplane.io/v1
     #     kind: Object
     #     spec:
     #       forProvider:

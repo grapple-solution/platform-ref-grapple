@@ -7,7 +7,7 @@ metadata:
 spec:
   writeConnectionSecretsToNamespace: grpl-system
   compositeTypeRef:
-    apiVersion: multik8s.platformref.crossplane.io/v1alpha1
+    apiVersion: multik8s.platformref.crossplane.io/v1
     kind: EKS
   resources:
     - base:
@@ -132,7 +132,7 @@ spec:
               matchLabels:
                 role: nodegroup
     - base:
-        apiVersion: eks.aws.crossplane.io/v1alpha1
+        apiVersion: eks.aws.crossplane.io/v1
         kind: NodeGroup
         spec:
           forProvider:

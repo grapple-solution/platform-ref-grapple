@@ -1,4 +1,4 @@
-apiVersion: multik8s.platformref.crossplane.io/v1alpha1
+apiVersion: multik8s.platformref.crossplane.io/v1
 kind: Cluster
 metadata:
   name: multik8s-cluster-aws
