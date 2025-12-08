@@ -11,7 +11,7 @@ spec:
     kind: Services
   resources:
     - base:
-        apiVersion: helm.crossplane.io/v1beta1
+        apiVersion: helm.crossplane.io/v1
         kind: Release
         spec:
           rollbackLimit: 3

@@ -8,11 +8,11 @@ metadata:
 spec:
   # writeConnectionSecretsToNamespace: grpl-system
   compositeTypeRef:
-    apiVersion: grsf.grpl.io/v1
+    apiVersion: grsf.grpl.io/v1alpha1
     kind: CompositeGrappleSolutionFramework
   resources:
     - base:
-        apiVersion: helm.crossplane.io/v1beta1
+        apiVersion: helm.crossplane.io/v1
         kind: Release
         metadata:
           annotations: 
@@ -55,7 +55,7 @@ spec:
         - fromFieldPath: spec.clusterdomain
           toFieldPath: spec.forProvider.values.clusterdomain
     - base:
-        apiVersion: helm.crossplane.io/v1beta1
+        apiVersion: helm.crossplane.io/v1
         kind: Release
         metadata:
           annotations: 

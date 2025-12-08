@@ -52,7 +52,7 @@ spec:
     # Each cluster has one node pool. Its nodes are spread evenly across the zones
     # in which the cluster exists.
     - base:
-        apiVersion: container.gcp.crossplane.io/v1beta1
+        apiVersion: container.gcp.crossplane.io/v1
         kind: NodePool
         spec:
           forProvider:
@@ -99,7 +99,7 @@ spec:
         - fromFieldPath: spec.parameters.nodes.count
           toFieldPath: spec.forProvider.autoscaling.maxNodeCount
     - base:
-        apiVersion: helm.crossplane.io/v1beta1
+        apiVersion: helm.crossplane.io/v1
         kind: ProviderConfig
         spec:
           credentials:

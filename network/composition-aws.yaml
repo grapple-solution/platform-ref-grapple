@@ -11,7 +11,7 @@ spec:
     kind: CompositeNetwork
   resources:
     - base:
-        apiVersion: ec2.aws.crossplane.io/v1beta1
+        apiVersion: ec2.aws.crossplane.io/v1
         kind: VPC
         spec:
           forProvider:
@@ -23,7 +23,7 @@ spec:
         - fromFieldPath: spec.id
           toFieldPath: metadata.labels[networks.multik8s.platformref.crossplane.io/network-id]
     - base:
-        apiVersion: ec2.aws.crossplane.io/v1beta1
+        apiVersion: ec2.aws.crossplane.io/v1
         kind: InternetGateway
         spec:
           forProvider:
@@ -34,7 +34,7 @@ spec:
         - fromFieldPath: spec.id
           toFieldPath: metadata.labels[networks.multik8s.platformref.crossplane.io/network-id]
     - base:
-        apiVersion: ec2.aws.crossplane.io/v1beta1
+        apiVersion: ec2.aws.crossplane.io/v1
         kind: Subnet
         metadata:
           labels:
@@ -55,7 +55,7 @@ spec:
         - fromFieldPath: spec.id
           toFieldPath: metadata.labels[networks.multik8s.platformref.crossplane.io/network-id]
     - base:
-        apiVersion: ec2.aws.crossplane.io/v1beta1
+        apiVersion: ec2.aws.crossplane.io/v1
         kind: Subnet
         metadata:
           labels:
@@ -76,7 +76,7 @@ spec:
         - fromFieldPath: spec.id
           toFieldPath: metadata.labels[networks.multik8s.platformref.crossplane.io/network-id]
     - base:
-        apiVersion: ec2.aws.crossplane.io/v1beta1
+        apiVersion: ec2.aws.crossplane.io/v1
         kind: Subnet
         metadata:
           labels:
@@ -104,7 +104,7 @@ spec:
               string:
                 fmt: "kubernetes.io/cluster/%s"
     - base:
-        apiVersion: ec2.aws.crossplane.io/v1beta1
+        apiVersion: ec2.aws.crossplane.io/v1
         kind: Subnet
         metadata:
           labels:
@@ -132,7 +132,7 @@ spec:
               string:
                 fmt: "kubernetes.io/cluster/%s"
     - base:
-        apiVersion: ec2.aws.crossplane.io/v1beta1
+        apiVersion: ec2.aws.crossplane.io/v1
         kind: RouteTable
         spec:
           forProvider:
@@ -168,7 +168,7 @@ spec:
         - fromFieldPath: spec.id
           toFieldPath: metadata.labels[networks.multik8s.platformref.crossplane.io/network-id]
     - base:
-        apiVersion: ec2.aws.crossplane.io/v1beta1
+        apiVersion: ec2.aws.crossplane.io/v1
         kind: SecurityGroup
         spec:
           forProvider:

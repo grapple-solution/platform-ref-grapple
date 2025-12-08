@@ -11,7 +11,7 @@ spec:
     kind: CompositeNetwork
   resources:
     - base:
-        apiVersion: compute.gcp.crossplane.io/v1beta1
+        apiVersion: compute.gcp.crossplane.io/v1
         kind: Network
         spec:
           forProvider:
@@ -23,7 +23,7 @@ spec:
         - fromFieldPath: spec.id
           toFieldPath: metadata.labels[networks.multik8s.platformref.crossplane.io/network-id]
     - base:
-        apiVersion: compute.gcp.crossplane.io/v1beta1
+        apiVersion: compute.gcp.crossplane.io/v1
         kind: Subnetwork
         spec:
           forProvider:

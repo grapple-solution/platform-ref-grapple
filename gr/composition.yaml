@@ -7,7 +7,7 @@ metadata:
     provider: gr
 spec:
   compositeTypeRef:
-    apiVersion: grsf.grpl.io/v1
+    apiVersion: grsf.grpl.io/v1alpha1
     kind: CompositeGrappleResource
   mode: Pipeline
   pipeline:
@@ -18,7 +18,7 @@ spec:
   #   functionRef:
   #     name: crossplane-contrib-function-dummy
   #   # input:
-  #   #   apiVersion: dummy.fn.crossplane.io/v1beta1
+  #   #   apiVersion: dummy.fn.crossplane.io/v1
   #   #   kind: Response
   #   #   response:
   #   #     value: true
@@ -26,7 +26,7 @@ spec:
     functionRef:
       name: grpl-grsf-lic
     input:
-      apiVersion: template.fn.crossplane.io/v1beta1
+      apiVersion: template.fn.crossplane.io/v1
       kind: Input
       email: "info@grapple-solutions.com"
       # resource_kind: "grappleapis"

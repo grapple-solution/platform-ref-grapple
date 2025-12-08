@@ -1,4 +1,4 @@
-apiVersion: grsf.grpl.io/v1
+apiVersion: grsf.grpl.io/v1alpha1
 kind: GrappleApi
 metadata:
   name: jcscherrer
