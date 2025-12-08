@@ -465,7 +465,7 @@ tasks:
         
         # Build from the clean directory
         cd .build-tmp
-        crossplane xpkg build \
+        crossplane pkg build \
           --package-root=. \
           --package-file=../target/{{.PACKAGE}} \
           --examples-root=./examples 2>&1 | tee /tmp/build.log
