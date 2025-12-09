@@ -13,7 +13,7 @@ spec:
   mode: Pipeline
   pipeline:
   - functionRef:
-      name: function-patch-and-transform
+      name: crossplane-contrib-function-patch-and-transform
     input:
       apiVersion: pt.fn.crossplane.io/v1beta1
       kind: Resources
@@ -39,15 +39,30 @@ spec:
                 name: null
             providerConfigRef:
               name: helm-provider-config
-            writeConnectionSecretsToRef:
-              name: myrelease-secret
-              namespace: grpl-test
+            writeConnectionSecretToRef:
+              name: null
+              namespace: null
         name: resource-0
         patches:
         - fromFieldPath: spec.claimRef.namespace
           policy:
             fromFieldPath: Required
           toFieldPath: spec.forProvider.namespace
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.claimRef.namespace
+          policy:
+            fromFieldPath: Required
+          toFieldPath: spec.writeConnectionSecretToRef.namespace
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.claimRef.name
+          policy:
+            fromFieldPath: Required
+          toFieldPath: spec.writeConnectionSecretToRef.name
+          transforms:
+          - string:
+              fmt: "%s-gras-secret"
+              type: Format
+            type: string
           type: FromCompositeFieldPath
         - fromFieldPath: spec.claimRef.name
           policy:
@@ -100,7 +115,6 @@ spec:
           toFieldPath: spec.forProvider.values.gruims
           type: FromCompositeFieldPath
     step: patch-and-transform
-s.gruims
 
 
         # - fromFieldPath: spec.clusterdomain
