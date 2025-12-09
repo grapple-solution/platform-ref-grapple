@@ -1,0 +1,51 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: compositegrapplesolutionframeworks.grsf.grpl.io
+spec:
+  claimNames:
+    kind: GrappleSolutionFramework
+    plural: grapplesolutionframeworks
+    shortNames:
+    - grsf
+    - grsfs
+    - grplsf
+    - grplsfs
+    - grapplesf
+    - grapplesolutionframework
+  group: grsf.grpl.io
+  names:
+    kind: CompositeGrappleSolutionFramework
+    plural: compositegrapplesolutionframeworks
+    shortNames:
+    - xgrsf
+    - xgrsfs
+    - xgrplsf
+    - xgrplsfs
+    - xgrapplesf
+    - xgrapplesolutionframework
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              description: Specification of the desired behavior of the grapple solution framework (grsf). grsf.spec is the specification of the desired behavior of the grapple solution framework.
+              type: object
+              properties:
+                name:
+                  type: string
+                clusterdomain:
+                  description: 'Please specify here the clusterdomain of the target cluster'
+                  type: string
+                external-secrets:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                  properties:
+                    ssl:
+                      description: 'Please specify whether external secrets shall be enabled or disabled'
+                      type: boolean
+      
