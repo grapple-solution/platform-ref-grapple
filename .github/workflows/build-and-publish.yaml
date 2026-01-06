@@ -16,6 +16,8 @@ env:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     
     steps:
       - name: Checkout code
@@ -134,3 +136,51 @@ jobs:
           else
             echo "Package built successfully (not published for PRs)" >> $GITHUB_STEP_SUMMARY
           fi
+
+      - name: Bump version on merge
+        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/feature/grapi'
+        run: |
+          # Read current version
+          CURRENT_VERSION=$(cat version.txt | tr -d '[:space:]')
+          echo "Current version: ${CURRENT_VERSION}"
+          
+          # Split the version into major, minor, and patch components
+          IFS='.' read -r major minor patch <<< "${CURRENT_VERSION}"
+          
+          # Increment the patch version
+          patch=$((patch + 1))
+          
+          # If patch reaches 100, reset to 0 and increment minor version
+          if [ "$patch" -ge 100 ]; then
+            patch=0
+            minor=$((minor + 1))
+          fi
+          
+          # If minor reaches 100, reset to 0 and increment major version
+          if [ "$minor" -ge 100 ]; then
+            minor=0
+            major=$((major + 1))
+          fi
+          
+          NEW_VERSION="${major}.${minor}.${patch}"
+          echo "New version: ${NEW_VERSION}"
+          
+          # Write new version to file
+          echo "${NEW_VERSION}" > version.txt
+          
+          # Configure git
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # Check if there are changes to commit
+          if git diff --quiet version.txt; then
+            echo "No version change detected, skipping commit"
+            exit 0
+          fi
+          
+          # Commit and push the version bump
+          git add version.txt
+          git commit -m "chore: bump version to ${NEW_VERSION} [skip ci]"
+          git push
+          
+          echo "Version bumped from ${CURRENT_VERSION} to ${NEW_VERSION}"

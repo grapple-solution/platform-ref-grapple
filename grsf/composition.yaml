@@ -1,104 +1,109 @@
+---
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
-  name: grsf.grsf.grpl.io
   labels:
     crossplane.io/xrd: compositegrapplesolutionframeworks.grsf.grpl.io
     provider: grsf
+  name: grsf.grsf.grpl.io
 spec:
-  # writeConnectionSecretsToNamespace: grpl-system
   compositeTypeRef:
     apiVersion: grsf.grpl.io/v1alpha1
     kind: CompositeGrappleSolutionFramework
-  resources:
-    - base:
-        apiVersion: helm.crossplane.io/v1beta1
-        kind: Release
-        metadata:
-          annotations: 
-            crossplane.io/external-name: # patched
-        spec:
-          forProvider:
-            chart:
-              name: grsf
-              repository: oci://public.ecr.aws/p7h7z5g3
-              version: 0.2.8
-            namespace: # patched
-            values:
-              clusterdomain: # patched
-              external-secrets: ""
-          writeConnectionSecretToRef: 
-            namespace: grpl-system
-            name: grsf-secret
-          # connectionDetails:
-          #   - name: port
-          #     value: "5432"
-          #     toConnectionSecretKey: port
-          providerConfigRef: 
-            # name: providerconfigs.helm.crossplane.io/helm-provider-config
-            name: helm-provider-config
-      patches:
+  mode: Pipeline
+  pipeline:
+  - functionRef:
+      name: crossplane-contrib-function-patch-and-transform
+    input:
+      apiVersion: pt.fn.crossplane.io/v1beta1
+      kind: Resources
+      resources:
+      - base:
+          apiVersion: helm.crossplane.io/v1beta1
+          kind: Release
+          metadata:
+            annotations:
+              crossplane.io/external-name: null
+          spec:
+            forProvider:
+              chart:
+                name: grsf
+                repository: oci://public.ecr.aws/p7h7z5g3
+                version: 0.2.8
+              namespace: null
+              values:
+                clusterdomain: null
+                external-secrets: ""
+            providerConfigRef:
+              name: helm-provider-config
+            writeConnectionSecretToRef:
+              name: grsf-secret
+              namespace: grpl-system
+        name: resource-0
+        patches:
         - fromFieldPath: spec.claimRef.namespace
+          policy:
+            fromFieldPath: Required
           toFieldPath: spec.forProvider.namespace
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.claimRef.name
           policy:
             fromFieldPath: Required
-        - fromFieldPath: spec.claimRef.name
           toFieldPath: metadata.annotations[crossplane.io/external-name]
-          policy:
-            fromFieldPath: Required
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.claimRef.name
-          toFieldPath: spec.forProvider.values.name
           policy:
             fromFieldPath: Required
+          toFieldPath: spec.forProvider.values.name
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.external-secrets
           toFieldPath: spec.forProvider.values.external-secrets
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.clusterdomain
           toFieldPath: spec.forProvider.values.clusterdomain
-    - base:
-        apiVersion: helm.crossplane.io/v1beta1
-        kind: Release
-        metadata:
-          annotations: 
-            crossplane.io/external-name: grsf-config
-        spec:
-          forProvider:
-            chart:
-              name: grsf-config
-              repository: oci://public.ecr.aws/p7h7z5g3
-              version: 0.2.8
-            wait: true
-            namespace: # patched
-            values:
-              name: grsf-config
-              clusterdomain: dev.grpl.io
-              external-secrets:
-                enabled: true
-                webhook:
-                  port: 9443
-            set:
+          type: FromCompositeFieldPath
+      - base:
+          apiVersion: helm.crossplane.io/v1beta1
+          kind: Release
+          metadata:
+            annotations:
+              crossplane.io/external-name: grsf-config
+          spec:
+            forProvider:
+              chart:
+                name: grsf-config
+                repository: oci://public.ecr.aws/p7h7z5g3
+                version: 0.2.8
+              namespace: null
+              set:
               - name: external-secrets.webhook.certDir
                 valueFrom:
                   secretKeyRef:
+                    key: ca.crt
                     name: grsf-secret
                     namespace: grpl-system
-                    key: ca.crt
-          writeConnectionSecretToRef: 
-            namespace: grpl-system
-            name: grsf-config-secret
-          providerConfigRef: 
-            # name: providerconfigs.helm.crossplane.io/helm-provider-config
-            name: helm-provider-config
-      patches:
+              values:
+                clusterdomain: dev.grpl.io
+                external-secrets:
+                  enabled: true
+                  webhook:
+                    port: 9443
+                name: grsf-config
+              wait: true
+            providerConfigRef:
+              name: helm-provider-config
+            writeConnectionSecretToRef:
+              name: grsf-config-secret
+              namespace: grpl-system
+        name: resource-1
+        patches:
         - fromFieldPath: spec.claimRef.namespace
-          toFieldPath: spec.forProvider.namespace
           policy:
             fromFieldPath: Required
-        # - fromFieldPath: spec.claimRef.name
-        #   toFieldPath: metadata.annotations[crossplane.io/external-name]
-        #   policy:
-        #     fromFieldPath: Required
-        # - fromFieldPath: spec.claimRef.name
-        #   toFieldPath: spec.forProvider.values.name
+          toFieldPath: spec.forProvider.namespace
+          type: FromCompositeFieldPath
+    step: patch-and-transform
+      #   toFieldPath: spec.forProvider.values.name
         #   string:
         #     fmt: "%s-config"
         #   policy:

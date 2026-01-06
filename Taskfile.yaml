@@ -455,10 +455,10 @@ tasks:
         fi
         
         echo "[OK] Verifying grsf/composition.yaml before build..."
-        if grep -q "resources:" .build-tmp/grsf/composition.yaml; then
-          echo "[OK] grsf composition has resources field"
+        if grep -q "mode: Pipeline" .build-tmp/grsf/composition.yaml && grep -q "pipeline:" .build-tmp/grsf/composition.yaml; then
+          echo "[OK] grsf composition has Pipeline mode with pipeline field"
         else
-          echo "[ERROR] grsf composition is missing resources field!"
+          echo "[ERROR] grsf composition is missing Pipeline mode or pipeline field!"
           echo "Source file may be corrupted. Check grsf/composition.yaml"
           exit 1
         fi
@@ -502,10 +502,10 @@ tasks:
           fi
           
           if [ -f "package.yaml" ]; then
-            if grep -A 5 "name: grsf.grsf.grpl.io" package.yaml | grep -q "resources:"; then
-              echo "[OK] Built package contains grsf resources field"
+            if grep -A 10 "name: grsf.grsf.grpl.io" package.yaml | grep -q "mode: Pipeline"; then
+              echo "[OK] Built package contains grsf with Pipeline mode"
             else
-              echo "[ERROR] Built package is MISSING grsf resources field!"
+              echo "[ERROR] Built package is MISSING grsf Pipeline mode!"
               echo "=== GRSF Composition in built package ==="
               grep -A 20 "name: grsf.grsf.grpl.io" package.yaml || echo "grsf composition not found"
               cd - >/dev/null

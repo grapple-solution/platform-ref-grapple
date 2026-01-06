@@ -1,267 +1,341 @@
+---
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
-  name: grapi.grsf.grpl.io
   labels:
     crossplane.io/xrd: compositegrappleapis.grsf.grpl.io
     provider: grapi
+  name: grapi.grsf.grpl.io
 spec:
-  # writeConnectionSecretsToNamespace:grpl-system
   compositeTypeRef:
     apiVersion: grsf.grpl.io/v1alpha1
     kind: CompositeGrappleApi
-  resources:
-    - base:
-        apiVersion: helm.crossplane.io/v1beta1
-        kind: Release
-        metadata:
-          annotations: 
-            crossplane.io/external-name: # patched
-        spec:
-          forProvider:
-            chart:
-              name: grapi
-              repository: oci://public.ecr.aws/p7h7z5g3
-              version: 0.2.8
-            namespace: # patched
-            values:
-              name: # patched
-              asname: ""
-              # organization: ""
-              # email: ""
-              grapiversion: "0.0.1"
-              clusterdomain: ""
-              dev: false
-              ingress: true
-              ssl: false
-              sslissuer: letsencrypt-prod-cloud20x
-              disableexplorer: false
-              automigrate: false
-              buildimages: false
-              buildimagecache: true
-              runimages: true
-              deployimages: false
-              imagetag: ""
-              # beimage: grpl/grapi
-              # beimagetag: 0.2.8
-              translations: false
-              apiregistry: false
-              graphql: false
-              monitoring: false
-              discoveredrepos: true
-              externalsecrets: []
-              extraSecrets: []
-              initContainers: []
-              volumes: []
-              volumeMounts: []
-              datasources: []
-              discoveries: []
-              models: []
-              relations: []
-              serviceproviders: []
-              openapis: []
-              cacheconfigs: {}
-              restcruds: []
-              repositories: []
-              controllers: []
-              prepatches: []
-              prediscoverypatches: []
-              prerelationpatches: []
-              postpatches: []
-            set: 
+  mode: Pipeline
+  pipeline:
+  - functionRef:
+      name: crossplane-contrib-function-patch-and-transform
+    input:
+      apiVersion: pt.fn.crossplane.io/v1beta1
+      kind: Resources
+      resources:
+      - base:
+          apiVersion: helm.crossplane.io/v1beta1
+          kind: Release
+          metadata:
+            annotations:
+              crossplane.io/external-name: null
+          spec:
+            forProvider:
+              chart:
+                name: grapi
+                repository: oci://public.ecr.aws/p7h7z5g3
+                version: 0.2.8
+              namespace: null
+              set:
               - name: grapiversion
                 valueFrom:
-                  secretKeyRef: 
+                  secretKeyRef:
+                    key: grapiversion
                     name: grsf-config
                     namespace: grpl-system
-                    key: grapiversion
               - name: organization_config
                 valueFrom:
-                  secretKeyRef: 
+                  secretKeyRef:
+                    key: organization
                     name: grsf-config
                     namespace: grpl-system
-                    key: organization
               - name: email_config
                 valueFrom:
-                  secretKeyRef: 
+                  secretKeyRef:
+                    key: email
                     name: grsf-config
                     namespace: grpl-system
-                    key: email
               - name: clusterdomain
                 valueFrom:
-                  secretKeyRef: 
+                  secretKeyRef:
+                    key: clusterdomain
                     name: grsf-config
                     namespace: grpl-system
-                    key: clusterdomain
               - name: dev_config
                 valueFrom:
-                  secretKeyRef: 
+                  secretKeyRef:
+                    key: dev
                     name: grsf-config
                     namespace: grpl-system
-                    key: dev
               - name: sslissuer
                 valueFrom:
-                  secretKeyRef: 
+                  secretKeyRef:
+                    key: sslissuer
                     name: grsf-config
                     namespace: grpl-system
-                    key: sslissuer
               - name: beimage_config
                 valueFrom:
-                  secretKeyRef: 
+                  secretKeyRef:
+                    key: beimage
                     name: grsf-config
                     namespace: grpl-system
-                    key: beimage
               - name: beimagetag_config
                 valueFrom:
-                  secretKeyRef: 
+                  secretKeyRef:
+                    key: beimagetag
                     name: grsf-config
                     namespace: grpl-system
-                    key: beimagetag
               - name: ssl_config
                 valueFrom:
-                  secretKeyRef: 
+                  secretKeyRef:
+                    key: ssl
                     name: grsf-config
                     namespace: grpl-system
-                    key: ssl
               - name: sslissuer_config
                 valueFrom:
-                  secretKeyRef: 
+                  secretKeyRef:
+                    key: sslissuer
                     name: grsf-config
                     namespace: grpl-system
-                    key: sslissuer
               - name: GRAPPLE_LICENSE
                 valueFrom:
-                  secretKeyRef: 
+                  secretKeyRef:
+                    key: GRAPPLE_LICENSE
                     name: grsf-config
                     namespace: grpl-system
-                    key: GRAPPLE_LICENSE
-          writeConnectionSecretsToRef: 
-            namespace: grpl-test
-            name: myrelease-secret
-          providerConfigRef: 
-            # name: providerconfigs.helm.crossplane.io/helm-provider-config
-            name: helm-provider-config
-      patches:
+              values:
+                apiregistry: false
+                asname: ""
+                automigrate: false
+                buildimagecache: true
+                buildimages: false
+                cacheconfigs: {}
+                clusterdomain: ""
+                controllers: []
+                datasources: []
+                deployimages: false
+                dev: false
+                disableexplorer: false
+                discoveredrepos: true
+                discoveries: []
+                externalsecrets: []
+                extraSecrets: []
+                graphql: false
+                grapiversion: 0.0.1
+                imagetag: ""
+                ingress: true
+                initContainers: []
+                models: []
+                monitoring: false
+                name: null
+                openapis: []
+                postpatches: []
+                prediscoverypatches: []
+                prepatches: []
+                prerelationpatches: []
+                relations: []
+                repositories: []
+                restcruds: []
+                runimages: true
+                serviceproviders: []
+                ssl: false
+                sslissuer: letsencrypt-prod-cloud20x
+                translations: false
+                volumeMounts: []
+                volumes: []
+            providerConfigRef:
+              name: helm-provider-config
+            writeConnectionSecretToRef:
+              name: null
+              namespace: null
+        name: resource-0
+        patches:
         - fromFieldPath: spec.claimRef.namespace
+          policy:
+            fromFieldPath: Required
           toFieldPath: spec.forProvider.namespace
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.claimRef.namespace
           policy:
             fromFieldPath: Required
+          toFieldPath: spec.writeConnectionSecretToRef.namespace
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.claimRef.name
+          policy:
+            fromFieldPath: Required
+          toFieldPath: spec.writeConnectionSecretToRef.name
+          transforms:
+          - string:
+              fmt: "%s-grapi-secret"
+              type: Format
+            type: string
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.claimRef.name
+          policy:
+            fromFieldPath: Required
           toFieldPath: metadata.annotations[crossplane.io/external-name]
-          policy:
-            fromFieldPath: Required
           transforms:
-            - type: string
-              string:
-                fmt: "%s-grapi"
+          - string:
+              fmt: '%s-grapi'
+              type: Format
+            type: string
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.claimRef.name
-          toFieldPath: spec.forProvider.values.name
           policy:
             fromFieldPath: Required
+          toFieldPath: spec.forProvider.values.name
           transforms:
-            - type: string
-              string:
-                fmt: "%s-grapi"
+          - string:
+              fmt: '%s-grapi'
+              type: Format
+            type: string
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.asname
           toFieldPath: spec.forProvider.values.asname
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.organization
           toFieldPath: spec.forProvider.values.organization
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.email
           toFieldPath: spec.forProvider.values.email
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.grapiversion
           toFieldPath: spec.forProvider.values.grapiversion
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.clusterdomain
           toFieldPath: spec.forProvider.values.clusterdomain
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.dev
           toFieldPath: spec.forProvider.values.dev
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.ingress
           toFieldPath: spec.forProvider.values.ingress
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.ssl
           toFieldPath: spec.forProvider.values.ssl
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.sslissuer
           toFieldPath: spec.forProvider.values.sslissuer
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.auth
           toFieldPath: spec.forProvider.values.auth
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.automigrate
           toFieldPath: spec.forProvider.values.automigrate
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.autorestartgruim
           toFieldPath: spec.forProvider.values.autorestartgruim
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.customheader
           toFieldPath: spec.forProvider.values.customheader
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.corsurls
           toFieldPath: spec.forProvider.values.corsurls
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.disableexplorer
           toFieldPath: spec.forProvider.values.disableexplorer
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.buildimages
           toFieldPath: spec.forProvider.values.buildimages
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.buildimagecache
           toFieldPath: spec.forProvider.values.buildimagecache
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.runimages
           toFieldPath: spec.forProvider.values.runimages
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.deployimages
           toFieldPath: spec.forProvider.values.deployimages
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.imagetag
           toFieldPath: spec.forProvider.values.imagetag
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.beimage
           toFieldPath: spec.forProvider.values.beimage
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.beimagetag
           toFieldPath: spec.forProvider.values.beimagetag
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.autoscaling
           toFieldPath: spec.forProvider.values.autoscaling
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.resources.resourcesNpmMem
           toFieldPath: spec.forProvider.values.resourcesNpmMem
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.resources.deployimages.spec
           toFieldPath: spec.forProvider.values.resources
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.resources.runimages.spec
           toFieldPath: spec.forProvider.values.imgresources
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.cacheconfigs
           toFieldPath: spec.forProvider.values.cacheconfigs
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.fuzzysearch
           toFieldPath: spec.forProvider.values.fuzzysearch
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.translations
           toFieldPath: spec.forProvider.values.translations
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.apiregistry
           toFieldPath: spec.forProvider.values.apiregistry
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.graphql
           toFieldPath: spec.forProvider.values.graphql
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.monitoring
           toFieldPath: spec.forProvider.values.monitoring
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.discoveredrepos
           toFieldPath: spec.forProvider.values.discoveredrepos
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.externalsecrets
           toFieldPath: spec.forProvider.values.externalsecrets
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.extraSecrets
           toFieldPath: spec.forProvider.values.extraSecrets
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.initContainers
           toFieldPath: spec.forProvider.values.initContainers
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.volumes
           toFieldPath: spec.forProvider.values.volumes
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.volumeMounts
           toFieldPath: spec.forProvider.values.volumeMounts
-
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.datasources
           toFieldPath: spec.forProvider.values.datasources
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.discoveries
           toFieldPath: spec.forProvider.values.discoveries
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.models
           toFieldPath: spec.forProvider.values.models
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.relations
           toFieldPath: spec.forProvider.values.relations
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.serviceproviders
           toFieldPath: spec.forProvider.values.serviceproviders
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.openapis
           toFieldPath: spec.forProvider.values.openapis
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.restcruds
           toFieldPath: spec.forProvider.values.restcruds
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.repositories
           toFieldPath: spec.forProvider.values.repositories
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.controllers
           toFieldPath: spec.forProvider.values.controllers
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.prepatches
           toFieldPath: spec.forProvider.values.prepatches
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.prediscoverypatches
           toFieldPath: spec.forProvider.values.prediscoverypatches
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.prerelationpatches
           toFieldPath: spec.forProvider.values.prerelationpatches
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.postpatches
           toFieldPath: spec.forProvider.values.postpatches
+          type: FromCompositeFieldPath
+    step: patch-and-transform

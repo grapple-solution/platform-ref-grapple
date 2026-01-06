@@ -1,101 +1,120 @@
+---
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
-  name: gras.grsf.grpl.io
   labels:
     crossplane.io/xrd: compositegrappleapplicationsets.grsf.grpl.io
     provider: gras
+  name: gras.grsf.grpl.io
 spec:
-  # writeConnectionSecretsToNamespace: grpl-system
   compositeTypeRef:
     apiVersion: grsf.grpl.io/v1alpha1
     kind: CompositeGrappleApplicationSet
-  resources:
-    - base:
-        apiVersion: helm.crossplane.io/v1beta1
-        kind: Release
-        metadata:
-          annotations: 
-            crossplane.io/external-name: # patched
-        spec:
-          forProvider:
-            chart:
-              name: gras
-              repository: oci://public.ecr.aws/p7h7z5g3
-              version: 0.2.8
-            namespace: # patched
-            values:
-              name: # patched
-              asname: ""
-              grasversion: # patched
-              grapis: []
-              gruims: []
-            # set: 
-            #   - name: externalDatabase.host
-            #     valueFrom: 
-            #       secretKeyRef: 
-            #         name: 
-            #         namespace: grpl-system
-            #         key: endpoint
-            #   - name: externalDatabase.user
-            #     valueFrom: 
-            #       secretKeyRef: 
-            #         name: 
-            #         namespace: grpl-system
-            #         key: username
-            #   - name: externalDatabase.password
-            #     valueFrom: 
-            #       secretKeyRef: 
-            #         name: 
-            #         namespace: grpl-system
-            #         key: password
-          writeConnectionSecretsToRef: 
-            namespace: grpl-test
-            name: myrelease-secret
-          providerConfigRef: 
-            # name: providerconfigs.helm.crossplane.io/helm-provider-config
-            name: helm-provider-config
-      patches:
+  mode: Pipeline
+  pipeline:
+  - functionRef:
+      name: crossplane-contrib-function-patch-and-transform
+    input:
+      apiVersion: pt.fn.crossplane.io/v1beta1
+      kind: Resources
+      resources:
+      - base:
+          apiVersion: helm.crossplane.io/v1beta1
+          kind: Release
+          metadata:
+            annotations:
+              crossplane.io/external-name: null
+          spec:
+            forProvider:
+              chart:
+                name: gras
+                repository: oci://public.ecr.aws/p7h7z5g3
+                version: 0.2.8
+              namespace: null
+              values:
+                asname: ""
+                grapis: []
+                grasversion: null
+                gruims: []
+                name: null
+            providerConfigRef:
+              name: helm-provider-config
+            writeConnectionSecretToRef:
+              name: null
+              namespace: null
+        name: resource-0
+        patches:
         - fromFieldPath: spec.claimRef.namespace
+          policy:
+            fromFieldPath: Required
           toFieldPath: spec.forProvider.namespace
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.claimRef.namespace
           policy:
             fromFieldPath: Required
+          toFieldPath: spec.writeConnectionSecretToRef.namespace
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.claimRef.name
+          policy:
+            fromFieldPath: Required
+          toFieldPath: spec.writeConnectionSecretToRef.name
+          transforms:
+          - string:
+              fmt: "%s-gras-secret"
+              type: Format
+            type: string
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.claimRef.name
+          policy:
+            fromFieldPath: Required
           toFieldPath: metadata.annotations[crossplane.io/external-name]
-          policy:
-            fromFieldPath: Required
           transforms:
-            - type: string
-              string:
-                fmt: "%s-gras"
+          - string:
+              fmt: '%s-gras'
+              type: Format
+            type: string
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.claimRef.name
-          toFieldPath: spec.forProvider.values.name
           policy:
             fromFieldPath: Required
+          toFieldPath: spec.forProvider.values.name
           transforms:
-            - type: string
-              string:
-                fmt: "%s-gras"
+          - string:
+              fmt: '%s-gras'
+              type: Format
+            type: string
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.claimRef.name
           toFieldPath: spec.forProvider.values.asname
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.grasversion
           toFieldPath: spec.forProvider.values.grasversion
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.customheader
           toFieldPath: spec.forProvider.values.customheader
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.autoscaling
           toFieldPath: spec.forProvider.values.autoscaling
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.resources.resourcesNpmMem
           toFieldPath: spec.forProvider.values.resourcesNpmMem
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.resources.runimages.spec
           toFieldPath: spec.forProvider.values.resources.runimages.spec
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.resources.deployimages.spec
           toFieldPath: spec.forProvider.values.resources.deployimages.spec
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.dev
           toFieldPath: spec.forProvider.values.dev
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.grapis
           toFieldPath: spec.forProvider.values.grapis
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.gruims
           toFieldPath: spec.forProvider.values.gruims
+          type: FromCompositeFieldPath
+    step: patch-and-transform
 
 
         # - fromFieldPath: spec.clusterdomain
