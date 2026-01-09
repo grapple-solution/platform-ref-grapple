@@ -163,7 +163,7 @@ spec:
                     (Default: "")
                     This feature is currently still under development
                 deploymentMode:
-                  description: |\
+                  description: |
                     Deployment mode for this gruim (grapple UI module).
                     - "deploy": Traditional mode - build UI assets at container startup
                     - "build": Build and push optimized image using Dagger (no deployment)
@@ -177,31 +177,31 @@ spec:
                     - deployimage
                   default: deploy
                 dagger:
-                  description: |\
+                  description: |
                     Dagger configuration for building UI images.
                     Only used when deploymentMode is "build".
                   type: object
                   properties:
                     enabled:
-                      description: |\
+                      description: |
                         Enable Dagger-based image building.
                         (Default: false)
                       type: boolean
                       default: true
                     engineEndpoint:
-                      description: |\
+                      description: |
                         Dagger Engine endpoint for building images.
                         (Default: "dagger-engine.grpl-system.svc.cluster.local:8080")
                       type: string
                       default: "dagger-engine.grpl-system.svc.cluster.local:8080"
                     builderModule:
-                      description: |\
+                      description: |
                         Path to the Dagger builder module.
                         (Default: "dagger/gruim-builder")
                       type: string
                       default: "dagger/gruim-builder"
                 imagePullSecrets:
-                  description: |\
+                  description: |
                     Image pull secrets for authenticating with container registries.
                     Used for both pulling base images and pushing built images.
                     (Default: [{name: "image-pull-secret"}])
