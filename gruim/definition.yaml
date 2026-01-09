@@ -162,6 +162,61 @@ spec:
                     Please specify here the imagetag for the gruim (grapple UI modules) image that shall be deployed
                     (Default: "")
                     This feature is currently still under development
+                deploymentMode:
+                  description: |\
+                    Deployment mode for this gruim (grapple UI module).
+                    - "deploy": Traditional mode - build UI assets at container startup
+                    - "build": Build and push optimized image using Dagger (no deployment)
+                    - "deployimage": Deploy pre-built image (fast startup, no build)
+                    (Default: "deploy")
+                    This replaces the deprecated buildimages/runimages/deployimages flags.
+                  type: string
+                  enum:
+                    - deploy
+                    - build
+                    - deployimage
+                  default: deploy
+                dagger:
+                  description: |\
+                    Dagger configuration for building UI images.
+                    Only used when deploymentMode is "build".
+                  type: object
+                  properties:
+                    enabled:
+                      description: |\
+                        Enable Dagger-based image building.
+                        (Default: false)
+                      type: boolean
+                      default: true
+                    engineEndpoint:
+                      description: |\
+                        Dagger Engine endpoint for building images.
+                        (Default: "dagger-engine.grpl-system.svc.cluster.local:8080")
+                      type: string
+                      default: "dagger-engine.grpl-system.svc.cluster.local:8080"
+                    builderModule:
+                      description: |\
+                        Path to the Dagger builder module.
+                        (Default: "dagger/gruim-builder")
+                      type: string
+                      default: "dagger/gruim-builder"
+                imagePullSecrets:
+                  description: |\
+                    Image pull secrets for authenticating with container registries.
+                    Used for both pulling base images and pushing built images.
+                    (Default: [{name: "image-pull-secret"}])
+                    Example:
+                      imagePullSecrets:
+                      - name: registry-credentials
+                  type: array
+                  default:
+                    - name: image-pull-secret
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        description: Name of the secret containing registry credentials
+                        type: string
                 uiimage:
                   type: string
                   description: | 
