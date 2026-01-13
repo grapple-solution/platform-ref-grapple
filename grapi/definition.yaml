@@ -258,6 +258,33 @@ spec:
                         (Default: "dagger/grapi-builder")
                       type: string
                       default: "dagger/grapi-builder"
+                sourceCode:
+                  description: |
+                    Source code configuration for Dagger builds.
+                    Used to clone repository code when building images.
+                  type: object
+                  properties:
+                    enabled:
+                      description: |
+                        Enable git repository cloning for builds.
+                        (Default: false)
+                      type: boolean
+                      default: false
+                    repoUrl:
+                      description: |
+                        Git repository URL to clone.
+                        Example: "https://bitbucket.org/org/repo"
+                      type: string
+                    branch:
+                      description: |
+                        Git branch to clone.
+                        (Default: "main")
+                      type: string
+                      default: "main"
+                    token:
+                      description: |
+                        Git access token for private repositories.
+                      type: string
                 imagePullSecrets:
                   description: |
                     Image pull secrets for authenticating with container registries.
