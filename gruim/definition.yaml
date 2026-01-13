@@ -217,6 +217,8 @@ spec:
                       name:
                         description: Name of the secret containing registry credentials
                         type: string
+                initContainers:
+                  description: |\n                    specify initContainers that shall run successfully before starting the gruim (grapple UI modules)\n                    example:\n                      initContainers:\n                      - name: init-assets\n                        spec:\n                          command:\n                          - bash\n                          - -c\n                          - sleep 5; COMMAND_TO_EXECUTE\n                          image: busybox\n                          name: init-assets\n                  type: array\n                  items:\n                    type: object\n                    properties:\n                      name:\n                        description: please specify the name for the initContainer\n                        type: string\n                      spec:\n                        description: |\n                          please specify the spec for the gruim (grapple UI module) initContainer\n                          verify against:\n                          kubectl explain pod.spec.initContainers\n                        type: object\n                        # allows to specify anything in the object... no verification whatsoever...\n                        x-kubernetes-preserve-unknown-fields: true
                 uiimage:
                   type: string
                   description: | 
