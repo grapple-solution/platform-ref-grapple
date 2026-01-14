@@ -258,6 +258,9 @@ spec:
         - fromFieldPath: spec.dagger
           toFieldPath: spec.forProvider.values.dagger
           type: FromCompositeFieldPath
+        - fromFieldPath: spec.sourceCode
+          toFieldPath: spec.forProvider.values.sourceCode
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.imagePullSecrets
           toFieldPath: spec.forProvider.values.imagePullSecrets
           type: FromCompositeFieldPath
