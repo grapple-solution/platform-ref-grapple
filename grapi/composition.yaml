@@ -118,11 +118,6 @@ spec:
                 graphql: false
                 grapiversion: 0.3.1
                 imagetag: ""
-                deploymentMode: "deploy"
-                dagger:
-                  enabled: true
-                  engineEndpoint: "dagger-engine.grpl-system.svc.cluster.local:8080"
-                  builderModule: "dagger/grapi-builder"
                 imagePullSecrets:
                   - name: image-pull-secret
                 ingress: true
@@ -251,12 +246,6 @@ spec:
           type: FromCompositeFieldPath
         - fromFieldPath: spec.imagetag
           toFieldPath: spec.forProvider.values.imagetag
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.deploymentMode
-          toFieldPath: spec.forProvider.values.deploymentMode
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.dagger
-          toFieldPath: spec.forProvider.values.dagger
           type: FromCompositeFieldPath
         - fromFieldPath: spec.sourceCode
           toFieldPath: spec.forProvider.values.sourceCode

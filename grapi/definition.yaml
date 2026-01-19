@@ -192,9 +192,8 @@ spec:
                             (TODO: NOT YET IMPLEMENTED)
                 buildimages:
                   description: |
-                    Shall images be built (pre-baked) for this grapi (grapple API)?
+                    Set to true to build images using Dagger for this grapi (grapple API).
                     (Default: false)
-                    This feature is currently still under development
                   type: boolean
                 buildimagecache:
                   description: |
@@ -220,44 +219,6 @@ spec:
                     (Default: "")
                     This feature is currently still under development
                   type: string
-                deploymentMode:
-                  description: |
-                    Deployment mode for this grapi (grapple API).
-                    - "deploy": Traditional mode - run build scripts at container startup
-                    - "build": Build and push optimized image using Dagger (no deployment)
-                    - "deployimage": Deploy pre-built image (fast startup, no build scripts)
-                    (Default: "deploy")
-                    This replaces the deprecated buildimages/runimages/deployimages flags.
-                  type: string
-                  enum:
-                    - deploy
-                    - build
-                    - deployimage
-                  default: deploy
-                dagger:
-                  description: |
-                    Dagger configuration for building images.
-                    Only used when deploymentMode is "build".
-                  type: object
-                  properties:
-                    enabled:
-                      description: |
-                        Enable Dagger-based image building.
-                        (Default: false)
-                      type: boolean
-                      default: true
-                    engineEndpoint:
-                      description: |
-                        Dagger Engine endpoint for building images.
-                        (Default: "dagger-engine.grpl-system.svc.cluster.local:8080")
-                      type: string
-                      default: "dagger-engine.grpl-system.svc.cluster.local:8080"
-                    builderModule:
-                      description: |
-                        Path to the Dagger builder module.
-                        (Default: "dagger/grapi-builder")
-                      type: string
-                      default: "dagger/grapi-builder"
                 sourceCode:
                   description: |
                     Source code configuration for Dagger builds.
