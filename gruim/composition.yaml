@@ -167,6 +167,9 @@ spec:
         - fromFieldPath: spec.sslissuer
           toFieldPath: spec.forProvider.values.sslissuer
           type: FromCompositeFieldPath
+        - fromFieldPath: spec.sourceCode
+          toFieldPath: spec.forProvider.values.sourceCode
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.customheader
           toFieldPath: spec.forProvider.values.customheader
           type: FromCompositeFieldPath

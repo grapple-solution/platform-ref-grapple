@@ -132,6 +132,21 @@ spec:
                   description: |
                     Please specify here the ssl issuer for the gruim (grapple UI modules)
                     (Default: "")
+                sourceCode:
+                  type: object
+                  description: |
+                    Source code configuration for building the UI modules.
+                  properties:
+                    enabled:
+                      type: boolean
+                      default: false
+                    repoUrl:
+                      type: string
+                    branch:
+                      type: string
+                      default: "main"
+                    token:
+                      type: string
                 buildimages:
                   type: boolean
                   description: | 
