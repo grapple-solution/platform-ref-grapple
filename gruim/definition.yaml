@@ -330,5 +330,20 @@ spec:
                           example:
                           TODO: add a simple example for a module injection
                         type: string
+                postpatches:
+                  type: array
+                  description: |
+                    Please add here base64 encoded post patches scripts that shall be executed
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        description: please specify the name for the post patch
+                        type: string
+                      content:
+                        description: |
+                          Please specify the content/code for the post patch
+                          (base64 encoded string)
+                        type: string
                 # required:
                 #   - id
