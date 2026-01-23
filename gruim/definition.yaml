@@ -310,6 +310,57 @@ spec:
                     example:
                     svelte-fullcalendar@2.0.0-beta.0 @fullcalendar/common@5.10.1 @fullcalendar/core@5.10.1 @fullcalendar/daygrid@5.10.1 @fullcalendar/interaction@5.10.1 @fullcalendar/timegrid@5.10.1 dayjs@1.11.2
                     (Default: "")
+                initContainers:
+                  description: |\
+                    specify initContainers that shall run successfully before starting the gruim (grapple UI modules)
+                    example:
+                      initContainers:
+                      - name: init-modules
+                        spec:
+                          command:
+                          - /bin/sh
+                          - -c
+                          - cp -r /modules/* /opt/custom-modules/
+                          image: grpl/jcs-dev-modules:0.1.32.dev
+                          name: init-modules
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        description: please specify the name for the initContainer
+                        type: string
+                      spec:
+                        description: |\
+                          please specify the spec for the gruim (grapple UI modules) initContainer
+                          verify against:
+                          kubectl explain pod.spec.initContainers
+                        type: object
+                        # allows to specify anything in the object... no verification whatsoever...
+                        x-kubernetes-preserve-unknown-fields: true
+                volumes:
+                  description: "Specify additional volumes that shall be attached to the gruim (grapple UI modules)\\nverify against: \\nkubectl explain pod.spec.volumes\\n"
+                  type: array
+                  items:
+                    description: |\
+                      please specify the spec for the gruim (grapple UI modules) volumes
+                      verify against:
+                      kubectl explain pod.spec.volumes
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                volumeMounts:
+                  description: |\
+                    specify volumeMounts that shall be mounted to the gruim (grapple UI modules)
+                    verify against:
+                    kubectl explain pod.spec.containers.volumeMounts
+                  type: array
+                  items:
+                    description: |\
+                      please specify the spec for the gruim (grapple UI modules) volumeMounts
+                      verify against:
+                      kubectl explain pod.spec.containers.volumeMounts
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
                 custommodules:
                   type: array
                   description: |

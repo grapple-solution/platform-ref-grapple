@@ -82,6 +82,9 @@ spec:
                 clusterdomain: ""
                 config: ""
                 custommodules: []
+                initContainers: []
+                volumes: []
+                volumeMounts: []
                 deployimages: false
                 dev: false
                 endpoint: ""
@@ -232,5 +235,14 @@ spec:
           type: FromCompositeFieldPath
         - fromFieldPath: spec.prepatches
           toFieldPath: spec.forProvider.values.prepatches
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.initContainers
+          toFieldPath: spec.forProvider.values.initContainers
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.volumes
+          toFieldPath: spec.forProvider.values.volumes
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.volumeMounts
+          toFieldPath: spec.forProvider.values.volumeMounts
           type: FromCompositeFieldPath
     step: patch-and-transform
