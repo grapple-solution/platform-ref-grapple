@@ -132,21 +132,6 @@ spec:
                   description: |
                     Please specify here the ssl issuer for the gruim (grapple UI modules)
                     (Default: "")
-                sourceCode:
-                  type: object
-                  description: |
-                    Source code configuration for building the UI modules.
-                  properties:
-                    enabled:
-                      type: boolean
-                      default: false
-                    repoUrl:
-                      type: string
-                    branch:
-                      type: string
-                      default: "main"
-                    token:
-                      type: string
                 buildimages:
                   type: boolean
                   description: | 
@@ -176,23 +161,6 @@ spec:
                     Please specify here the imagetag for the gruim (grapple UI modules) image that shall be deployed
                     (Default: "")
                     This feature is currently still under development
-                imagePullSecrets:
-                  description: |
-                    Image pull secrets for authenticating with container registries.
-                    Used for both pulling base images and pushing built images.
-                    (Default: [{name: "image-pull-secret"}])
-                    Example:
-                      imagePullSecrets:
-                      - name: registry-credentials
-                  type: array
-                  default:
-                    - name: image-pull-secret
-                  items:
-                    type: object
-                    properties:
-                      name:
-                        description: Name of the secret containing registry credentials
-                        type: string
                 uiimage:
                   type: string
                   description: | 
