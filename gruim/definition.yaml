@@ -135,9 +135,8 @@ spec:
                 buildimages:
                   type: boolean
                   description: | 
-                    Shall images be built (pre-baked) for this gruim (grapple UI modules)
+                    Set to true to build images using Dagger for this gruim (grapple UI modules).
                     (Default: false)
-                    This feature is currently still under development
                 buildimagecache:
                   type: boolean
                   description: | 

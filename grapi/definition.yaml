@@ -192,9 +192,8 @@ spec:
                             (TODO: NOT YET IMPLEMENTED)
                 buildimages:
                   description: |
-                    Shall images be built (pre-baked) for this grapi (grapple API)?
+                    Set to true to build images for grapi (grapple API).
                     (Default: false)
-                    This feature is currently still under development
                   type: boolean
                 buildimagecache:
                   description: |
