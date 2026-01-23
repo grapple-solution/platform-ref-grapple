@@ -136,6 +136,7 @@ spec:
                 ssl: false
                 sslissuer: letsencrypt-prod-cloud20x
                 translations: false
+                volumeMounts: []
                 volumes: []
             providerConfigRef:
               name: helm-provider-config
