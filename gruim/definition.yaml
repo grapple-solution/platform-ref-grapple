@@ -311,7 +311,7 @@ spec:
                     svelte-fullcalendar@2.0.0-beta.0 @fullcalendar/common@5.10.1 @fullcalendar/core@5.10.1 @fullcalendar/daygrid@5.10.1 @fullcalendar/interaction@5.10.1 @fullcalendar/timegrid@5.10.1 dayjs@1.11.2
                     (Default: "")
                 initContainers:
-                  description: |\
+                  description: |
                     specify initContainers that shall run successfully before starting the gruim (grapple UI modules)
                     example:
                       initContainers:
@@ -331,7 +331,7 @@ spec:
                         description: please specify the name for the initContainer
                         type: string
                       spec:
-                        description: |\
+                        description: |
                           please specify the spec for the gruim (grapple UI modules) initContainer
                           verify against:
                           kubectl explain pod.spec.initContainers
@@ -342,20 +342,20 @@ spec:
                   description: "Specify additional volumes that shall be attached to the gruim (grapple UI modules)\\nverify against: \\nkubectl explain pod.spec.volumes\\n"
                   type: array
                   items:
-                    description: |\
+                    description: |
                       please specify the spec for the gruim (grapple UI modules) volumes
                       verify against:
                       kubectl explain pod.spec.volumes
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
                 volumeMounts:
-                  description: |\
+                  description: |
                     specify volumeMounts that shall be mounted to the gruim (grapple UI modules)
                     verify against:
                     kubectl explain pod.spec.containers.volumeMounts
                   type: array
                   items:
-                    description: |\
+                    description: |
                       please specify the spec for the gruim (grapple UI modules) volumeMounts
                       verify against:
                       kubectl explain pod.spec.containers.volumeMounts
