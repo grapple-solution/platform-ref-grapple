@@ -93,6 +93,7 @@ spec:
                 name: null
                 openapi: ""
                 postpatches: []
+                prepatches: []
                 runimages: true
                 ssl: false
                 sslissuer: letsencrypt-prod-cloud20x
@@ -228,5 +229,8 @@ spec:
           type: FromCompositeFieldPath
         - fromFieldPath: spec.postpatches
           toFieldPath: spec.forProvider.values.postpatches
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.prepatches
+          toFieldPath: spec.forProvider.values.prepatches
           type: FromCompositeFieldPath
     step: patch-and-transform
