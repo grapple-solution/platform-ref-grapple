@@ -118,8 +118,6 @@ spec:
                 graphql: false
                 grapiversion: 0.3.1
                 imagetag: ""
-                imagePullSecrets:
-                  - name: image-pull-secret
                 ingress: true
                 initContainers: []
                 models: []
@@ -138,7 +136,6 @@ spec:
                 ssl: false
                 sslissuer: letsencrypt-prod-cloud20x
                 translations: false
-                volumeMounts: []
                 volumes: []
             providerConfigRef:
               name: helm-provider-config
@@ -246,12 +243,6 @@ spec:
           type: FromCompositeFieldPath
         - fromFieldPath: spec.imagetag
           toFieldPath: spec.forProvider.values.imagetag
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.sourceCode
-          toFieldPath: spec.forProvider.values.sourceCode
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.imagePullSecrets
-          toFieldPath: spec.forProvider.values.imagePullSecrets
           type: FromCompositeFieldPath
         - fromFieldPath: spec.beimage
           toFieldPath: spec.forProvider.values.beimage

@@ -192,7 +192,7 @@ spec:
                             (TODO: NOT YET IMPLEMENTED)
                 buildimages:
                   description: |
-                    Set to true to build images using Dagger for this grapi (grapple API).
+                    Set to true to build images for grapi (grapple API).
                     (Default: false)
                   type: boolean
                 buildimagecache:

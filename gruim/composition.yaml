@@ -87,8 +87,7 @@ spec:
                 endpoint: ""
                 gruimversion: 0.3.1
                 imagetag: ""
-                imagePullSecrets:
-                  - name: image-pull-secret
+                imagetag: ""
                 ingress: true
                 mapi: ""
                 monitoring: false
@@ -167,8 +166,6 @@ spec:
         - fromFieldPath: spec.sslissuer
           toFieldPath: spec.forProvider.values.sslissuer
           type: FromCompositeFieldPath
-        - fromFieldPath: spec.sourceCode
-          toFieldPath: spec.forProvider.values.sourceCode
           type: FromCompositeFieldPath
         - fromFieldPath: spec.customheader
           toFieldPath: spec.forProvider.values.customheader
@@ -188,8 +185,6 @@ spec:
         - fromFieldPath: spec.imagetag
           toFieldPath: spec.forProvider.values.imagetag
           type: FromCompositeFieldPath
-        - fromFieldPath: spec.imagePullSecrets
-          toFieldPath: spec.forProvider.values.imagePullSecrets
           type: FromCompositeFieldPath
         - fromFieldPath: spec.autoscaling
           toFieldPath: spec.forProvider.values.autoscaling
