@@ -88,7 +88,7 @@ spec:
                 deployimages: false
                 dev: false
                 endpoint: ""
-                gruimversion: 0.3.1
+                gruimversion: 0.3.2
                 imagetag: ""
                 ingress: true
                 mapi: ""
