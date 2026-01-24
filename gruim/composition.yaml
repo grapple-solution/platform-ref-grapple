@@ -29,7 +29,7 @@ spec:
               chart:
                 name: gruim
                 repository: oci://public.ecr.aws/p7h7z5g3
-                version: 0.3.1
+                version: 0.3.2
               namespace: null
               set:
               - name: gruimversion
@@ -82,16 +82,21 @@ spec:
                 clusterdomain: ""
                 config: ""
                 custommodules: []
+                initContainers: []
+                volumes: []
+                volumeMounts: []
                 deployimages: false
                 dev: false
                 endpoint: ""
-                gruimversion: 0.3.1
+                gruimversion: 0.3.2
                 imagetag: ""
                 ingress: true
                 mapi: ""
                 monitoring: false
                 name: null
                 openapi: ""
+                postpatches: []
+                prepatches: []
                 runimages: true
                 ssl: false
                 sslissuer: letsencrypt-prod-cloud20x
@@ -226,5 +231,20 @@ spec:
           type: FromCompositeFieldPath
         - fromFieldPath: spec.custommodules
           toFieldPath: spec.forProvider.values.custommodules
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.postpatches
+          toFieldPath: spec.forProvider.values.postpatches
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.prepatches
+          toFieldPath: spec.forProvider.values.prepatches
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.initContainers
+          toFieldPath: spec.forProvider.values.initContainers
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.volumes
+          toFieldPath: spec.forProvider.values.volumes
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.volumeMounts
+          toFieldPath: spec.forProvider.values.volumeMounts
           type: FromCompositeFieldPath
     step: patch-and-transform
