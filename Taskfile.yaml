@@ -11,7 +11,7 @@ vars:
   CURRENT_VERSION:
     sh: |
       if [ ! -f "{{.VERSION_FILE}}" ]; then
-        echo "0.3.0" > {{.VERSION_FILE}}
+        echo "0.3.1" > {{.VERSION_FILE}}
       fi
       cat {{.VERSION_FILE}}
   BEBASEIMAGE: "grpl/loopback"

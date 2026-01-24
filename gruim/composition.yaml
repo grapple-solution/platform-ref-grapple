@@ -88,7 +88,7 @@ spec:
                 deployimages: false
                 dev: false
                 endpoint: ""
-                gruimversion: 0.0.1
+                gruimversion: 0.3.1
                 imagetag: ""
                 ingress: true
                 mapi: ""
@@ -170,6 +170,7 @@ spec:
         - fromFieldPath: spec.sslissuer
           toFieldPath: spec.forProvider.values.sslissuer
           type: FromCompositeFieldPath
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.customheader
           toFieldPath: spec.forProvider.values.customheader
           type: FromCompositeFieldPath
@@ -187,6 +188,7 @@ spec:
           type: FromCompositeFieldPath
         - fromFieldPath: spec.imagetag
           toFieldPath: spec.forProvider.values.imagetag
+          type: FromCompositeFieldPath
           type: FromCompositeFieldPath
         - fromFieldPath: spec.autoscaling
           toFieldPath: spec.forProvider.values.autoscaling

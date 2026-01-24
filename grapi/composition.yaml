@@ -116,7 +116,7 @@ spec:
                 externalsecrets: []
                 extraSecrets: []
                 graphql: false
-                grapiversion: 0.0.1
+                grapiversion: 0.3.1
                 imagetag: ""
                 ingress: true
                 initContainers: []
