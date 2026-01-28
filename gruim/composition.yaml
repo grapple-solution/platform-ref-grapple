@@ -102,6 +102,7 @@ spec:
                 sslissuer: letsencrypt-prod-cloud20x
                 style: ""
                 uimodules: true
+                enableModuleVolume: false
             providerConfigRef:
               name: helm-provider-config
             writeConnectionSecretToRef:
@@ -207,6 +208,9 @@ spec:
           type: FromCompositeFieldPath
         - fromFieldPath: spec.uimodules
           toFieldPath: spec.forProvider.values.uimodules
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.enableModuleVolume
+          toFieldPath: spec.forProvider.values.enableModuleVolume
           type: FromCompositeFieldPath
         - fromFieldPath: spec.monitoring
           toFieldPath: spec.forProvider.values.monitoring
