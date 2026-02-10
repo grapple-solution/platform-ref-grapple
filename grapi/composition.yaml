@@ -185,6 +185,9 @@ spec:
               type: Format
             type: string
           type: FromCompositeFieldPath
+        - fromFieldPath: spec.svcName
+          toFieldPath: spec.forProvider.values.svcName
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.asname
           toFieldPath: spec.forProvider.values.asname
           type: FromCompositeFieldPath

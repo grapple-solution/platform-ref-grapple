@@ -84,6 +84,9 @@ spec:
                 name:
                   description: "This field can be used to tweak the name of the grapi. \nIt is optional and shall only be used if required.\n(Default: \"\")\n"
                   type: string
+                svcName:
+                  description: "This field can be used to set a deterministic service name for the grapi. \nIt is optional.\n(Default: \"\")\n"
+                  type: string
                 asname:
                   description: |
                     This field can be used to tweak the name of the parent gras (grapple ApplicationSet).
