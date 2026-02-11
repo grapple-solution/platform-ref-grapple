@@ -155,22 +155,42 @@ spec:
                     Please make sure, an "imagetag" is specified
                     (Default: false)
                     This feature is currently still under development
-                imagetag:
+                buildImageTag:
                   type: string
                   description: | 
-                    Please specify here the imagetag for the gruim (grapple UI modules) image that shall be deployed
+                    Image tag for built images when buildimages=true.
+                    Falls back to imagetag for backward compatibility.
                     (Default: "")
-                    This feature is currently still under development
+                buildImageName:
+                  type: string
+                  description: | 
+                    Image name for built images when buildimages=true.
+                    Falls back to local registry naming convention if not specified.
+                    (Default: "")
                 uiimage:
                   type: string
                   description: | 
-                    Please specify here the image repository for the  gruim (grapple UI modules) base image
+                    Image used as:
+                    (1) Base image when buildimages=true
+                    (2) Runtime image when both buildimages=false and deployimages=false
                     (Default: "grpl/gruim")
                 uiimagetag:
                   type: string
                   description: |
-                    Please specify here the image tag for the gruim (grapple UI modules) base image.
-                    (Default: "0.2.8")
+                    Tag for uiimage.
+                    (Default: gruimversion)
+                deployImageName:
+                  type: string
+                  description: |
+                    Pre-built image name to deploy when deployimages=true and buildimages=false.
+                    MANDATORY when deployimages=true and buildimages=false.
+                    (Default: "")
+                deployImageTag:
+                  type: string
+                  description: |
+                    Pre-built image tag to deploy when deployimages=true and buildimages=false.
+                    MANDATORY when deployimages=true and buildimages=false.
+                    (Default: "")
                 autoscaling:
                   description: | 
                     Please define here the scaling definitions for this gruim (grapple UI module)

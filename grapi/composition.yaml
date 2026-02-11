@@ -245,14 +245,23 @@ spec:
         - fromFieldPath: spec.deployimages
           toFieldPath: spec.forProvider.values.deployimages
           type: FromCompositeFieldPath
-        - fromFieldPath: spec.imagetag
-          toFieldPath: spec.forProvider.values.imagetag
+        - fromFieldPath: spec.buildImageTag
+          toFieldPath: spec.forProvider.values.buildImageTag
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.buildImageName
+          toFieldPath: spec.forProvider.values.buildImageName
           type: FromCompositeFieldPath
         - fromFieldPath: spec.beimage
           toFieldPath: spec.forProvider.values.beimage
           type: FromCompositeFieldPath
         - fromFieldPath: spec.beimagetag
           toFieldPath: spec.forProvider.values.beimagetag
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.deployImageName
+          toFieldPath: spec.forProvider.values.deployImageName
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.deployImageTag
+          toFieldPath: spec.forProvider.values.deployImageTag
           type: FromCompositeFieldPath
         - fromFieldPath: spec.autoscaling
           toFieldPath: spec.forProvider.values.autoscaling
