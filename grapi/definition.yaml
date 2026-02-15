@@ -84,6 +84,9 @@ spec:
                 name:
                   description: "This field can be used to tweak the name of the grapi. \nIt is optional and shall only be used if required.\n(Default: \"\")\n"
                   type: string
+                svcName:
+                  description: "This field can be used to set a deterministic service name for the grapi. \nIt is optional.\n(Default: \"\")\n"
+                  type: string
                 asname:
                   description: |
                     This field can be used to tweak the name of the parent gras (grapple ApplicationSet).
@@ -213,21 +216,41 @@ spec:
                     (Default: false)
                     This feature is currently still under development
                   type: boolean
-                imagetag:
+                buildImageTag:
                   description: |
-                    Please specify here the imagetag for the grapi (grapple API) image that shall be deployed
+                    Image tag for built images when buildimages=true.
+                    Falls back to imagetag for backward compatibility.
                     (Default: "")
-                    This feature is currently still under development
+                  type: string
+                buildImageName:
+                  description: |
+                    Image name for built images when buildimages=true.
+                    Falls back to local registry naming convention if not specified.
+                    (Default: "")
                   type: string
                 beimage:
                   description: |
-                    Please specify here the image repository for the grapi (grapple API) base image
+                    Image used as:
+                    (1) Base image when buildimages=true
+                    (2) Runtime image when both buildimages=false and deployimages=false
                     (Default: "grpl/grapi")
                   type: string
                 beimagetag:
                   description: |
-                    Please specify here the image tag for the grapi (grapple API) base image.
-                    (Default: "0.2.8")
+                    Tag for beimage.
+                    (Default: grapiversion)
+                  type: string
+                deployImageName:
+                  description: |
+                    Pre-built image name to deploy when deployimages=true and buildimages=false.
+                    MANDATORY when deployimages=true and buildimages=false.
+                    (Default: "")
+                  type: string
+                deployImageTag:
+                  description: |
+                    Pre-built image tag to deploy when deployimages=true and buildimages=false.
+                    MANDATORY when deployimages=true and buildimages=false.
+                    (Default: "")
                   type: string
                 autoscaling:
                   description: |

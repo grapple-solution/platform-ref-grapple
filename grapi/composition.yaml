@@ -29,7 +29,7 @@ spec:
               chart:
                 name: grapi
                 repository: oci://public.ecr.aws/p7h7z5g3
-                version: 0.3.3
+                version: 0.3.4
               namespace: null
               set:
               - name: grapiversion
@@ -116,7 +116,7 @@ spec:
                 externalsecrets: []
                 extraSecrets: []
                 graphql: false
-                grapiversion: 0.3.3
+                grapiversion: 0.3.4
                 imagetag: ""
                 ingress: true
                 initContainers: []
@@ -185,6 +185,9 @@ spec:
               type: Format
             type: string
           type: FromCompositeFieldPath
+        - fromFieldPath: spec.svcName
+          toFieldPath: spec.forProvider.values.svcName
+          type: FromCompositeFieldPath
         - fromFieldPath: spec.asname
           toFieldPath: spec.forProvider.values.asname
           type: FromCompositeFieldPath
@@ -242,14 +245,23 @@ spec:
         - fromFieldPath: spec.deployimages
           toFieldPath: spec.forProvider.values.deployimages
           type: FromCompositeFieldPath
-        - fromFieldPath: spec.imagetag
-          toFieldPath: spec.forProvider.values.imagetag
+        - fromFieldPath: spec.buildImageTag
+          toFieldPath: spec.forProvider.values.buildImageTag
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.buildImageName
+          toFieldPath: spec.forProvider.values.buildImageName
           type: FromCompositeFieldPath
         - fromFieldPath: spec.beimage
           toFieldPath: spec.forProvider.values.beimage
           type: FromCompositeFieldPath
         - fromFieldPath: spec.beimagetag
           toFieldPath: spec.forProvider.values.beimagetag
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.deployImageName
+          toFieldPath: spec.forProvider.values.deployImageName
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.deployImageTag
+          toFieldPath: spec.forProvider.values.deployImageTag
           type: FromCompositeFieldPath
         - fromFieldPath: spec.autoscaling
           toFieldPath: spec.forProvider.values.autoscaling
