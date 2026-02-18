@@ -200,7 +200,8 @@ spec:
                   type: object
                   properties:
                     enabled:
-                      description: Set to true to build images for grapi (grapple API). (Default: false)
+                      description: |
+                        Set to true to build images for grapi (grapple API). (Default: false)
                       type: boolean
                     tag:
                       description: |
@@ -237,7 +238,8 @@ spec:
                   type: object
                   properties:
                     enabled:
-                      description: Shall the runtime image be deployed? (Default: true)
+                      description: |
+                        Shall the runtime image be deployed? (Default: true)
                       type: boolean
                     image:
                       description: |
@@ -269,7 +271,8 @@ spec:
                   type: object
                   properties:
                     enabled:
-                      description: Shall the pre-built image be deployed? (Default: false)
+                      description: |
+                        Shall the pre-built image be deployed? (Default: false)
                       type: boolean
                     name:
                       description: |
