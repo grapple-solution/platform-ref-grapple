@@ -29,7 +29,7 @@ spec:
               chart:
                 name: grapi
                 repository: oci://public.ecr.aws/p7h7z5g3
-                version: 0.3.4
+                version: 0.3.5
               namespace: null
               set:
               - name: grapiversion
@@ -138,7 +138,7 @@ spec:
                 externalsecrets: []
                 extraSecrets: []
                 graphql: false
-                grapiversion: 0.3.4
+                grapiversion: 0.3.5
                 imagetag: ""
                 ingress: true
                 initContainers: []
