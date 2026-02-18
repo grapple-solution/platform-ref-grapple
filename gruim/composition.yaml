@@ -29,7 +29,7 @@ spec:
               chart:
                 name: gruim
                 repository: oci://public.ecr.aws/p7h7z5g3
-                version: 0.3.5
+                version: 0.3.6
               namespace: null
               set:
               - name: gruimversion
@@ -88,7 +88,7 @@ spec:
                 deployimages: false
                 dev: false
                 endpoint: ""
-                gruimversion: 0.3.5
+                gruimversion: 0.3.6
                 imagetag: ""
                 ingress: true
                 mapi: ""
