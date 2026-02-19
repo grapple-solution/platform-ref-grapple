@@ -29,7 +29,7 @@ spec:
               chart:
                 name: grapi
                 repository: oci://public.ecr.aws/p7h7z5g3
-                version: 0.3.5
+                version: 0.3.6
               namespace: null
               set:
               - name: grapiversion
@@ -102,13 +102,35 @@ spec:
                 apiregistry: false
                 asname: ""
                 automigrate: false
+                buildimages:
+                  enabled: false
+                  tag: ""
+                  name: ""
+                  resources:
+                    requests:
+                      memory: "2Gi"
+                      cpu: "500m"
+                    limits:
+                      memory: "4Gi"
+                      cpu: "2"
+                  resourcesNpmMem: "3072"
                 buildimagecache: true
-                buildimages: false
                 cacheconfigs: {}
                 clusterdomain: ""
                 controllers: []
                 datasources: []
-                deployimages: false
+                deployimages:
+                  enabled: false
+                  name: ""
+                  tag: ""
+                  resources:
+                    requests:
+                      memory: "256Mi"
+                      cpu: "250m"
+                    limits:
+                      memory: "1Gi"
+                      cpu: "2"
+                  resourcesNpmMem: "768"
                 dev: false
                 disableexplorer: false
                 discoveredrepos: true
@@ -116,7 +138,7 @@ spec:
                 externalsecrets: []
                 extraSecrets: []
                 graphql: false
-                grapiversion: 0.3.5
+                grapiversion: 0.3.6
                 imagetag: ""
                 ingress: true
                 initContainers: []
@@ -131,7 +153,19 @@ spec:
                 relations: []
                 repositories: []
                 restcruds: []
-                runimages: true
+                runimages:
+                  enabled: true
+                  image: ""
+                  tag: ""
+                  resources:
+                    requests:
+
+                      memory: "256Mi"
+                      cpu: "250m"
+                    limits:
+                      memory: "3Gi"
+                      cpu: "4000m"
+                  resourcesNpmMem: "2048"
                 serviceproviders: []
                 ssl: false
                 sslissuer: letsencrypt-prod-cloud20x
@@ -236,44 +270,14 @@ spec:
         - fromFieldPath: spec.buildimages
           toFieldPath: spec.forProvider.values.buildimages
           type: FromCompositeFieldPath
-        - fromFieldPath: spec.buildimagecache
-          toFieldPath: spec.forProvider.values.buildimagecache
+        - fromFieldPath: spec.deployimages
+          toFieldPath: spec.forProvider.values.deployimages
           type: FromCompositeFieldPath
         - fromFieldPath: spec.runimages
           toFieldPath: spec.forProvider.values.runimages
           type: FromCompositeFieldPath
-        - fromFieldPath: spec.deployimages
-          toFieldPath: spec.forProvider.values.deployimages
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.buildImageTag
-          toFieldPath: spec.forProvider.values.buildImageTag
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.buildImageName
-          toFieldPath: spec.forProvider.values.buildImageName
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.beimage
-          toFieldPath: spec.forProvider.values.beimage
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.beimagetag
-          toFieldPath: spec.forProvider.values.beimagetag
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.deployImageName
-          toFieldPath: spec.forProvider.values.deployImageName
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.deployImageTag
-          toFieldPath: spec.forProvider.values.deployImageTag
-          type: FromCompositeFieldPath
         - fromFieldPath: spec.autoscaling
           toFieldPath: spec.forProvider.values.autoscaling
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.resources.resourcesNpmMem
-          toFieldPath: spec.forProvider.values.resourcesNpmMem
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.resources.deployimages.spec
-          toFieldPath: spec.forProvider.values.resources
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.resources.runimages.spec
-          toFieldPath: spec.forProvider.values.imgresources
           type: FromCompositeFieldPath
         - fromFieldPath: spec.cacheconfigs
           toFieldPath: spec.forProvider.values.cacheconfigs

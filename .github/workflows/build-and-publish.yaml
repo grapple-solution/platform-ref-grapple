@@ -12,6 +12,7 @@ on:
 env:
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
 
 jobs:
   build-and-publish:
@@ -68,8 +69,6 @@ jobs:
           fi
 
       - name: Display build info
-        env:
-          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           task info STAGE=${{ steps.stage.outputs.stage }}
 
@@ -79,8 +78,6 @@ jobs:
           task ensure-images
 
       - name: Build package
-        env:
-          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           echo "Building package for stage: ${{ steps.stage.outputs.stage }}"
           task build STAGE=${{ steps.stage.outputs.stage }}
