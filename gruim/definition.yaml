@@ -133,64 +133,104 @@ spec:
                     Please specify here the ssl issuer for the gruim (grapple UI modules)
                     (Default: "")
                 buildimages:
-                  type: boolean
-                  description: | 
-                    Set to true to build images using Dagger for this gruim (grapple UI modules).
-                    (Default: false)
+                  description: |
+                    Build image configuration. Set enabled=true to build images for gruim.
+                    buildimages.tag is MANDATORY when enabled=true.
+                  type: object
+                  properties:
+                    enabled:
+                      description: |
+                        Set to true to build images for gruim (grapple UI modules). (Default: false)
+                      type: boolean
+                    tag:
+                      description: |
+                        Image tag for built images. MANDATORY when enabled=true.
+                        (Default: "")
+                      type: string
+                    name:
+                      description: |
+                        Image name for built images.
+                        Falls back to local registry naming convention if not specified.
+                        (Default: "")
+                      type: string
+                    resources:
+                      description: |
+                        Resource definitions for the build job container.
+                        Default: requests 512Mi/500m, limits 2Gi/2cpu
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    resourcesNpmMem:
+                      description: |
+                        Node.js max_old_space_size for the build job (in MB).
+                        (Default: "")
+                      type: string
                 buildimagecache:
                   type: boolean
-                  description: | 
+                  description: |
                     Shall a cache be used for building the images for this gruim (grapple UI modules)?
                     (Default: false)
                     This feature is currently still under development
                 runimages:
-                  type: boolean
-                  description: | 
-                    Shall the images for this gruim (grapple UI modules) be run directly?
-                    (Default: true)
+                  description: |
+                    Runtime image configuration. Used when runimages.enabled=true (default).
+                    image and tag are also used as the base image when buildimages.enabled=true.
+                  type: object
+                  properties:
+                    enabled:
+                      description: |
+                        Shall the runtime image be deployed? (Default: true)
+                      type: boolean
+                    image:
+                      description: |
+                        Runtime/base image name.
+                        Used as: (1) Base image when buildimages.enabled=true
+                        (2) Runtime image when buildimages.enabled=false and deployimages.enabled=false
+                        (Default: grpl/gruim)
+                      type: string
+                    tag:
+                      description: |
+                        Tag for the runtime/base image.
+                        (Default: gruimversion)
+                      type: string
+                    resources:
+                      description: |
+                        Resource definitions for the runtime container.
+                        Default: requests 256Mi/250m, limits 1Gi/2cpu
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
                 deployimages:
-                  type: boolean
                   description: |
-                    Shall the (pre-baked) images be deployed?
-                    Please make sure, an "imagetag" is specified
-                    (Default: false)
-                    This feature is currently still under development
-                buildImageTag:
-                  type: string
-                  description: | 
-                    Image tag for built images when buildimages=true.
-                    Falls back to imagetag for backward compatibility.
-                    (Default: "")
-                buildImageName:
-                  type: string
-                  description: | 
-                    Image name for built images when buildimages=true.
-                    Falls back to local registry naming convention if not specified.
-                    (Default: "")
-                uiimage:
-                  type: string
-                  description: | 
-                    Image used as:
-                    (1) Base image when buildimages=true
-                    (2) Runtime image when both buildimages=false and deployimages=false
-                    (Default: "grpl/gruim")
-                uiimagetag:
-                  type: string
-                  description: |
-                    Tag for uiimage.
-                    (Default: gruimversion)
-                deployImageName:
-                  type: string
-                  description: |
-                    Pre-built image name to deploy when deployimages=true and buildimages=false.
-                    MANDATORY when deployimages=true and buildimages=false.
-                    (Default: "")
-                deployImageTag:
-                  type: string
-                  description: |
-                    Pre-built image tag to deploy when deployimages=true and buildimages=false.
-                    MANDATORY when deployimages=true and buildimages=false.
-                    (Default: "")
+                    Deploy pre-built image configuration.
+                    deployimages.name and deployimages.tag are MANDATORY when enabled=true and buildimages.enabled=false.
+                  type: object
+                  properties:
+                    enabled:
+                      description: |
+                        Shall the pre-built image be deployed? (Default: false)
+                      type: boolean
+                    name:
+                      description: |
+                        Pre-built image name to deploy.
+                        MANDATORY when enabled=true and buildimages.enabled=false.
+                        (Default: "")
+                      type: string
+                    tag:
+                      description: |
+                        Pre-built image tag to deploy.
+                        MANDATORY when enabled=true and buildimages.enabled=false.
+                        (Default: "")
+                      type: string
+                    resources:
+                      description: |
+                        Resource definitions for the deployed image container.
+                        Default: requests 256Mi/250m, limits 1Gi/2cpu
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    resourcesNpmMem:
+                      description: |
+                        Node.js max_old_space_size for the deployed image container (in MB).
+                        (Default: "")
+                      type: string
                 autoscaling:
                   description: | 
                     Please define here the scaling definitions for this gruim (grapple UI module)

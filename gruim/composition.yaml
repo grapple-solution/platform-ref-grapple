@@ -29,7 +29,7 @@ spec:
               chart:
                 name: gruim
                 repository: oci://public.ecr.aws/p7h7z5g3
-                version: 0.3.6
+                version: 0.3.7
               namespace: null
               set:
               - name: gruimversion
@@ -78,17 +78,19 @@ spec:
                 additionalpackages: ""
                 asname: ""
                 buildimagecache: true
-                buildimages: false
+                buildimages:
+                  enabled: false
                 clusterdomain: ""
                 config: ""
                 custommodules: []
                 initContainers: []
                 volumes: []
                 volumeMounts: []
-                deployimages: false
+                deployimages:
+                  enabled: false
                 dev: false
                 endpoint: ""
-                gruimversion: 0.3.6
+                gruimversion: 0.3.7
                 imagetag: ""
                 ingress: true
                 mapi: ""
@@ -97,7 +99,8 @@ spec:
                 openapi: ""
                 postpatches: []
                 prepatches: []
-                runimages: true
+                runimages:
+                  enabled: true
                 ssl: false
                 sslissuer: letsencrypt-prod-cloud20x
                 style: ""
@@ -171,7 +174,6 @@ spec:
         - fromFieldPath: spec.sslissuer
           toFieldPath: spec.forProvider.values.sslissuer
           type: FromCompositeFieldPath
-          type: FromCompositeFieldPath
         - fromFieldPath: spec.customheader
           toFieldPath: spec.forProvider.values.customheader
           type: FromCompositeFieldPath
@@ -181,29 +183,11 @@ spec:
         - fromFieldPath: spec.buildimagecache
           toFieldPath: spec.forProvider.values.buildimagecache
           type: FromCompositeFieldPath
-        - fromFieldPath: spec.buildImageTag
-          toFieldPath: spec.forProvider.values.buildImageTag
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.buildImageName
-          toFieldPath: spec.forProvider.values.buildImageName
-          type: FromCompositeFieldPath
         - fromFieldPath: spec.runimages
           toFieldPath: spec.forProvider.values.runimages
           type: FromCompositeFieldPath
         - fromFieldPath: spec.deployimages
           toFieldPath: spec.forProvider.values.deployimages
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.uiimage
-          toFieldPath: spec.forProvider.values.uiimage
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.uiimagetag
-          toFieldPath: spec.forProvider.values.uiimagetag
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.deployImageName
-          toFieldPath: spec.forProvider.values.deployImageName
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.deployImageTag
-          toFieldPath: spec.forProvider.values.deployImageTag
           type: FromCompositeFieldPath
         - fromFieldPath: spec.autoscaling
           toFieldPath: spec.forProvider.values.autoscaling
