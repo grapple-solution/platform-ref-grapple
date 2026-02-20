@@ -315,13 +315,6 @@ spec:
                     Please specify whether to deploy the gruim (grapple UI modules)
                     or only the grapi (grapple API)
                     (Default: true)
-                enableModuleVolume:
-                  type: boolean
-                  description: |
-                    Disabled by default. When enabled, the custom modules will be attached as a volume into the gruim (grapple UI modules)
-                    and the init-modules init container will be included in the deployment.
-                    When disabled, the custom modules will be passed as an environment variable in 'custommodules'.
-                    (Default: false)
                 monitoring:
                   description: |
                     Please specify whether the extended monitoring endpoint should be enabled for this gruim (grapple UI modules)?
