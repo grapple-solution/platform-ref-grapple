@@ -399,6 +399,21 @@ spec:
                   description: "auto-restart the gruim (grapple UI module) on a change in the grapi (grapple API) spec \nusing a kubernetes cronjob?\n(Default: false)\n"
                   type: boolean
                   default: false
+                env:
+                  description: |
+                    Please add here the environment variables for this grapi (grapple API).
+                    All variables here become available to all containers (main and init).
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      value:
+                        type: string
+                      valueFrom:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
                 initContainers:
                   description: |
                     specify initContainers that shall run successfully before starting the grapi (grapple API)

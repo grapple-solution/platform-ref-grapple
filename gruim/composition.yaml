@@ -29,7 +29,7 @@ spec:
               chart:
                 name: gruim
                 repository: oci://public.ecr.aws/p7h7z5g3
-                version: 0.3.11
+                version: 0.3.12
               namespace: null
               set:
               - name: gruimversion
@@ -90,7 +90,7 @@ spec:
                   enabled: false
                 dev: false
                 endpoint: ""
-                gruimversion: 0.3.11
+                gruimversion: 0.3.12
                 imagetag: ""
                 ingress: true
                 mapi: ""
@@ -244,5 +244,8 @@ spec:
           type: FromCompositeFieldPath
         - fromFieldPath: spec.volumeMounts
           toFieldPath: spec.forProvider.values.volumeMounts
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.env
+          toFieldPath: spec.forProvider.values.env
           type: FromCompositeFieldPath
     step: patch-and-transform
