@@ -369,6 +369,31 @@ spec:
                     example:
                     svelte-fullcalendar@2.0.0-beta.0 @fullcalendar/common@5.10.1 @fullcalendar/core@5.10.1 @fullcalendar/daygrid@5.10.1 @fullcalendar/interaction@5.10.1 @fullcalendar/timegrid@5.10.1 dayjs@1.11.2
                     (Default: "")
+                env:
+                  description: |
+                    Please add here the environment variables for this gruim (grapple UI module).
+                    All variables here become available to all containers (main and init).
+                    Documentation: https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/
+                    Example:
+                    env:
+                    - name: SVELTE_APP_API_URL
+                      value: "http://my-api.com"
+                    - name: GRAPHQL_ENDPOINT
+                      valueFrom:
+                        configMapKeyRef:
+                          name: my-config
+                          key: graphql_url
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      value:
+                        type: string
+                      valueFrom:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
                 initContainers:
                   description: |
                     specify initContainers that shall run successfully before starting the gruim (grapple UI modules)
