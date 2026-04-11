@@ -373,6 +373,16 @@ spec:
                   description: |
                     Please add here the environment variables for this gruim (grapple UI module).
                     All variables here become available to all containers (main and init).
+                    Documentation: https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/
+                    Example:
+                    env:
+                    - name: SVELTE_APP_API_URL
+                      value: "http://my-api.com"
+                    - name: GRAPHQL_ENDPOINT
+                      valueFrom:
+                        configMapKeyRef:
+                          name: my-config
+                          key: graphql_url
                   type: array
                   items:
                     type: object
