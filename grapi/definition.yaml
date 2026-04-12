@@ -225,12 +225,12 @@ spec:
                         Node.js max_old_space_size for the build job (in MB).
                         Should be <75% of memory limit. Default: 3072 (75% of 4Gi)
                       type: string
-                buildimagecache:
-                  description: |
-                    Shall a cache be used for building the images for this grapi (grapple API)?
-                    (Default: false)
-                    This feature is currently still under development
-                  type: boolean
+                    cache:
+                      description: |
+                        Shall a cache be used for building the images for this grapi (grapple API)?
+                        (Default: true)
+                      type: boolean
+                      default: true
                 runimages:
                   description: |
                     Runtime image configuration. Used when runimages.enabled=true (default).

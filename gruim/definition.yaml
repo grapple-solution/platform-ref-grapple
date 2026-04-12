@@ -164,12 +164,12 @@ spec:
                         Node.js max_old_space_size for the build job (in MB).
                         (Default: "")
                       type: string
-                buildimagecache:
-                  type: boolean
-                  description: |
-                    Shall a cache be used for building the images for this gruim (grapple UI modules)?
-                    (Default: false)
-                    This feature is currently still under development
+                    cache:
+                      description: |
+                        Shall a cache be used for building the images for this gruim (grapple UI modules)?
+                        (Default: true)
+                      type: boolean
+                      default: true
                 runimages:
                   description: |
                     Runtime image configuration. Used when runimages.enabled=true (default).
