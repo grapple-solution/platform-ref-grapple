@@ -29,7 +29,7 @@ spec:
               chart:
                 name: gras
                 repository: oci://public.ecr.aws/p7h7z5g3
-                version: 0.3.15
+                version: 0.3.16
               namespace: null
               values:
                 asname: ""
