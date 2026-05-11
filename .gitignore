@@ -1,4 +1,6 @@
 *.xpkg
+*.tar
+package/
 
 access-key
 secret-access-key
