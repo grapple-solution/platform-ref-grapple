@@ -1,5 +1,6 @@
 *.xpkg
 *.tar
+functions/gras/*.tar
 package/
 
 access-key
