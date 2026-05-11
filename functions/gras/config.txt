@@ -1,0 +1,9 @@
+ kubectl patch function grpl-grsf-lic   --type='json'   -p='[{"op": "replace", "path": "/spec/package", "value":"docker.io/zaialpha/grsf-lic:v0.1.18"}]'
+
+
+
+
+docker buildx build --platform "linux/amd64" . --tag=myimage --load
+docker save myimage -o package/runtime-amd64.tar
+crossplane xpkg --verbose build -f package --embed-runtime-image-tarball=package/runtime-amd64.tar -o package/gras-function-amd64.xpkg
+crossplane xpkg --verbose push -f package/gras-function-amd64.xpkg docker.io/grpl/gras:v0.1.1

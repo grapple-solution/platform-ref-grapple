@@ -51,14 +51,16 @@ spec:
   crossplane:
     version: ">=v2.1.3"
   dependsOn:
-    # - function: docker.io/grpl/grsf-lic
-    #   version: ">=v0.1.16"
+    - function: docker.io/grpl/grsf-lic
+      version: ">=v0.1.16"
     - function: xpkg.upbound.io/crossplane-contrib/function-patch-and-transform
       version: ">=v0.6.0"
     # - function: xpkg.upbound.io/crossplane-contrib/function-dummy
     #   version: ">=v0.2.1"
     - function: xpkg.upbound.io/crossplane-contrib/function-auto-ready
       version: ">=v0.5.2"
+    - function: docker.io/grpl/gras
+      version: ">=v0.1.1"
     # - provider: crossplane/provider-kubernetes
     #   version: ">=v0.5.0-0"
     # - provider: crossplane/provider-helm  

@@ -63,9 +63,9 @@ spec:
                 grasversion:
                   description: 'Please specify here the version of the gras (grapple ApplicationSet)'
                   type: string
-                # clusterdomain:
-                #   description: 'Please specify here the clusterdomain of the target cluster - only use this field if not specified in the grapple config or the gras.'
-                #   type: string
+                clusterdomain:
+                  description: 'Please specify here the clusterdomain of the target cluster - only use this field if not specified in the grapple config or the gras.'
+                  type: string
                 customheader:
                   description: | 
                     Please specify here the custom header content protecting the gras (grapple ApplicationSet) 
@@ -76,15 +76,15 @@ spec:
                     Please specify here if the DEV mode shall be activated for the whole gras (grapple ApplicationSet)
                     (Default: false)
                   type: boolean
-                # ingress:
-                #   description: 'Please specify here if ingress shall be enabled for the whole gras (grapple ApplicationSet) (Default: false)'
-                #   type: boolean
-                # ssl:
-                #   description: 'Please specify here if ssl shall be configured for the whole gras (grapple ApplicationSet) (Default: false)'
-                #   type: boolean
-                # sslissuer:
-                #   description: 'Please specify here the ssl issuer for the whole gras (grapple ApplicationSet) (Default: "")'
-                #   type: string
+                ingress:
+                  description: 'Please specify here if ingress shall be enabled for the whole gras (grapple ApplicationSet) (Default: false)'
+                  type: boolean
+                ssl:
+                  description: 'Please specify here if ssl shall be configured for the whole gras (grapple ApplicationSet) (Default: false)'
+                  type: boolean
+                sslissuer:
+                  description: 'Please specify here the ssl issuer for the whole gras (grapple ApplicationSet) (Default: "")'
+                  type: string
                 autoscaling:
                   description: | 
                     Please define here the scaling definitions for this gras (grapple ApplicationSet)
@@ -110,11 +110,11 @@ spec:
                         Please specify the targetCPUUtilizationPercentage for the resources in this gras (grapple ApplicationSet)
                         Default: 60
                       type: integer
-                    # targetMemoryUtilizationPercentage:
-                    #   description: | 
-                    #     Please specify the targetMemoryUtilizationPercentage for the resources in this gras (grapple ApplicationSet)
-                    #     Default: undefined
-                    #   type: integer
+                    targetMemoryUtilizationPercentage:
+                      description: | 
+                        Please specify the targetMemoryUtilizationPercentage for the resources in this gras (grapple ApplicationSet)
+                        Default: undefined
+                      type: integer
                 resources:
                   description: | 
                     Please add here the resource definitions for this gras (grapple ApplicationSet)
