@@ -1,6 +1,0 @@
-apiVersion: pkg.crossplane.io/v1
-kind: Function
-metadata:
-  name: function-gras
-spec:
-  package: docker.io/grpl/gras:v0.1.1
