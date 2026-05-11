@@ -20,7 +20,7 @@ spec:
       email: "info@grapple-solutions.com"
   - step: gras-logic
     functionRef:
-      name: function-gras
+      name: grpl-gras
   - step: auto-ready
     functionRef:
       name: crossplane-contrib-function-auto-ready

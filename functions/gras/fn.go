@@ -61,6 +61,10 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 		return rsp, nil
 	}
 
+	// Extract claimRef namespace from parent XR to propagate to children
+	parentClaimRef, _ := spec["claimRef"].(map[string]interface{})
+	parentNamespace, _ := parentClaimRef["namespace"].(string)
+
 	// Process Grapis
 	if grapis, ok := spec["grapis"].([]interface{}); ok {
 		for i, g := range grapis {
@@ -78,6 +82,13 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 			// Apply defaults
 			applyDefaults(grapiSpec, grasDefaults)
 
+			// Propagate claimRef for patches in child compositions
+			childName := fmt.Sprintf("%s-%s", xr.Resource.GetName(), name)
+			grapiSpec["claimRef"] = map[string]interface{}{
+				"namespace": parentNamespace,
+				"name":      childName,
+			}
+
 			// Create CompositeGrappleApi resource
 			res := &composed.Unstructured{
 				Unstructured: unstructured.Unstructured{
@@ -85,7 +96,7 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 						"apiVersion": "grsf.grpl.io/v1alpha1",
 						"kind":       "CompositeGrappleApi",
 						"metadata": map[string]interface{}{
-							"name": fmt.Sprintf("%s-%s", xr.Resource.GetName(), name),
+							"name": childName,
 						},
 						"spec": grapiSpec,
 					},
@@ -116,6 +127,13 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 			// Apply defaults
 			applyDefaults(gruimSpec, grasDefaults)
 
+			// Propagate claimRef for patches in child compositions
+			childName := fmt.Sprintf("%s-%s", xr.Resource.GetName(), name)
+			gruimSpec["claimRef"] = map[string]interface{}{
+				"namespace": parentNamespace,
+				"name":      childName,
+			}
+
 			// Create CompositeGrappleUiModule resource
 			res := &composed.Unstructured{
 				Unstructured: unstructured.Unstructured{
@@ -123,7 +141,7 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 						"apiVersion": "grsf.grpl.io/v1alpha1",
 						"kind":       "CompositeGrappleUiModule",
 						"metadata": map[string]interface{}{
-							"name": fmt.Sprintf("%s-%s", xr.Resource.GetName(), name),
+							"name": childName,
 						},
 						"spec": gruimSpec,
 					},
