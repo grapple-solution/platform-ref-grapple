@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/crossplane/crossplane-runtime/pkg/errors"
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
@@ -41,8 +42,17 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 	}
 
 	// Define defaults from GRAS spec
+	parentClaimRef, _ := spec["claimRef"].(map[string]interface{})
+	parentClaimName, _ := parentClaimRef["name"].(string)
+	parentNamespace, _ := parentClaimRef["namespace"].(string)
+
+	asname, _ := spec["asname"].(string)
+	if asname == "" {
+		asname = parentClaimName
+	}
+
 	grasDefaults := map[string]interface{}{
-		"asname":        spec["asname"],
+		"asname":        asname,
 		"grasversion":   spec["grasversion"],
 		"clusterdomain": spec["clusterdomain"],
 		"customheader":  spec["customheader"],
@@ -61,11 +71,10 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 		return rsp, nil
 	}
 
-	// Extract claimRef namespace from parent XR to propagate to children
-	parentClaimRef, _ := spec["claimRef"].(map[string]interface{})
-	parentNamespace, _ := parentClaimRef["namespace"].(string)
-
 	// Process Grapis
+	// Map to store grapi names for gruim mapping
+	grapiMap := make(map[string]string)
+
 	if grapis, ok := spec["grapis"].([]interface{}); ok {
 		for i, g := range grapis {
 			grapi, ok := g.(map[string]interface{})
@@ -83,10 +92,17 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 			applyDefaults(grapiSpec, grasDefaults)
 
 			// Propagate claimRef for patches in child compositions
-			childName := fmt.Sprintf("%s-%s", xr.Resource.GetName(), name)
+			childName := name
+			if name != parentClaimName && !strings.HasPrefix(name, parentClaimName+"-") {
+				childName = fmt.Sprintf("%s-%s", parentClaimName, name)
+			}
+			grapiMap[name] = childName // Store for gruims
+
 			grapiSpec["claimRef"] = map[string]interface{}{
-				"namespace": parentNamespace,
-				"name":      childName,
+				"apiVersion": "grsf.grpl.io/v1alpha1",
+				"kind":       "GrappleApi",
+				"namespace":  parentNamespace,
+				"name":       childName,
 			}
 
 			// Create CompositeGrappleApi resource
@@ -128,10 +144,16 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 			applyDefaults(gruimSpec, grasDefaults)
 
 			// Propagate claimRef for patches in child compositions
-			childName := fmt.Sprintf("%s-%s", xr.Resource.GetName(), name)
+			childName := name
+			if name != parentClaimName && !strings.HasPrefix(name, parentClaimName+"-") {
+				childName = fmt.Sprintf("%s-%s", parentClaimName, name)
+			}
+			gruimSpec["mapi"] = fmt.Sprintf("%s-grapi-mapi", asname)
 			gruimSpec["claimRef"] = map[string]interface{}{
-				"namespace": parentNamespace,
-				"name":      childName,
+				"apiVersion": "grsf.grpl.io/v1alpha1",
+				"kind":       "GrappleUiModule",
+				"namespace":  parentNamespace,
+				"name":       childName,
 			}
 
 			// Create CompositeGrappleUiModule resource
