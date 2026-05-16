@@ -11,21 +11,14 @@ spec:
     kind: CompositeGrappleApplicationSet
   mode: Pipeline
   pipeline:
-  # - step: license-check
-  #   functionRef:
-  #     name: grpl-grsf-lic
-  #   input:
-  #     apiVersion: template.fn.crossplane.io/v1beta1
-  #     kind: Input
-  #     email: "info@grapple-solutions.com"
   - step: gras-logic
     functionRef:
       name: grpl-gras
     input:
       apiVersion: template.fn.crossplane.io/v1beta1
       kind: Input
+      asnameNamingScheme: "{{ .parent }}"
       mapiNamingScheme: "{{ .asname }}-grapi-mapi"
-      childNameScheme: "{{ .parent }}-{{ .child }}"
   - step: auto-ready
     functionRef:
       name: crossplane-contrib-function-auto-ready

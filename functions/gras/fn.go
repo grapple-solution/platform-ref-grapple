@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"strings"
 	"text/template"
 
 	"github.com/crossplane/crossplane-runtime/pkg/errors"
@@ -56,10 +57,20 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 	parentClaimName, _ := parentClaimRef["name"].(string)
 	parentNamespace, _ := parentClaimRef["namespace"].(string)
 
+	// Use configurable asname pattern if missing from spec
 	asname, _ := spec["asname"].(string)
-	if asname == "" {
-		asname = parentClaimName
+	if asname == "" && in.AsnameNamingScheme != "" {
+		res, err := f.renderTemplate(in.AsnameNamingScheme, map[string]string{
+			"parent": parentClaimName,
+		})
+		if err == nil {
+			asname = res
+		}
 	}
+	// Fallback to parentClaimName if no scheme is provided (as a safety measure)
+	// if asname == "" {
+	// 	asname = parentClaimName
+	// }
 
 	grasDefaults := map[string]interface{}{
 		"asname":        asname,
@@ -103,14 +114,8 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 
 			// Propagate claimRef for patches in child compositions
 			childName := name
-			if in.ChildNameScheme != "" {
-				res, err := f.renderTemplate(in.ChildNameScheme, map[string]string{
-					"parent": parentClaimName,
-					"child":  name,
-				})
-				if err == nil {
-					childName = res
-				}
+			if name != parentClaimName && !strings.HasPrefix(name, parentClaimName+"-") {
+				childName = fmt.Sprintf("%s-%s", parentClaimName, name)
 			}
 			grapiMap[name] = childName // Store for gruims
 
@@ -161,24 +166,21 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 
 			// Propagate claimRef for patches in child compositions
 			childName := name
-			if in.ChildNameScheme != "" {
-				res, err := f.renderTemplate(in.ChildNameScheme, map[string]string{
-					"parent": parentClaimName,
-					"child":  name,
-				})
-				if err == nil {
-					childName = res
-				}
+			if name != parentClaimName && !strings.HasPrefix(name, parentClaimName+"-") {
+				childName = fmt.Sprintf("%s-%s", parentClaimName, name)
 			}
-			gruimSpec["mapi"] = ""
+
+			// Use configurable mapi pattern if provided
+			mapi := fmt.Sprintf("%s-grapi-mapi", asname)
 			if in.MapiNamingScheme != "" {
 				res, err := f.renderTemplate(in.MapiNamingScheme, map[string]string{
 					"asname": asname,
 				})
 				if err == nil {
-					gruimSpec["mapi"] = res
+					mapi = res
 				}
 			}
+			gruimSpec["mapi"] = mapi
 			gruimSpec["claimRef"] = map[string]interface{}{
 				"apiVersion": "grsf.grpl.io/v1alpha1",
 				"kind":       "GrappleUiModule",
