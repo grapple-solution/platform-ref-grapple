@@ -171,7 +171,8 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 			}
 
 			// Use configurable mapi pattern if provided
-			mapi := fmt.Sprintf("%s-grapi-mapi", asname)
+			// mapi := fmt.Sprintf("%s-grapi-mapi", asname)
+			mapi := ""
 			if in.MapiNamingScheme != "" {
 				res, err := f.renderTemplate(in.MapiNamingScheme, map[string]string{
 					"asname": asname,
