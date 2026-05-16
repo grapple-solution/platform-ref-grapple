@@ -41,16 +41,15 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 		return rsp, nil
 	}
 
-	// Define defaults from GRAS spec
+	// Define defaults from GRAS spec (values now defaulted/transformed in Composition)
 	parentClaimRef, _ := spec["claimRef"].(map[string]interface{})
 	parentClaimName, _ := parentClaimRef["name"].(string)
 	parentNamespace, _ := parentClaimRef["namespace"].(string)
 
 	asname, _ := spec["asname"].(string)
-	if asname == "" {
-		asname = parentClaimName
-	}
-
+	// if asname == "" {
+	// 	asname = parentClaimName
+	// }
 	grasDefaults := map[string]interface{}{
 		"asname":        asname,
 		"grasversion":   spec["grasversion"],
@@ -148,7 +147,15 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 			if name != parentClaimName && !strings.HasPrefix(name, parentClaimName+"-") {
 				childName = fmt.Sprintf("%s-%s", parentClaimName, name)
 			}
-			gruimSpec["mapi"] = fmt.Sprintf("%s-grapi-mapi", asname)
+
+			// Use pre-calculated mapi from status (set by P&T step)
+			status, _ := xr.Resource.Object["status"].(map[string]interface{})
+			mapi, _ := status["calculatedMapi"].(string)
+			// if mapi == "" {
+			// 	// Fallback if P&T hasn't run or failed
+			// 	mapi = fmt.Sprintf("%s-grapi-mapi", asname)
+			// }
+			gruimSpec["mapi"] = mapi
 			gruimSpec["claimRef"] = map[string]interface{}{
 				"apiVersion": "grsf.grpl.io/v1alpha1",
 				"kind":       "GrappleUiModule",

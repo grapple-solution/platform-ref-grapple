@@ -18,6 +18,25 @@ spec:
   #     apiVersion: template.fn.crossplane.io/v1beta1
   #     kind: Input
   #     email: "info@grapple-solutions.com"
+  - step: transform-values
+    functionRef:
+      name: crossplane-contrib-function-patch-and-transform
+    input:
+      apiVersion: pt.fn.crossplane.io/v1beta1
+      kind: Resources
+      patches:
+        - type: ToCompositeFieldPath
+          fromFieldPath: spec.claimRef.name
+          toFieldPath: spec.asname
+          policy:
+            fromFieldPath: Required
+        - type: ToCompositeFieldPath
+          fromFieldPath: spec.asname
+          toFieldPath: status.calculatedMapi
+          transforms:
+            - type: string
+              string:
+                fmt: "%s-grapi-mapi"
   - step: gras-logic
     functionRef:
       name: grpl-gras

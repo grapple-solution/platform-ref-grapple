@@ -21,7 +21,4 @@ import (
 type Input struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	// Input Params
-	Email string `json:"email"`
 }
