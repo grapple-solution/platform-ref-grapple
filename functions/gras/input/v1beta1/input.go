@@ -21,4 +21,12 @@ import (
 type Input struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	// MapiNamingScheme defines how the mapi ConfigMap name is constructed.
+	// Default: "{{ .asname }}-grapi-mapi"
+	MapiNamingScheme string `json:"mapiNamingScheme,omitempty"`
+
+	// ChildNameScheme defines how child resource names are constructed.
+	// Default: "{{ .parent }}-{{ .child }}"
+	ChildNameScheme string `json:"childNameScheme,omitempty"`
 }

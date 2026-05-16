@@ -1,9 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
-	"strings"
+	"text/template"
 
 	"github.com/crossplane/crossplane-runtime/pkg/errors"
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
@@ -13,6 +14,8 @@ import (
 	"github.com/crossplane/function-sdk-go/resource/composed"
 	"github.com/crossplane/function-sdk-go/response"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+
+	"github.com/crossplane/function-example/input/v1beta1"
 )
 
 // Function returns whatever response you ask it to.
@@ -26,6 +29,13 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 	f.log.Info("Running GRAS logic function", "tag", req.GetMeta().GetTag())
 
 	rsp := response.To(req, response.DefaultTTL)
+
+	// Get the input to the function
+	in := &v1beta1.Input{}
+	if err := request.GetInput(req, in); err != nil {
+		response.Fatal(rsp, errors.Wrapf(err, "cannot get function input"))
+		return rsp, nil
+	}
 
 	// Get the observed composite resource (XR)
 	xr, err := request.GetObservedCompositeResource(req)
@@ -41,15 +51,16 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 		return rsp, nil
 	}
 
-	// Define defaults from GRAS spec (values now defaulted/transformed in Composition)
+	// Define defaults from GRAS spec
 	parentClaimRef, _ := spec["claimRef"].(map[string]interface{})
 	parentClaimName, _ := parentClaimRef["name"].(string)
 	parentNamespace, _ := parentClaimRef["namespace"].(string)
 
 	asname, _ := spec["asname"].(string)
-	// if asname == "" {
-	// 	asname = parentClaimName
-	// }
+	if asname == "" {
+		asname = parentClaimName
+	}
+
 	grasDefaults := map[string]interface{}{
 		"asname":        asname,
 		"grasversion":   spec["grasversion"],
@@ -92,8 +103,14 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 
 			// Propagate claimRef for patches in child compositions
 			childName := name
-			if name != parentClaimName && !strings.HasPrefix(name, parentClaimName+"-") {
-				childName = fmt.Sprintf("%s-%s", parentClaimName, name)
+			if in.ChildNameScheme != "" {
+				res, err := f.renderTemplate(in.ChildNameScheme, map[string]string{
+					"parent": parentClaimName,
+					"child":  name,
+				})
+				if err == nil {
+					childName = res
+				}
 			}
 			grapiMap[name] = childName // Store for gruims
 
@@ -144,18 +161,24 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 
 			// Propagate claimRef for patches in child compositions
 			childName := name
-			if name != parentClaimName && !strings.HasPrefix(name, parentClaimName+"-") {
-				childName = fmt.Sprintf("%s-%s", parentClaimName, name)
+			if in.ChildNameScheme != "" {
+				res, err := f.renderTemplate(in.ChildNameScheme, map[string]string{
+					"parent": parentClaimName,
+					"child":  name,
+				})
+				if err == nil {
+					childName = res
+				}
 			}
-
-			// Use pre-calculated mapi from status (set by P&T step)
-			status, _ := xr.Resource.Object["status"].(map[string]interface{})
-			mapi, _ := status["calculatedMapi"].(string)
-			// if mapi == "" {
-			// 	// Fallback if P&T hasn't run or failed
-			// 	mapi = fmt.Sprintf("%s-grapi-mapi", asname)
-			// }
-			gruimSpec["mapi"] = mapi
+			gruimSpec["mapi"] = ""
+			if in.MapiNamingScheme != "" {
+				res, err := f.renderTemplate(in.MapiNamingScheme, map[string]string{
+					"asname": asname,
+				})
+				if err == nil {
+					gruimSpec["mapi"] = res
+				}
+			}
 			gruimSpec["claimRef"] = map[string]interface{}{
 				"apiVersion": "grsf.grpl.io/v1alpha1",
 				"kind":       "GrappleUiModule",
@@ -203,4 +226,20 @@ func applyDefaults(childSpec map[string]interface{}, defaults map[string]interfa
 			childSpec[k] = v
 		}
 	}
+}
+
+// renderTemplate renders a string template with the given data
+func (f *Function) renderTemplate(tmplStr string, data interface{}) (string, error) {
+	if tmplStr == "" {
+		return "", nil
+	}
+	tmpl, err := template.New("tmpl").Parse(tmplStr)
+	if err != nil {
+		return "", err
+	}
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, data); err != nil {
+		return "", err
+	}
+	return buf.String(), nil
 }
