@@ -45,6 +45,7 @@ metadata:
   #         - required: true
   #           customError: Cluster ref is required.
 spec:
+  defaultCompositeDeletePolicy: Foreground
   claimNames:
     kind: ManagedApi
     plural: managedapis
