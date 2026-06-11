@@ -3,6 +3,7 @@ kind: CompositeResourceDefinition
 metadata:
   name: compositegrappleresources.grsf.grpl.io
 spec:
+  defaultCompositeDeletePolicy: Foreground
   claimNames:
     kind: GrappleResource
     plural: grappleresources
