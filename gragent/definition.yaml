@@ -1,0 +1,97 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: compositegrappleagents.grsf.grpl.io
+spec:
+  defaultCompositeDeletePolicy: Foreground
+  claimNames:
+    kind: GrappleAgent
+    plural: grappleagents
+    shortNames:
+    - gragent
+    - gragents
+  group: grsf.grpl.io
+  names:
+    kind: CompositeGrappleAgent
+    plural: compositegrappleagents
+    shortNames:
+    - xgragent
+    - xgragents
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              description: Specification of the desired behavior of the gragent (grapple agent).
+              properties:
+                replicaCount:
+                  type: integer
+                  description: Number of replicas.
+                image:
+                  type: object
+                  description: Image options.
+                  x-kubernetes-preserve-unknown-fields: true
+                service:
+                  type: object
+                  description: Service options.
+                  x-kubernetes-preserve-unknown-fields: true
+                lookup:
+                  type: object
+                  description: DNS/SSL lookup config.
+                  x-kubernetes-preserve-unknown-fields: true
+                ingress:
+                  type: object
+                  description: Ingress options.
+                  x-kubernetes-preserve-unknown-fields: true
+                resources:
+                  type: object
+                  description: Container resource requests/limits.
+                  x-kubernetes-preserve-unknown-fields: true
+                config:
+                  type: object
+                  description: Agent configuration mapping.
+                  properties:
+                    name:
+                      type: string
+                      description: Name of the agent.
+                    model:
+                      type: string
+                      description: Model provider and name.
+                    modelOptions:
+                      type: object
+                      description: Model options.
+                      x-kubernetes-preserve-unknown-fields: true
+                    systemPrompt:
+                      type: string
+                      description: Agent system prompt.
+                    mcpServers:
+                      type: object
+                      description: Configuration for MCP servers.
+                      x-kubernetes-preserve-unknown-fields: true
+                    tools:
+                      type: array
+                      description: Paths to custom tool files.
+                      items:
+                        type: string
+                    sandbox:
+                      description: Sandbox shell/filesystem access.
+                      x-kubernetes-preserve-unknown-fields: true
+                    subagents:
+                      type: array
+                      description: Configured subagents.
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    tasks:
+                      type: object
+                      description: Named tasks.
+                      x-kubernetes-preserve-unknown-fields: true
+                    host:
+                      type: string
+                    port:
+                      type: integer

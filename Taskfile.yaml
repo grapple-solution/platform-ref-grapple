@@ -440,7 +440,7 @@ tasks:
         cp crossplane.yaml .build-tmp/
         
         # Copy all definition and composition files
-        for dir in grapi gras gruim gr grsf mapi mds muim; do
+        for dir in grapi gras gruim gr grsf mapi mds muim gragent; do
           if [ -d "$dir" ]; then
             mkdir -p ".build-tmp/$dir"
             cp -r "$dir"/*.yaml .build-tmp/"$dir"/ 2>/dev/null || true
