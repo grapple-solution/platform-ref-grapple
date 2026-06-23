@@ -101,3 +101,8 @@ spec:
                       type: string
                     port:
                       type: integer
+                    waitForServices:
+                      type: array
+                      description: List of service URLs to wait for before startup.
+                      items:
+                        type: string
