@@ -52,6 +52,11 @@ spec:
                   type: object
                   description: Container resource requests/limits.
                   x-kubernetes-preserve-unknown-fields: true
+                toolsConfigMaps:
+                  type: array
+                  description: ConfigMap names containing custom tools.
+                  items:
+                    type: string
                 config:
                   type: object
                   description: Agent configuration mapping.
@@ -78,6 +83,12 @@ spec:
                       description: Paths to custom tool files.
                       items:
                         type: string
+                    custommodules:
+                      type: array
+                      description: Custom modules/tools content.
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
                     sandbox:
                       description: Sandbox shell/filesystem access.
                       x-kubernetes-preserve-unknown-fields: true
