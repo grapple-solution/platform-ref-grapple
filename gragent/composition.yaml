@@ -110,6 +110,3 @@ spec:
         - fromFieldPath: spec.config
           toFieldPath: spec.forProvider.values.config
           type: FromCompositeFieldPath
-        - fromFieldPath: spec.toolsConfigMaps
-          toFieldPath: spec.forProvider.values.toolsConfigMaps
-          type: FromCompositeFieldPath
