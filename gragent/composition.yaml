@@ -35,7 +35,7 @@ spec:
                 replicaCount: 1
                 image:
                   repository: grpl/gragent
-                  tag: "0.1.7"
+                  tag: "0.1.8"
                 config: {}
             providerConfigRef:
               name: helm-provider-config
