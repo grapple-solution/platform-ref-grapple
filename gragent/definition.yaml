@@ -106,3 +106,7 @@ spec:
                       description: List of service URLs to wait for before startup.
                       items:
                         type: string
+                secrets:
+                  type: object
+                  description: Optional key/value pairs of secrets to inject as environment variables into the agent container.
+                  x-kubernetes-preserve-unknown-fields: true

@@ -110,3 +110,6 @@ spec:
         - fromFieldPath: spec.config
           toFieldPath: spec.forProvider.values.config
           type: FromCompositeFieldPath
+        - fromFieldPath: spec.secrets
+          toFieldPath: spec.forProvider.values.secrets
+          type: FromCompositeFieldPath
