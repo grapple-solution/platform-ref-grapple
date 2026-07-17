@@ -123,7 +123,7 @@ spec:
             strategy: string
             string:
               fmt: "http://%s-model.%s.svc.cluster.local/v1"
-            toFieldPath: spec.forProvider.values.extraEnv[0].value
+          toFieldPath: spec.forProvider.values.extraEnv[0].value
           type: CombineFromComposite
       - base:
           apiVersion: modelplane.ai/v1alpha1
