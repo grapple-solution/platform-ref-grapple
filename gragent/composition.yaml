@@ -37,6 +37,9 @@ spec:
                   repository: grpl/gragent
                   tag: "0.1.10.pr-13"
                 config: {}
+                extraEnv:
+                  - name: OPENAI_API_BASE_URL
+                    value: "https://api.openai.com/v1"
             providerConfigRef:
               name: helm-provider-config
             writeConnectionSecretToRef:
@@ -112,4 +115,104 @@ spec:
           type: FromCompositeFieldPath
         - fromFieldPath: spec.secrets
           toFieldPath: spec.forProvider.values.secrets
+          type: FromCompositeFieldPath
+        - combine:
+            variables:
+              - fromFieldPath: spec.claimRef.name
+              - fromFieldPath: spec.claimRef.namespace
+            strategy: string
+            string:
+              fmt: "http://%s-model.%s.svc.cluster.local/v1"
+            toFieldPath: spec.forProvider.values.extraEnv[0].value
+          type: CombineFromComposite
+      - base:
+          apiVersion: modelplane.ai/v1alpha1
+          kind: ModelDeployment
+          metadata:
+            name: null
+            namespace: null
+          spec:
+            replicas: 1
+            engines:
+              - name: vllm
+                members:
+                  - role: Standalone
+                template:
+                  spec:
+                    containers:
+                      - name: engine
+                        image: vllm/vllm-openai:v0.23.0
+                        args:
+                          - "--device=cpu"
+        name: model-deployment
+        patches:
+        - fromFieldPath: spec.claimRef.namespace
+          policy:
+            fromFieldPath: Required
+          toFieldPath: metadata.namespace
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.claimRef.name
+          policy:
+            fromFieldPath: Required
+          toFieldPath: metadata.name
+          transforms:
+          - string:
+              fmt: "%s-model"
+              type: Format
+            type: string
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.config.model
+          toFieldPath: spec.engines[0].template.spec.containers[0].args[1]
+          transforms:
+          - type: string
+            string:
+              type: Regexp
+              regexp:
+                match: "^[^:]+:(.+)$"
+                group: 1
+          - string:
+              fmt: "--model=%s"
+              type: Format
+            type: string
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.config.modelplane.replicas
+          toFieldPath: spec.replicas
+          type: FromCompositeFieldPath
+      - base:
+          apiVersion: modelplane.ai/v1alpha1
+          kind: ModelService
+          metadata:
+            name: null
+            namespace: null
+          spec:
+            endpoints:
+              - selector:
+                  matchLabels:
+                    modelplane.ai/deployment: null
+        name: model-service
+        patches:
+        - fromFieldPath: spec.claimRef.namespace
+          policy:
+            fromFieldPath: Required
+          toFieldPath: metadata.namespace
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.claimRef.name
+          policy:
+            fromFieldPath: Required
+          toFieldPath: metadata.name
+          transforms:
+          - string:
+              fmt: "%s-model"
+              type: Format
+            type: string
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.claimRef.name
+          policy:
+            fromFieldPath: Required
+          toFieldPath: spec.endpoints[0].selector.matchLabels[modelplane.ai/deployment]
+          transforms:
+          - string:
+              fmt: "%s-model"
+              type: Format
+            type: string
           type: FromCompositeFieldPath

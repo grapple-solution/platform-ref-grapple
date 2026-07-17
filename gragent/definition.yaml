@@ -62,6 +62,10 @@ spec:
                     model:
                       type: string
                       description: Model provider and name.
+                    modelplane:
+                      type: object
+                      description: Configuration for internal cluster-hosted model serving via Modelplane.
+                      x-kubernetes-preserve-unknown-fields: true
                     cache:
                       type: object
                       description: Cache configuration.
