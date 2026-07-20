@@ -1,0 +1,50 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: compositemodelplaneservices.grsf.grpl.io
+spec:
+  defaultCompositeDeletePolicy: Foreground
+  claimNames:
+    kind: ModelplaneService
+    plural: modelplaneservices
+    shortNames:
+    - modelplanesvc
+    - modelplanesvcs
+  group: grsf.grpl.io
+  names:
+    kind: CompositeModelplaneService
+    plural: compositemodelplaneservices
+    shortNames:
+    - xmodelplanesvc
+    - xmodelplanesvcs
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              description: Specification of the desired behavior of the modelplane service.
+              properties:
+                model:
+                  type: string
+                  description: The HuggingFace or model identifier to deploy (e.g. Qwen/Qwen2.5-0.5B-Instruct).
+                engine:
+                  type: string
+                  description: Inference engine (e.g. vllm, sglang).
+                  default: vllm
+                gpuCount:
+                  type: integer
+                  description: Number of GPUs required.
+                  default: 0
+                minGpuMemory:
+                  type: string
+                  description: Minimum GPU memory needed.
+                  default: "0Gi"
+                replicas:
+                  type: integer
+                  description: Model replicas to serve.
+                  default: 1

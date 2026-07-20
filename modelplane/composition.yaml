@@ -1,0 +1,104 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  labels:
+    crossplane.io/xrd: compositemodelplaneservices.grsf.grpl.io
+    provider: modelplane
+  name: modelplaneservice.grsf.grpl.io
+spec:
+  compositeTypeRef:
+    apiVersion: grsf.grpl.io/v1alpha1
+    kind: CompositeModelplaneService
+  mode: Pipeline
+  pipeline:
+  - functionRef:
+      name: crossplane-contrib-function-patch-and-transform
+    input:
+      apiVersion: pt.fn.crossplane.io/v1beta1
+      kind: Resources
+      resources:
+      - base:
+          apiVersion: modelplane.ai/v1alpha1
+          kind: ModelDeployment
+          metadata:
+            name: null
+            namespace: null
+          spec:
+            replicas: 1
+            engines:
+              - name: vllm
+                members:
+                  - role: Standalone
+                template:
+                  spec:
+                    containers:
+                      - name: engine
+                        image: vllm/vllm-openai:v0.23.0
+                        args:
+                          - "--device=cpu"
+        name: model-deployment
+        patches:
+        - fromFieldPath: spec.claimRef.namespace
+          policy:
+            fromFieldPath: Required
+          toFieldPath: metadata.namespace
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.claimRef.name
+          policy:
+            fromFieldPath: Required
+          toFieldPath: metadata.name
+          transforms:
+          - string:
+              fmt: "%s-model"
+              type: Format
+            type: string
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.model
+          toFieldPath: spec.engines[0].template.spec.containers[0].args[1]
+          transforms:
+          - string:
+              fmt: "--model=%s"
+              type: Format
+            type: string
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.replicas
+          toFieldPath: spec.replicas
+          type: FromCompositeFieldPath
+      - base:
+          apiVersion: modelplane.ai/v1alpha1
+          kind: ModelService
+          metadata:
+            name: null
+            namespace: null
+          spec:
+            endpoints:
+              - selector:
+                  matchLabels:
+                    modelplane.ai/deployment: null
+        name: model-service
+        patches:
+        - fromFieldPath: spec.claimRef.namespace
+          policy:
+            fromFieldPath: Required
+          toFieldPath: metadata.namespace
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.claimRef.name
+          policy:
+            fromFieldPath: Required
+          toFieldPath: metadata.name
+          transforms:
+          - string:
+              fmt: "%s-model"
+              type: Format
+            type: string
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.claimRef.name
+          policy:
+            fromFieldPath: Required
+          toFieldPath: spec.endpoints[0].selector.matchLabels[modelplane.ai/deployment]
+          transforms:
+          - string:
+              fmt: "%s-model"
+              type: Format
+            type: string
+          type: FromCompositeFieldPath

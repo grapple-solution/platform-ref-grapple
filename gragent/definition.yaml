@@ -62,9 +62,9 @@ spec:
                     model:
                       type: string
                       description: Model provider and name.
-                    modelplane:
+                    modelplaneRef:
                       type: object
-                      description: Configuration for internal cluster-hosted model serving via Modelplane.
+                      description: Optional reference to a ModelplaneService to route queries locally.
                       x-kubernetes-preserve-unknown-fields: true
                     cache:
                       type: object
