@@ -222,6 +222,10 @@ spec:
         - fromFieldPath: spec.asname
           toFieldPath: spec.forProvider.values.asname
           type: FromCompositeFieldPath
+        - fromFieldPath: spec.podAnnotations
+          toFieldPath: spec.forProvider.values.podAnnotations
+          type: FromCompositeFieldPath
+
         - fromFieldPath: spec.organization
           toFieldPath: spec.forProvider.values.organization
           type: FromCompositeFieldPath
