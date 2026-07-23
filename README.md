@@ -67,9 +67,9 @@ task clean             # Clean artifacts
 
 ### Current Version
 
-**Version**: `0.3.17` (see `version.txt`)
+**Version**: `0.3.18` (see `version.txt`)
 
-**Note**: Versions `0.2.x` are reserved for the legacy system. Never publish versions ≤ `0.3.17`!
+**Note**: Versions `0.2.x` are reserved for the legacy system. Never publish versions ≤ `0.3.18`!
 
 ### GitHub Secrets Required
 
