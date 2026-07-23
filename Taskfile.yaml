@@ -11,13 +11,13 @@ vars:
   CURRENT_VERSION:
     sh: |
       if [ ! -f "{{.VERSION_FILE}}" ]; then
-        echo "0.3.17" > {{.VERSION_FILE}}
+        echo "0.3.18" > {{.VERSION_FILE}}
       fi
       cat {{.VERSION_FILE}}
   BEBASEIMAGE: "grpl/loopback"
   BEBASEIMAGEVERSION: "0.3.9"
   UIBASEIMAGE: "grpl/gruim"
-  UIBASEIMAGEVERSION: "0.3.17"
+  UIBASEIMAGEVERSION: "0.3.18"
   STAGE: '{{.STAGE | default "dev"}}'
   GIT_HASH:
     sh: git log -n 1 --format=%h 2>/dev/null || echo "local"
