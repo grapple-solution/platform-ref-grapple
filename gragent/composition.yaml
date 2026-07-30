@@ -29,13 +29,26 @@ spec:
               chart:
                 name: gragent
                 repository: oci://public.ecr.aws/p7h7z5g3
-                version: 0.1.14
+                version: 0.1.15
               namespace: null
+              set:
+              - name: config.cache.password
+                valueFrom:
+                  secretKeyRef:
+                    key: password
+                    name: gragent-redis-redis-account-default
+                    namespace: grpl-system
+              - name: config.cache.user
+                valueFrom:
+                  secretKeyRef:
+                    key: username
+                    name: gragent-redis-redis-account-default
+                    namespace: grpl-system
               values:
                 replicaCount: 1
                 image:
                   repository: grpl/gragent
-                  tag: "0.1.14"
+                  tag: "0.1.15"
                 config: {}
             providerConfigRef:
               name: helm-provider-config
