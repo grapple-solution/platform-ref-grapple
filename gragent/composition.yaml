@@ -38,12 +38,14 @@ spec:
                     key: password
                     name: gragent-redis-redis-account-default
                     namespace: grpl-system
+                    optional: true
               - name: config.cache.user
                 valueFrom:
                   secretKeyRef:
                     key: username
                     name: gragent-redis-redis-account-default
                     namespace: grpl-system
+                    optional: true
               values:
                 replicaCount: 1
                 image:
