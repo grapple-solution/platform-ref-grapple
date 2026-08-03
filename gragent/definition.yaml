@@ -66,6 +66,10 @@ spec:
                       type: object
                       description: Cache configuration.
                       x-kubernetes-preserve-unknown-fields: true
+                    login:
+                      type: object
+                      description: Login protection settings for the agent UI.
+                      x-kubernetes-preserve-unknown-fields: true
                     modelOptions:
                       type: object
                       description: Model options.
