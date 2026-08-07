@@ -113,3 +113,6 @@ spec:
         - fromFieldPath: spec.secrets
           toFieldPath: spec.forProvider.values.secrets
           type: FromCompositeFieldPath
+        - fromFieldPath: spec.dapr
+          toFieldPath: spec.forProvider.values.dapr
+          type: FromCompositeFieldPath
