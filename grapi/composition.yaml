@@ -29,7 +29,7 @@ spec:
               chart:
                 name: grapi
                 repository: oci://public.ecr.aws/p7h7z5g3
-                version: 0.3.18
+                version: 0.3.19
               namespace: null
               set:
               - name: grapiversion
@@ -138,7 +138,7 @@ spec:
                 externalsecrets: []
                 extraSecrets: []
                 graphql: false
-                grapiversion: 0.3.18
+                grapiversion: 0.3.19
                 imagetag: ""
                 ingress: true
                 initContainers: []
@@ -222,6 +222,10 @@ spec:
         - fromFieldPath: spec.asname
           toFieldPath: spec.forProvider.values.asname
           type: FromCompositeFieldPath
+        - fromFieldPath: spec.podAnnotations
+          toFieldPath: spec.forProvider.values.podAnnotations
+          type: FromCompositeFieldPath
+
         - fromFieldPath: spec.organization
           toFieldPath: spec.forProvider.values.organization
           type: FromCompositeFieldPath

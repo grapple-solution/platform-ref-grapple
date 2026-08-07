@@ -85,6 +85,13 @@ spec:
                 name:
                   description: "This field can be used to tweak the name of the grapi. \nIt is optional and shall only be used if required.\n(Default: \"\")\n"
                   type: string
+                podAnnotations:
+                  description: |
+                    Please specify here the annotations to be added to the pod template.
+                    Used for Dapr sidecar injector annotations.
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+
                 asname:
                   description: |
                     This field can be used to tweak the name of the parent gras (grapple ApplicationSet).
