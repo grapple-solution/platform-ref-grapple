@@ -106,7 +106,6 @@ spec:
                 schedule:
                   description: 'cron schedule for the openapi check (e.g. */10 * * * *)'
                   type: string
-                  default: "0 0 1 1 *"
                 # auth:
                 #   description: 'Please specify here if authentication shall be enabled for the deployment (default: false)'
                 #   type: boolean
