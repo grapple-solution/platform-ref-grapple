@@ -118,3 +118,7 @@ spec:
                   type: object
                   description: Optional key/value pairs of secrets to inject as environment variables into the agent container.
                   x-kubernetes-preserve-unknown-fields: true
+                dapr:
+                  type: object
+                  description: Dapr sidecar and pubsub settings.
+                  x-kubernetes-preserve-unknown-fields: true
