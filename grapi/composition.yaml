@@ -257,7 +257,10 @@ spec:
           toFieldPath: spec.forProvider.values.automigrate
           type: FromCompositeFieldPath
         - fromFieldPath: spec.autorestartgruim
-          toFieldPath: spec.forProvider.values.autorestartgruim
+          toFieldPath: "spec.forProvider.values.autorestartgruim"
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.schedule
+          toFieldPath: "spec.forProvider.values.schedule"
           type: FromCompositeFieldPath
         - fromFieldPath: spec.customheader
           toFieldPath: spec.forProvider.values.customheader
