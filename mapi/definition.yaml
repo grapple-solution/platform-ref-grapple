@@ -103,6 +103,9 @@ spec:
                   description: 'auto-restart the gruim on a change in the grapi spec'
                   type: boolean
                   default: false
+                schedule:
+                  description: 'cron schedule for the openapi check (e.g. */10 * * * *)'
+                  type: string
                 # auth:
                 #   description: 'Please specify here if authentication shall be enabled for the deployment (default: false)'
                 #   type: boolean

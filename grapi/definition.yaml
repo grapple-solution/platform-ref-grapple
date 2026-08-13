@@ -404,6 +404,9 @@ spec:
                   description: "auto-restart the gruim (grapple UI module) on a change in the grapi (grapple API) spec \nusing a kubernetes cronjob?\n(Default: false)\n"
                   type: boolean
                   default: false
+                schedule:
+                  description: "cron schedule for the openapi check (e.g. */10 * * * *)\n"
+                  type: string
                 env:
                   description: |
                     Please add here the environment variables for this grapi (grapple API).
