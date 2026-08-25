@@ -142,6 +142,9 @@ spec:
                 imagetag: ""
                 ingress: true
                 initContainers: []
+                livenessProbe: {}
+                readinessProbe: {}
+                startupProbe: {}
                 models: []
                 monitoring: false
                 name: null
@@ -282,6 +285,15 @@ spec:
           type: FromCompositeFieldPath
         - fromFieldPath: spec.autoscaling
           toFieldPath: spec.forProvider.values.autoscaling
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.livenessProbe
+          toFieldPath: spec.forProvider.values.livenessProbe
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.readinessProbe
+          toFieldPath: spec.forProvider.values.readinessProbe
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.startupProbe
+          toFieldPath: spec.forProvider.values.startupProbe
           type: FromCompositeFieldPath
         - fromFieldPath: spec.cacheconfigs
           toFieldPath: spec.forProvider.values.cacheconfigs

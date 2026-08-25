@@ -84,6 +84,9 @@ spec:
                 config: ""
                 custommodules: []
                 initContainers: []
+                livenessProbe: {}
+                readinessProbe: {}
+                startupProbe: {}
                 volumes: []
                 volumeMounts: []
                 deployimages:
@@ -190,6 +193,15 @@ spec:
           type: FromCompositeFieldPath
         - fromFieldPath: spec.autoscaling
           toFieldPath: spec.forProvider.values.autoscaling
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.livenessProbe
+          toFieldPath: spec.forProvider.values.livenessProbe
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.readinessProbe
+          toFieldPath: spec.forProvider.values.readinessProbe
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.startupProbe
+          toFieldPath: spec.forProvider.values.startupProbe
           type: FromCompositeFieldPath
         - fromFieldPath: spec.resources.deployimages.spec
           toFieldPath: spec.forProvider.values.resourcesui
