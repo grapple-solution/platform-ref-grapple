@@ -29,7 +29,7 @@ spec:
               chart:
                 name: grapi
                 repository: oci://public.ecr.aws/p7h7z5g3
-                version: 0.3.20
+                version: 0.3.21
               namespace: null
               set:
               - name: grapiversion
@@ -138,10 +138,13 @@ spec:
                 externalsecrets: []
                 extraSecrets: []
                 graphql: false
-                grapiversion: 0.3.20
+                grapiversion: 0.3.21
                 imagetag: ""
                 ingress: true
                 initContainers: []
+                livenessProbe: {}
+                readinessProbe: {}
+                startupProbe: {}
                 models: []
                 monitoring: false
                 name: null
@@ -282,6 +285,15 @@ spec:
           type: FromCompositeFieldPath
         - fromFieldPath: spec.autoscaling
           toFieldPath: spec.forProvider.values.autoscaling
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.livenessProbe
+          toFieldPath: spec.forProvider.values.livenessProbe
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.readinessProbe
+          toFieldPath: spec.forProvider.values.readinessProbe
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.startupProbe
+          toFieldPath: spec.forProvider.values.startupProbe
           type: FromCompositeFieldPath
         - fromFieldPath: spec.cacheconfigs
           toFieldPath: spec.forProvider.values.cacheconfigs

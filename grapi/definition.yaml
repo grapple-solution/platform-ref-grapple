@@ -92,6 +92,25 @@ spec:
                   type: object
                   x-kubernetes-preserve-unknown-fields: true
 
+                livenessProbe:
+                  description: |
+                    Specify livenessProbe for the grapi container.
+                    Verify against: kubectl explain pod.spec.containers.livenessProbe
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                readinessProbe:
+                  description: |
+                    Specify readinessProbe for the grapi container.
+                    Verify against: kubectl explain pod.spec.containers.readinessProbe
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                startupProbe:
+                  description: |
+                    Specify startupProbe for the grapi container.
+                    Verify against: kubectl explain pod.spec.containers.startupProbe
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+
                 asname:
                   description: |
                     This field can be used to tweak the name of the parent gras (grapple ApplicationSet).

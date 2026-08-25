@@ -29,7 +29,7 @@ spec:
               chart:
                 name: gruim
                 repository: oci://public.ecr.aws/p7h7z5g3
-                version: 0.3.20
+                version: 0.3.21
               namespace: null
               set:
               - name: gruimversion
@@ -84,13 +84,16 @@ spec:
                 config: ""
                 custommodules: []
                 initContainers: []
+                livenessProbe: {}
+                readinessProbe: {}
+                startupProbe: {}
                 volumes: []
                 volumeMounts: []
                 deployimages:
                   enabled: false
                 dev: false
                 endpoint: ""
-                gruimversion: 0.3.20
+                gruimversion: 0.3.21
                 imagetag: ""
                 ingress: true
                 mapi: ""
@@ -190,6 +193,15 @@ spec:
           type: FromCompositeFieldPath
         - fromFieldPath: spec.autoscaling
           toFieldPath: spec.forProvider.values.autoscaling
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.livenessProbe
+          toFieldPath: spec.forProvider.values.livenessProbe
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.readinessProbe
+          toFieldPath: spec.forProvider.values.readinessProbe
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.startupProbe
+          toFieldPath: spec.forProvider.values.startupProbe
           type: FromCompositeFieldPath
         - fromFieldPath: spec.resources.deployimages.spec
           toFieldPath: spec.forProvider.values.resourcesui
