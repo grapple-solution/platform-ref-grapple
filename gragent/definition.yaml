@@ -55,65 +55,240 @@ spec:
                 config:
                   type: object
                   description: Agent configuration mapping.
+                  x-kubernetes-preserve-unknown-fields: true
                   properties:
                     name:
                       type: string
                       description: Name of the agent.
                     model:
                       type: string
-                      description: Model provider and name.
-                    cache:
-                      type: object
-                      description: Cache configuration.
-                      x-kubernetes-preserve-unknown-fields: true
-                    login:
-                      type: object
-                      description: Login protection settings for the agent UI.
-                      x-kubernetes-preserve-unknown-fields: true
-                    modelOptions:
-                      type: object
-                      description: Model options.
-                      x-kubernetes-preserve-unknown-fields: true
+                      description: 'Model provider and name string (e.g. "google-genai:gemini-3.5-flash", "openai:gpt-4o-mini").'
+                    label:
+                      type: string
+                      description: Optional GCP billing label attached to Vertex AI generateContent calls.
                     systemPrompt:
                       type: string
-                      description: Agent system prompt.
-                    mcpServers:
+                      description: Agent system prompt instructions.
+                    modelOptions:
                       type: object
-                      description: Configuration for MCP servers.
+                      description: Optional options passed to model initialization (e.g. temperature, maxTokens).
                       x-kubernetes-preserve-unknown-fields: true
+                      properties:
+                        temperature:
+                          type: number
+                          description: Sampling temperature for model responses.
+                        maxTokens:
+                          type: integer
+                          description: Maximum tokens allowed in model responses.
+                    cache:
+                      type: object
+                      description: Valkey / Redis caching configuration.
+                      x-kubernetes-preserve-unknown-fields: true
+                      properties:
+                        enabled:
+                          type: boolean
+                          description: "Enable prompt / response caching. (Default: false)"
+                        host:
+                          type: string
+                          description: 'Valkey/Redis cache host. (Default: "localhost")'
+                        port:
+                          type: integer
+                          description: "Valkey/Redis cache port. (Default: 6379)"
+                        refSecret:
+                          type: string
+                          description: Name of K8s secret containing cache credentials.
+                        url:
+                          type: string
+                          description: Valkey/Redis connection URL string.
+                        provider:
+                          type: string
+                          description: 'Cache provider type ("openai" or "google-genai"). (Default: "openai")'
+                        model:
+                          type: string
+                          description: Model name for cache embeddings.
+                        defaultThreshold:
+                          type: number
+                          description: "Semantic cache similarity threshold (0.0 to 1.0). (Default: 0.1)"
+                        defaultTtl:
+                          type: integer
+                          description: "Default TTL in seconds. (Default: 86400)"
+                        sessionTtl:
+                          type: integer
+                          description: "Session TTL in seconds. (Default: 300)"
+                        llmTtl:
+                          type: integer
+                          description: "LLM cache TTL in seconds. (Default: 604800)"
+                        toolTtl:
+                          type: integer
+                          description: "Tool execution cache TTL in seconds. (Default: 3600)"
+                    login:
+                      type: object
+                      description: "Login protection settings for the agent UI web server. Credentials can be provided directly (username/password) OR referenced from a Kubernetes secret (loginRefSecret, userNameRefKey, passwordRefKey)."
+                      x-kubernetes-preserve-unknown-fields: true
+                      properties:
+                        enabled:
+                          type: boolean
+                          description: "Enable web UI login authentication. (Default: true)"
+                        username:
+                          type: string
+                          description: "Admin username for web UI login (used when specifying credentials directly)."
+                        password:
+                          type: string
+                          description: "Admin password for web UI login (used when specifying credentials directly)."
+                        loginRefSecret:
+                          type: string
+                          description: "Name of K8s secret containing login credentials (used as an alternative to direct username/password)."
+                        userNameRefKey:
+                          type: string
+                          description: "Key inside loginRefSecret holding the username (used with loginRefSecret)."
+                        passwordRefKey:
+                          type: string
+                          description: "Key inside loginRefSecret holding the password (used with loginRefSecret)."
+                    mcpServers:
+                      type: array
+                      description: List of MCP (Model Context Protocol) server configurations.
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                        description: MCP server connection config.
+                        properties:
+                          name:
+                            type: string
+                            description: Unique name identifier of the MCP server.
+                          url:
+                            type: string
+                            description: Remote endpoint URL for MCP server.
+                          auth:
+                            type: object
+                            description: Authentication settings for MCP server endpoint. Supply credentials either via direct credentials (email & password) or via Kubernetes secretRef.
+                            x-kubernetes-preserve-unknown-fields: true
+                            properties:
+                              loginUrl:
+                                type: string
+                                description: Endpoint URL to acquire auth tokens.
+                              email:
+                                type: string
+                                description: Direct auth email address (Option 1).
+                              password:
+                                type: string
+                                description: Direct auth password (Option 1).
+                              secretRef:
+                                type: object
+                                description: Kubernetes secret reference for MCP auth credentials (Option 2).
+                                properties:
+                                  name:
+                                    type: string
+                                    description: K8s secret name.
+                                  emailKey:
+                                    type: string
+                                    description: Secret key for email.
+                                  passwordKey:
+                                    type: string
+                                    description: Secret key for password.
                     tools:
                       type: array
-                      description: Paths to custom tool files.
+                      description: Paths to custom module files exporting LangChain tools.
                       items:
                         type: string
                     customtools:
                       type: array
-                      description: Custom modules/tools content.
+                      description: Custom modules/tools content objects.
                       items:
                         type: object
                         x-kubernetes-preserve-unknown-fields: true
                     sandbox:
-                      description: Sandbox shell/filesystem access.
+                      type: object
+                      description: Sandbox shell & filesystem access configuration for the container boundary.
                       x-kubernetes-preserve-unknown-fields: true
+                      properties:
+                        enabled:
+                          type: boolean
+                          description: "Enable shell and filesystem sandbox tools. (Default: true)"
+                        rootDir:
+                          type: string
+                          description: Working directory for sandbox shell/filesystem operations.
+                        timeout:
+                          type: number
+                          description: Execution timeout in milliseconds for shell commands.
+                        maxOutputBytes:
+                          type: number
+                          description: Maximum output byte limit for stdout/stderr.
+                        inheritEnv:
+                          type: boolean
+                          description: "Inherit host container process environment into agent shell. (Default: true)"
+                        env:
+                          type: object
+                          description: Custom environment variables for sandbox execution.
+                          x-kubernetes-preserve-unknown-fields: true
+                        virtualMode:
+                          type: boolean
+                          description: Run in virtualized isolation mode.
                     subagents:
                       type: array
-                      description: Configured subagents.
+                      description: Configured specialized subagents.
                       items:
                         type: object
                         x-kubernetes-preserve-unknown-fields: true
+                        properties:
+                          name:
+                            type: string
+                            description: Unique identifier name for the subagent.
+                          description:
+                            type: string
+                            description: Purpose and capabilities description of the subagent.
+                          prompt:
+                            type: string
+                            description: Subagent task prompt/instructions.
+                          systemPrompt:
+                            type: string
+                            description: Subagent system prompt.
+                          tools:
+                            type: array
+                            description: Names of tools available to this subagent.
+                            items:
+                              type: string
+                          model:
+                            type: string
+                            description: Specific model to use for this subagent.
                     tasks:
-                      type: object
-                      description: Named tasks.
-                      x-kubernetes-preserve-unknown-fields: true
+                      type: array
+                      description: List of triggerable task definitions.
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                        properties:
+                          name:
+                            type: string
+                            description: Unique name identifier of the task.
+                          description:
+                            type: string
+                            description: Summary of what the task does.
+                          prompt:
+                            type: string
+                            description: Task prompt template with {{placeholder}} variables.
+                          tools:
+                            type: array
+                            description: List of tool names enabled for this task.
+                            items:
+                              type: string
+                          responseSchema:
+                            type: object
+                            description: Optional JSON Schema defining structured output requirements.
+                            x-kubernetes-preserve-unknown-fields: true
                     host:
                       type: string
+                      description: 'HTTP server bind address. (Default: "0.0.0.0")'
                     port:
                       type: integer
+                      description: "HTTP server port number. (Default: 8080)"
                     waitForServices:
                       type: array
-                      description: List of service URLs to wait for before startup.
+                      description: List of service URLs to poll and wait for before starting the agent.
                       items:
                         type: string
+                    toolRefreshIntervalMs:
+                      type: integer
+                      description: "Tool refresh interval in milliseconds. (Default: 600000)"
                 secrets:
                   type: object
                   description: Optional key/value pairs of secrets to inject as environment variables into the agent container.
