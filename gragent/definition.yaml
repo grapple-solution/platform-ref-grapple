@@ -185,44 +185,19 @@ spec:
                                   passwordKey:
                                     type: string
                                     description: Secret key for password.
-                    tools:
-                      type: array
-                      description: Paths to custom module files exporting LangChain tools.
-                      items:
-                        type: string
                     customtools:
                       type: array
-                      description: Custom modules/tools content objects.
+                      description: List of inline custom tool modules (base64 encoded JS content mounted as ConfigMaps).
                       items:
                         type: object
                         x-kubernetes-preserve-unknown-fields: true
-                    sandbox:
-                      type: object
-                      description: Sandbox shell & filesystem access configuration for the container boundary.
-                      x-kubernetes-preserve-unknown-fields: true
-                      properties:
-                        enabled:
-                          type: boolean
-                          description: "Enable shell and filesystem sandbox tools. (Default: true)"
-                        rootDir:
-                          type: string
-                          description: Working directory for sandbox shell/filesystem operations.
-                        timeout:
-                          type: number
-                          description: Execution timeout in milliseconds for shell commands.
-                        maxOutputBytes:
-                          type: number
-                          description: Maximum output byte limit for stdout/stderr.
-                        inheritEnv:
-                          type: boolean
-                          description: "Inherit host container process environment into agent shell. (Default: true)"
-                        env:
-                          type: object
-                          description: Custom environment variables for sandbox execution.
-                          x-kubernetes-preserve-unknown-fields: true
-                        virtualMode:
-                          type: boolean
-                          description: Run in virtualized isolation mode.
+                        properties:
+                          name:
+                            type: string
+                            description: Filename for the custom tool module (e.g. "my-tool.js").
+                          content:
+                            type: string
+                            description: Base64 encoded JavaScript tool code content.
                     subagents:
                       type: array
                       description: Configured specialized subagents.
