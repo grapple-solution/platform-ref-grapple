@@ -29,13 +29,13 @@ spec:
               chart:
                 name: gragent
                 repository: oci://public.ecr.aws/p7h7z5g3
-                version: 0.1.25-pr34
+                version: 0.1.25
               namespace: null
               values:
                 replicaCount: 1
                 image:
                   repository: grpl/gragent
-                  tag: "0.1.24"
+                  tag: "0.1.25"
                 config: {}
             providerConfigRef:
               name: helm-provider-config
