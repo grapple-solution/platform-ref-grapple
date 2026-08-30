@@ -46,23 +46,26 @@ metadata:
   #           customError: Cluster ref is required.
 spec:
   defaultCompositeDeletePolicy: Foreground
+  claimNames:
+    kind: GrappleApi
+    plural: grappleapis
+    shortNames:
+      - api
+      - apis
+      - grapi
+      - grapis
+      - grplapi
+      - grplapis
+      - grappleapi
   group: grsf.grpl.io
   names:
     kind: CompositeGrappleApi
     plural: compositegrappleapis
     shortNames:
-      - grapi
-      - grapis
-      - api
-      - apis
-      - grplapi
-      - grplapis
-      - grappleapi
-      - grappleapis
-      - xgrapi
-      - xgrapis
       - xapi
       - xapis
+      - xgrapi
+      - xgrapis
       - xgrplapi
       - xgrplapis
       - xgrappleapi
@@ -82,11 +85,6 @@ spec:
                 name:
                   description: "This field can be used to tweak the name of the grapi. \nIt is optional and shall only be used if required.\n(Default: \"\")\n"
                   type: string
-                claimRef:
-                  description: |
-                    Reference to the parent/claim metadata including namespace and name.
-                  type: object
-                  x-kubernetes-preserve-unknown-fields: true
                 podAnnotations:
                   description: |
                     Please specify here the annotations to be added to the pod template.
