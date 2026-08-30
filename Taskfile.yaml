@@ -641,14 +641,16 @@ tasks:
         echo "Checking composition is available..."
         
         echo "Deploying test cases..."
-        cat <<EOF | kubectl apply -n {{.TESTNS}} -f -
+        cat <<EOF | kubectl apply -f -
         apiVersion: grsf.grpl.io/v1alpha1
-        kind: GrappleApi
+        kind: CompositeGrappleApi
         metadata:
           name: mygrapi
-          namespace: {{.TESTNS}}
         spec:
           name: mygrapiid
+          claimRef:
+            namespace: {{.TESTNS}}
+            name: mygrapi
         EOF
         
         echo "Deploying grapi test cases..."

@@ -1,5 +1,5 @@
 apiVersion: grsf.grpl.io/v1alpha1
-kind: GrappleApi
+kind: CompositeGrappleApi
 metadata:
   name: jcscherrer
 spec:
