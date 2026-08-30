@@ -46,33 +46,36 @@ metadata:
   #           customError: Cluster ref is required.
 spec:
   defaultCompositeDeletePolicy: Foreground
-  group: grsf.grpl.io
-  names:
-    kind: CompositeGrappleUiModule
-    plural: compositegrappleuimodules
+  claimNames:
+    kind: GrappleUiModule
+    plural: grappleuimodules
     shortNames:
-    - gruim
-    - gruims
     - uim
     - uims
     - uimodule
     - uimodules
+    - gruim
     - gruimodule
+    - gruims
     - gruimodules
     - grpluim
     - grpluimodule
     - grpluims
     - grpluimodules
     - grappleuimodule
-    - grappleuimodules
-    - xgruim
-    - xgruimodule
-    - xgruims
-    - xgruimodules
+  group: grsf.grpl.io
+  names:
+    kind: CompositeGrappleUiModule
+    plural: compositegrappleuimodules
+    shortNames:
     - xuim
     - xuims
     - xuimodule
     - xuimodules
+    - xgruim
+    - xgruimodule
+    - xgruims
+    - xgruimodules
     - xgrpluim
     - xgrpluimodule
     - xgrpluims
@@ -94,11 +97,6 @@ spec:
                 name:
                   type: string
                   description: "This field can be used to tweak the name of the gruim (grapple UI modules). \nIt is optional and shall only be used if required.\n(Default: \"\")\n"
-                claimRef:
-                  description: |
-                    Reference to the parent/claim metadata including namespace and name.
-                  type: object
-                  x-kubernetes-preserve-unknown-fields: true
                 livenessProbe:
                   description: |
                     Specify livenessProbe for the gruim container.
