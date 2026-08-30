@@ -121,7 +121,7 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 
 			grapiSpec["claimRef"] = map[string]interface{}{
 				"apiVersion": "grsf.grpl.io/v1alpha1",
-				"kind":       "GrappleApi",
+				"kind":       "CompositeGrappleApi",
 				"namespace":  parentNamespace,
 				"name":       childName,
 			}
@@ -184,7 +184,7 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 			gruimSpec["mapi"] = mapi
 			gruimSpec["claimRef"] = map[string]interface{}{
 				"apiVersion": "grsf.grpl.io/v1alpha1",
-				"kind":       "GrappleUiModule",
+				"kind":       "CompositeGrappleUiModule",
 				"namespace":  parentNamespace,
 				"name":       childName,
 			}
