@@ -275,3 +275,24 @@ spec:
                   type: object
                   description: Dapr sidecar and pubsub settings.
                   x-kubernetes-preserve-unknown-fields: true
+                  properties:
+                    enabled:
+                      type: boolean
+                      description: "Enable Dapr sidecar and subscriptions."
+                    config:
+                      type: string
+                      description: "Name of Dapr configuration."
+                    pubsubName:
+                      type: string
+                      description: "Name of Dapr pubsub component."
+                    appMaxConcurrency:
+                      type: string
+                      description: 'Maximum concurrent requests delivered by Dapr sidecar to the application. (Default: "2")'
+                    sidecarCpuRequest:
+                      type: string
+                    sidecarMemoryRequest:
+                      type: string
+                    sidecarCpuLimit:
+                      type: string
+                    sidecarMemoryLimit:
+                      type: string
