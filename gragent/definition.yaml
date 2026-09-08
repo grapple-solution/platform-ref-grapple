@@ -117,10 +117,13 @@ spec:
                           description: "Session TTL in seconds. (Default: 300)"
                         llmTtl:
                           type: integer
-                          description: "LLM cache TTL in seconds. (Default: 604800)"
+                          description: "LLM cache TTL in seconds. (Default: 86400)"
                         toolTtl:
                           type: integer
                           description: "Tool execution cache TTL in seconds. (Default: 3600)"
+                        taskTtl:
+                          type: integer
+                          description: "Task run execution cache TTL in seconds. (Default: 86400)"
                     login:
                       type: object
                       description: "Login protection settings for the agent UI web server. Credentials can be provided directly (username/password) OR referenced from a Kubernetes secret (loginRefSecret, userNameRefKey, passwordRefKey)."
