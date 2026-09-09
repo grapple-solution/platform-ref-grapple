@@ -188,6 +188,9 @@ spec:
                                   passwordKey:
                                     type: string
                                     description: Secret key for password.
+                          mandatoryToolsCall:
+                            type: boolean
+                            description: "When true, at least one tool call from this MCP server is mandatory during a task run. If the model completes the run with zero tool calls, the run will not be cached."
                     customtools:
                       type: array
                       description: List of inline custom tool modules (base64 encoded JS content mounted as ConfigMaps).
