@@ -1,1 +1,18 @@
 *.xpkg
+*.tar
+functions/gras/*.tar
+functions/gras/*.txt
+package/
+
+access-key
+secret-access-key
+
+# Build artifacts
+target/
+
+# Remote taskfile
+.remote-taskfile.yaml
+
+# Temporary files
+*.bak
+.DS_Store

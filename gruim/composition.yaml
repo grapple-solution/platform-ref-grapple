@@ -1,0 +1,263 @@
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  labels:
+    crossplane.io/xrd: compositegrappleuimodules.grsf.grpl.io
+    provider: gruim
+  name: gruim.grsf.grpl.io
+spec:
+  compositeTypeRef:
+    apiVersion: grsf.grpl.io/v1alpha1
+    kind: CompositeGrappleUiModule
+  mode: Pipeline
+  pipeline:
+  - functionRef:
+      name: crossplane-contrib-function-patch-and-transform
+    input:
+      apiVersion: pt.fn.crossplane.io/v1beta1
+      kind: Resources
+      resources:
+      - base:
+          apiVersion: helm.crossplane.io/v1beta1
+          kind: Release
+          metadata:
+            annotations:
+              crossplane.io/external-name: null
+          spec:
+            forProvider:
+              chart:
+                name: gruim
+                repository: oci://public.ecr.aws/p7h7z5g3
+                version: 0.3.21
+              namespace: null
+              set:
+              - name: gruimversion
+                valueFrom:
+                  secretKeyRef:
+                    key: gruimversion
+                    name: grsf-config
+                    namespace: grpl-system
+              - name: clusterdomain
+                valueFrom:
+                  secretKeyRef:
+                    key: clusterdomain
+                    name: grsf-config
+                    namespace: grpl-system
+              - name: dev_config
+                valueFrom:
+                  secretKeyRef:
+                    key: dev
+                    name: grsf-config
+                    namespace: grpl-system
+              - name: sslissuer
+                valueFrom:
+                  secretKeyRef:
+                    key: sslissuer
+                    name: grsf-config
+                    namespace: grpl-system
+              - name: uiimage_config
+                valueFrom:
+                  secretKeyRef:
+                    key: uiimage
+                    name: grsf-config
+                    namespace: grpl-system
+              - name: uiimagetag_config
+                valueFrom:
+                  secretKeyRef:
+                    key: uiimagetag
+                    name: grsf-config
+                    namespace: grpl-system
+              - name: GRAPPLE_LICENSE
+                valueFrom:
+                  secretKeyRef:
+                    key: GRAPPLE_LICENSE
+                    name: grsf-config
+                    namespace: grpl-system
+              values:
+                additionalpackages: ""
+                asname: ""
+                buildimagecache: true
+                buildimages:
+                  enabled: false
+                clusterdomain: ""
+                config: ""
+                custommodules: []
+                initContainers: []
+                livenessProbe: {}
+                readinessProbe: {}
+                startupProbe: {}
+                volumes: []
+                volumeMounts: []
+                deployimages:
+                  enabled: false
+                dev: false
+                endpoint: ""
+                gruimversion: 0.3.21
+                imagetag: ""
+                ingress: true
+                mapi: ""
+                monitoring: false
+                name: null
+                openapi: ""
+                postpatches: []
+                prepatches: []
+                runimages:
+                  enabled: true
+                ssl: false
+                sslissuer: letsencrypt-prod-cloud20x
+                style: ""
+                uimodules: true
+            providerConfigRef:
+              name: helm-provider-config
+            writeConnectionSecretToRef:
+              name: null
+              namespace: null
+        name: resource-0
+        patches:
+        - fromFieldPath: spec.claimRef.namespace
+          policy:
+            fromFieldPath: Required
+          toFieldPath: spec.forProvider.namespace
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.claimRef.namespace
+          policy:
+            fromFieldPath: Required
+          toFieldPath: spec.writeConnectionSecretToRef.namespace
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.claimRef.name
+          policy:
+            fromFieldPath: Required
+          toFieldPath: spec.writeConnectionSecretToRef.name
+          transforms:
+          - string:
+              fmt: "%s-gruim-secret"
+              type: Format
+            type: string
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.claimRef.name
+          policy:
+            fromFieldPath: Required
+          toFieldPath: metadata.annotations[crossplane.io/external-name]
+          transforms:
+          - string:
+              fmt: '%s-gruim'
+              type: Format
+            type: string
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.claimRef.name
+          policy:
+            fromFieldPath: Required
+          toFieldPath: spec.forProvider.values.name
+          transforms:
+          - string:
+              fmt: '%s-gruim'
+              type: Format
+            type: string
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.asname
+          toFieldPath: spec.forProvider.values.asname
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.gruimversion
+          toFieldPath: spec.forProvider.values.gruimversion
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.clusterdomain
+          toFieldPath: spec.forProvider.values.clusterdomain
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.dev
+          toFieldPath: spec.forProvider.values.dev
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.ingress
+          toFieldPath: spec.forProvider.values.ingress
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.ssl
+          toFieldPath: spec.forProvider.values.ssl
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.sslissuer
+          toFieldPath: spec.forProvider.values.sslissuer
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.customheader
+          toFieldPath: spec.forProvider.values.customheader
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.buildimages
+          toFieldPath: spec.forProvider.values.buildimages
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.buildimagecache
+          toFieldPath: spec.forProvider.values.buildimagecache
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.runimages
+          toFieldPath: spec.forProvider.values.runimages
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.deployimages
+          toFieldPath: spec.forProvider.values.deployimages
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.autoscaling
+          toFieldPath: spec.forProvider.values.autoscaling
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.livenessProbe
+          toFieldPath: spec.forProvider.values.livenessProbe
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.readinessProbe
+          toFieldPath: spec.forProvider.values.readinessProbe
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.startupProbe
+          toFieldPath: spec.forProvider.values.startupProbe
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.resources.deployimages.spec
+          toFieldPath: spec.forProvider.values.resourcesui
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.resources.runimages.spec
+          toFieldPath: spec.forProvider.values.imgresourcesui
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.uiimage
+          toFieldPath: spec.forProvider.values.uiimage
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.uiimagetag
+          toFieldPath: spec.forProvider.values.uiimagetag
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.uimodules
+          toFieldPath: spec.forProvider.values.uimodules
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.monitoring
+          toFieldPath: spec.forProvider.values.monitoring
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.mapi
+          toFieldPath: spec.forProvider.values.mapi
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.openapi
+          toFieldPath: spec.forProvider.values.openapi
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.endpoint
+          toFieldPath: spec.forProvider.values.endpoint
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.style
+          toFieldPath: spec.forProvider.values.style
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.config
+          toFieldPath: spec.forProvider.values.config
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.additionalpackages
+          toFieldPath: spec.forProvider.values.additionalpackages
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.custommodules
+          toFieldPath: spec.forProvider.values.custommodules
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.postpatches
+          toFieldPath: spec.forProvider.values.postpatches
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.prepatches
+          toFieldPath: spec.forProvider.values.prepatches
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.initContainers
+          toFieldPath: spec.forProvider.values.initContainers
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.volumes
+          toFieldPath: spec.forProvider.values.volumes
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.volumeMounts
+          toFieldPath: spec.forProvider.values.volumeMounts
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.env
+          toFieldPath: spec.forProvider.values.env
+          type: FromCompositeFieldPath
+    step: patch-and-transform

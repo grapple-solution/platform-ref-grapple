@@ -1,0 +1,113 @@
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  labels:
+    crossplane.io/xrd: compositegrapplesolutionframeworks.grsf.grpl.io
+    provider: grsf
+  name: grsf.grsf.grpl.io
+spec:
+  compositeTypeRef:
+    apiVersion: grsf.grpl.io/v1alpha1
+    kind: CompositeGrappleSolutionFramework
+  mode: Pipeline
+  pipeline:
+  - functionRef:
+      name: crossplane-contrib-function-patch-and-transform
+    input:
+      apiVersion: pt.fn.crossplane.io/v1beta1
+      kind: Resources
+      resources:
+      - base:
+          apiVersion: helm.crossplane.io/v1beta1
+          kind: Release
+          metadata:
+            annotations:
+              crossplane.io/external-name: null
+          spec:
+            forProvider:
+              chart:
+                name: grsf
+                repository: oci://public.ecr.aws/p7h7z5g3
+                version: 0.3.21
+              namespace: null
+              values:
+                clusterdomain: null
+                external-secrets: ""
+            providerConfigRef:
+              name: helm-provider-config
+            writeConnectionSecretToRef:
+              name: grsf-secret
+              namespace: grpl-system
+        name: resource-0
+        patches:
+        - fromFieldPath: spec.claimRef.namespace
+          policy:
+            fromFieldPath: Required
+          toFieldPath: spec.forProvider.namespace
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.claimRef.name
+          policy:
+            fromFieldPath: Required
+          toFieldPath: metadata.annotations[crossplane.io/external-name]
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.claimRef.name
+          policy:
+            fromFieldPath: Required
+          toFieldPath: spec.forProvider.values.name
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.external-secrets
+          toFieldPath: spec.forProvider.values.external-secrets
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.clusterdomain
+          toFieldPath: spec.forProvider.values.clusterdomain
+          type: FromCompositeFieldPath
+      - base:
+          apiVersion: helm.crossplane.io/v1beta1
+          kind: Release
+          metadata:
+            annotations:
+              crossplane.io/external-name: grsf-config
+          spec:
+            forProvider:
+              chart:
+                name: grsf-config
+                repository: oci://public.ecr.aws/p7h7z5g3
+                version: 0.3.21
+              namespace: null
+              set:
+              - name: external-secrets.webhook.certDir
+                valueFrom:
+                  secretKeyRef:
+                    key: ca.crt
+                    name: grsf-secret
+                    namespace: grpl-system
+              values:
+                clusterdomain: dev.grpl.io
+                external-secrets:
+                  enabled: true
+                  webhook:
+                    port: 9443
+                name: grsf-config
+              wait: true
+            providerConfigRef:
+              name: helm-provider-config
+            writeConnectionSecretToRef:
+              name: grsf-config-secret
+              namespace: grpl-system
+        name: resource-1
+        patches:
+        - fromFieldPath: spec.claimRef.namespace
+          policy:
+            fromFieldPath: Required
+          toFieldPath: spec.forProvider.namespace
+          type: FromCompositeFieldPath
+    step: patch-and-transform
+      #   toFieldPath: spec.forProvider.values.name
+        #   string:
+        #     fmt: "%s-config"
+        #   policy:
+        #     fromFieldPath: Required
+        # - fromFieldPath: spec.clusterdomain
+        #   toFieldPath: spec.forProvider.values.clusterdomain
+
