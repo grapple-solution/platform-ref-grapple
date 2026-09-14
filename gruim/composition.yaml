@@ -76,6 +76,7 @@ spec:
                     namespace: grpl-system
               values:
                 additionalpackages: ""
+                appVersion: ""
                 asname: ""
                 buildimagecache: true
                 buildimages:
@@ -154,6 +155,9 @@ spec:
               fmt: '%s-gruim'
               type: Format
             type: string
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.appVersion
+          toFieldPath: spec.forProvider.values.appVersion
           type: FromCompositeFieldPath
         - fromFieldPath: spec.asname
           toFieldPath: spec.forProvider.values.asname
