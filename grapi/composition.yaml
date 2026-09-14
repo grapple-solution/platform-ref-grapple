@@ -100,6 +100,7 @@ spec:
                     namespace: grpl-system
               values:
                 apiregistry: false
+                appVersion: ""
                 asname: ""
                 automigrate: false
                 buildimages:
@@ -221,6 +222,9 @@ spec:
               fmt: '%s-grapi'
               type: Format
             type: string
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.appVersion
+          toFieldPath: spec.forProvider.values.appVersion
           type: FromCompositeFieldPath
         - fromFieldPath: spec.asname
           toFieldPath: spec.forProvider.values.asname
