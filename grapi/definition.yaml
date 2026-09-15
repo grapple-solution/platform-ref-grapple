@@ -111,6 +111,11 @@ spec:
                   type: object
                   x-kubernetes-preserve-unknown-fields: true
 
+                appVersion:
+                  description: |
+                    Please specify here the version of the application (info.version in OpenAPI).
+                    (Default: "")
+                  type: string
                 asname:
                   description: |
                     This field can be used to tweak the name of the parent gras (grapple ApplicationSet).

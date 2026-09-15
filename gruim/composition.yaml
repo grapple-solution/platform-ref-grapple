@@ -29,7 +29,7 @@ spec:
               chart:
                 name: gruim
                 repository: oci://public.ecr.aws/p7h7z5g3
-                version: 0.3.21
+                version: 0.3.22
               namespace: null
               set:
               - name: gruimversion
@@ -76,6 +76,7 @@ spec:
                     namespace: grpl-system
               values:
                 additionalpackages: ""
+                appVersion: ""
                 asname: ""
                 buildimagecache: true
                 buildimages:
@@ -93,7 +94,7 @@ spec:
                   enabled: false
                 dev: false
                 endpoint: ""
-                gruimversion: 0.3.21
+                gruimversion: 0.3.22
                 imagetag: ""
                 ingress: true
                 mapi: ""
@@ -154,6 +155,9 @@ spec:
               fmt: '%s-gruim'
               type: Format
             type: string
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.appVersion
+          toFieldPath: spec.forProvider.values.appVersion
           type: FromCompositeFieldPath
         - fromFieldPath: spec.asname
           toFieldPath: spec.forProvider.values.asname

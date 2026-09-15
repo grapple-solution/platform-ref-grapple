@@ -115,6 +115,9 @@ spec:
                     Verify against: kubectl explain pod.spec.containers.startupProbe
                   type: object
                   x-kubernetes-preserve-unknown-fields: true
+                appVersion:
+                  type: string
+                  description: 'Please specify here the version of the application (to verify against info.version in OpenAPI).'
                 asname:
                   type: string
                   description: 'This field can be used to tweak the name of the parent gras (grapple ApplicationSet). It is optional and shall only be used if required. (Default: "")'
