@@ -299,3 +299,17 @@ spec:
                       type: string
                     sidecarMemoryLimit:
                       type: string
+                tracing:
+                  type: object
+                  description: OpenTelemetry distributed tracing configuration for Tempo / OTLP collectors.
+                  x-kubernetes-preserve-unknown-fields: true
+                  properties:
+                    enabled:
+                      type: boolean
+                      description: "Enable OpenTelemetry distributed tracing export. (Default: true)"
+                    endpoint:
+                      type: string
+                      description: 'OTLP HTTP endpoint URL for traces. (Default: "http://tempo.observability.svc.cluster.local:4318")'
+                    serviceName:
+                      type: string
+                      description: 'Service name reporting to Tempo/OTel (defaults to agent fullname).'
