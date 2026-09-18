@@ -1,0 +1,44 @@
+apiVersion: grsf.grpl.io/v1alpha1
+kind: GrappleAgent
+metadata:
+  name: mygragent
+  namespace: default
+spec:
+  replicaCount: 1
+  image:
+    repository: public.ecr.aws/p7h7z5g3/gragent
+    tag: "0.1.0"
+  config:
+    model: "google-genai:gemini-3.5-flash"
+    modelOptions:
+      temperature: 0
+    systemPrompt: "You are gr-agent, a helpful research assistant. Use the available tools to answer questions accurately."
+    mcpServers:
+      filesystem:
+        transport: "stdio"
+        command: "npx"
+        args: ["-y", "@modelcontextprotocol/server-filesystem", "/workspace"]
+    sandbox: true
+    subagents:
+      - name: "researcher"
+        description: "Deep-dives a single topic and returns a focused summary."
+        prompt: "You are a focused researcher. Investigate the given topic thoroughly using your tools and return a concise, well-sourced summary."
+        tools: ["filesystem__read_text_file", "filesystem__search_files"]
+    tasks:
+      summarize:
+        description: "Summarize a block of text in 2-3 sentences."
+        prompt: "Summarize the following text in 2-3 concise sentences:\n\n{{text}}"
+      sentiment:
+        description: "Classify the sentiment of a text and return a structured verdict."
+        prompt: "Analyze the sentiment of the following text, then return the structured result.\n\n{{text}}"
+        responseSchema:
+          type: "object"
+          properties:
+            sentiment:
+              type: "string"
+              enum: ["positive", "negative", "neutral"]
+            confidence:
+              type: "number"
+            summary:
+              type: "string"
+          required: ["sentiment", "confidence", "summary"]

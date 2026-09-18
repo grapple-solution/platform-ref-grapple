@@ -5,7 +5,7 @@ metadata:
   labels:
     provider: helm
 spec:
-  writeConnectionSecretsToNamespace: crossplane-system
+  writeConnectionSecretsToNamespace: grpl-system
   compositeTypeRef:
     apiVersion: multik8s.platformref.crossplane.io/v1alpha1
     kind: Services
