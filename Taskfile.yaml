@@ -641,14 +641,15 @@ tasks:
         echo "Checking composition is available..."
         
         echo "Deploying test cases..."
-        cat <<EOF | kubectl apply -n {{.TESTNS}} -f -
+        cat <<EOF | kubectl apply -f -
         apiVersion: grsf.grpl.io/v1alpha1
-        kind: GrappleApi
+        kind: CompositeGrappleApi
         metadata:
           name: mygrapi
-          namespace: {{.TESTNS}}
         spec:
           name: mygrapiid
+          writeConnectionSecretToRef:
+            namespace: {{.TESTNS}}
         EOF
         
         echo "Deploying grapi test cases..."
@@ -658,7 +659,7 @@ tasks:
             n=$(echo ${i} | sed "s,.yaml,,g")
             ns=gat-${n:0:3}
             kubectl create ns ${ns} 2>/dev/null || true
-            kubectl apply -n ${ns} -f ${TESTPATH}/${i}
+            kubectl apply -f ${TESTPATH}/${i}
           done
         fi
         
@@ -675,12 +676,13 @@ tasks:
         echo "----"
         echo ""
         kubectl get composite
-        kubectl get claim -n {{.TESTNS}}
+        kubectl get compositegrappleapis
         echo ""
         echo "----"
         echo ""
         echo "Displaying status of test case..."
-        kubectl get grapi,all -n {{.TESTNS}}
+        kubectl get grapi
+        kubectl get all -n {{.TESTNS}}
         
         echo "[OK] Tests completed"
 

@@ -46,28 +46,25 @@ metadata:
   #           customError: Cluster ref is required.
 spec:
   defaultCompositeDeletePolicy: Foreground
-  claimNames:
-    kind: GrappleUiModule
-    plural: grappleuimodules
-    shortNames:
-    - uim
-    - uims
-    - uimodule
-    - uimodules
-    - gruim
-    - gruimodule
-    - gruims
-    - gruimodules
-    - grpluim
-    - grpluimodule
-    - grpluims
-    - grpluimodules
-    - grappleuimodule
   group: grsf.grpl.io
   names:
     kind: CompositeGrappleUiModule
     plural: compositegrappleuimodules
     shortNames:
+    - gruim
+    - gruims
+    - uim
+    - uims
+    - uimodule
+    - uimodules
+    - gruimodule
+    - gruimodules
+    - grpluim
+    - grpluims
+    - grpluimodule
+    - grpluimodules
+    - grappleuimodule
+    - grappleuimodules
     - xuim
     - xuims
     - xuimodule
