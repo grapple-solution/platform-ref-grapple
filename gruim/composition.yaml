@@ -132,7 +132,7 @@ spec:
           toFieldPath: spec.writeConnectionSecretToRef.name
           transforms:
           - string:
-              fmt: "%s-gruim-secret"
+              fmt: "%s-gruim-release-secret"
               type: Format
             type: string
           type: FromCompositeFieldPath

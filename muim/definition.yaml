@@ -46,10 +46,9 @@ metadata:
   #           customError: Cluster ref is required.
 spec:
   defaultCompositeDeletePolicy: Foreground
-  group: grsf.grpl.io
-  names:
-    kind: CompositeManagedUIModule
-    plural: compositemanageduimodules
+  claimNames:
+    kind: ManagedUIModule
+    plural: manageduimodules
     shortNames:
     - muim
     - muims
@@ -59,6 +58,11 @@ spec:
     - manageduimodules
     - muimodule
     - muimodules
+  group: grsf.grpl.io
+  names:
+    kind: CompositeManagedUIModule
+    plural: compositemanageduimodules
+    shortNames:
     - xmuim
     - xmuims
     - xmanageduim

@@ -199,7 +199,7 @@ spec:
           toFieldPath: spec.writeConnectionSecretToRef.name
           transforms:
           - string:
-              fmt: "%s-grapi-secret"
+              fmt: "%s-grapi-release-secret"
               type: Format
             type: string
           type: FromCompositeFieldPath

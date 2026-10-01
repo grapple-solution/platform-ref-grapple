@@ -46,14 +46,18 @@ metadata:
   #           customError: Cluster ref is required.
 spec:
   defaultCompositeDeletePolicy: Foreground
+  claimNames:
+    kind: ManagedApi
+    plural: managedapis
+    shortNames:
+    - mapi
+    - mapis
+    - managedapi
   group: grsf.grpl.io
   names:
     kind: CompositeManagedApi
     plural: compositemanagedapis
     shortNames:
-    - mapi
-    - mapis
-    - managedapi
     - xmapi
     - xmapis
     - xmanagedapi
