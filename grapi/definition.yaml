@@ -901,6 +901,9 @@ spec:
                           readonly:
                             description: Only include endpoints with provided regex.
                             type: string
+                          external:
+                            description: Whether this OpenAPI is an external service. If true, skips waiting for info.version to match appVersion.
+                            type: boolean
                 cacheconfigs:
                   description: |
                     Please add here all the cache configurations that shall be deployed within this grapi (grapple API)
