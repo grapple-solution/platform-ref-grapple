@@ -235,6 +235,13 @@ tasks:
             yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${name}\", \"type\": \"${type}\" } }" grapi/definition.yaml
           fi
           
+          if [ "${crd}" = "openapis" ]; then
+            name=external
+            type=boolean
+            echo "Patching: $name --- $type"
+            yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"Whether this OpenAPI is an external service. If true, skips waiting for info.version to match appVersion.\", \"type\": \"${type}\" } }" grapi/definition.yaml
+          fi
+          
           if [ "${crd}" = "models" ]; then
             name=name
             type=string
