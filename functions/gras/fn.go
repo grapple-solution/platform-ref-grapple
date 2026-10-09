@@ -233,11 +233,77 @@ func applyDefaults(childSpec map[string]interface{}, defaults map[string]interfa
 		if v == nil {
 			continue
 		}
-		// If field is missing or null in child, use default from parent
-		if val, exists := childSpec[k]; !exists || val == nil {
+		val, exists := childSpec[k]
+		if !exists || val == nil {
 			childSpec[k] = v
+			continue
+		}
+
+		// Handle merging of initContainers lists
+		if k == "initContainers" {
+			if childList, ok := val.([]interface{}); ok {
+				if defList, ok := v.([]interface{}); ok {
+					childSpec[k] = mergeInitContainers(defList, childList)
+					continue
+				}
+			}
+		}
+
+		// Recursive merge for sub-maps (e.g. runtime, networking, scaling)
+		childMap, isChildMap := val.(map[string]interface{})
+		defMap, isDefMap := v.(map[string]interface{})
+		if isChildMap && isDefMap {
+			applyDefaults(childMap, defMap)
 		}
 	}
+}
+
+func mergeInitContainers(defaults, child []interface{}) []interface{} {
+	nameMap := make(map[string]bool)
+	var merged []interface{}
+
+	getContainerName := func(item interface{}) string {
+		m, ok := item.(map[string]interface{})
+		if !ok {
+			return ""
+		}
+		if name, ok := m["name"].(string); ok && name != "" {
+			return name
+		}
+		if spec, ok := m["spec"].(map[string]interface{}); ok {
+			if name, ok := spec["name"].(string); ok {
+				return name
+			}
+		}
+		return ""
+	}
+
+	for _, item := range defaults {
+		name := getContainerName(item)
+		if name != "" {
+			nameMap[name] = true
+		}
+		merged = append(merged, item)
+	}
+
+	for _, item := range child {
+		name := getContainerName(item)
+		if name != "" && nameMap[name] {
+			for i, defItem := range merged {
+				if getContainerName(defItem) == name {
+					merged[i] = item
+					break
+				}
+			}
+		} else {
+			if name != "" {
+				nameMap[name] = true
+			}
+			merged = append(merged, item)
+		}
+	}
+
+	return merged
 }
 
 // renderTemplate renders a string template with the given data

@@ -526,10 +526,18 @@ spec:
                       spec:
                         type: object
                         properties:
+                          force:
+                            description: Force overwrite if datasource already exists
+                            type: boolean
+                            default: false
                           mysql:
                             description: Please specify the specs for datasource type mysql
                             type: object
                             properties:
+                              force:
+                                description: Force overwrite if datasource already exists
+                                type: boolean
+                                default: false
                               name:
                                 description: Please provide a name for the datasource
                                 type: string
@@ -559,6 +567,10 @@ spec:
                             description: Please specify the specs for datasource type postgresql
                             type: object
                             properties:
+                              force:
+                                description: Force overwrite if datasource already exists
+                                type: boolean
+                                default: false
                               name:
                                 description: Please provide a name for the datasource
                                 type: string
@@ -588,6 +600,10 @@ spec:
                             description: Please specify the specs for datasource type kv-redis
                             type: object
                             properties:
+                              force:
+                                description: Force overwrite if datasource already exists
+                                type: boolean
+                                default: false
                               name:
                                 description: Please provide a name for the datasource
                                 type: string
@@ -614,6 +630,10 @@ spec:
                             description: Please specify the specs for datasource type kv-memory
                             type: object
                             properties:
+                              force:
+                                description: Force overwrite if datasource already exists
+                                type: boolean
+                                default: false
                               name:
                                 description: Please provide a name for the datasource
                                 type: string
@@ -625,6 +645,10 @@ spec:
                             description: Please specify the specs for datasource type memory
                             type: object
                             properties:
+                              force:
+                                description: Force overwrite if datasource already exists
+                                type: boolean
+                                default: false
                               name:
                                 description: Please provide a name for the datasource
                                 type: string
@@ -663,6 +687,13 @@ spec:
                           dataSource:
                             description: The name of the datasource to discover
                             type: string
+                          datasource:
+                            description: The name of the datasource to discover (alias for dataSource)
+                            type: string
+                          force:
+                            description: Force overwrite if discovery already exists
+                            type: boolean
+                            default: false
                           views:
                             description: Boolean to discover views
                             type: boolean
@@ -715,6 +746,17 @@ spec:
                           dataSource:
                             description: The name of the dataSource which contains this model and suppots model discovery
                             type: string
+                          datasource:
+                            description: The name of the dataSource which contains this model and supports model discovery (alias for dataSource)
+                            type: string
+                          allowAdditionalProperties:
+                            description: Allow additional properties on the model (default false)
+                            type: boolean
+                            default: false
+                          force:
+                            description: Force overwrite if model already exists
+                            type: boolean
+                            default: false
                           table:
                             description: If discovering a model from a dataSource, specify the name of its table/view
                             type: string
@@ -750,7 +792,7 @@ spec:
                                   type: string
                                 length:
                                   description: Please define the length of the field (e.g. 20 (for 20 characters))
-                                  type: string
+                                  x-kubernetes-int-or-string: true
                                 defaultFn:
                                   description: Please define the default function for the field (e.g. 'uuid' (for ID string fields), 'now' (for date fields))
                                   type: string
@@ -783,8 +825,18 @@ spec:
                             description: Source model
                             type: string
                           customReferenceKeys:
-                            description: Destination model key
+                            description: Destination model key or boolean flag
+                            x-kubernetes-preserve-unknown-fields: true
+                          customSourceModelKey:
+                            description: Custom source model key name
                             type: string
+                          customTargetModelKey:
+                            description: Custom target model key name
+                            type: string
+                          force:
+                            description: Force overwrite if relation already exists
+                            type: boolean
+                            default: false
                           destinationModel:
                             description: Destination model key
                             type: string
@@ -871,6 +923,10 @@ spec:
                       spec:
                         type: object
                         properties:
+                          force:
+                            description: Force overwrite if openapi already exists
+                            type: boolean
+                            default: false
                           url:
                             description: URL or file path of the OpenAPI spec
                             type: string
@@ -970,6 +1026,10 @@ spec:
                       spec:
                         type: object
                         properties:
+                          force:
+                            description: Force overwrite if restcrud already exists
+                            type: boolean
+                            default: false
                           model:
                             description: A valid model name
                             type: string
@@ -1004,11 +1064,18 @@ spec:
                       spec:
                         type: object
                         properties:
+                          force:
+                            description: Force overwrite if repository already exists
+                            type: boolean
+                            default: false
                           model:
                             description: A valid model name
                             type: string
                           id:
                             description: A valid ID property name for the specified model
+                            type: string
+                          dataSource:
+                            description: A valid datasource name (alias for datasource)
                             type: string
                           datasource:
                             description: A valid datasource name
@@ -1038,6 +1105,13 @@ spec:
                       spec:
                         type: object
                         properties:
+                          force:
+                            description: Force overwrite if controller already exists
+                            type: boolean
+                            default: false
+                          datasource:
+                            description: Datasource for controller
+                            type: string
                           controllerType:
                             description: Type for the %s
                             type: string
@@ -1184,3 +1258,398 @@ spec:
                           datasource:
                             description: A valid datasource name
                             type: string
+
+                extraEnvVars:
+                  description: Array of extra environment variables (Bitnami standard)
+                  type: array
+                  items:
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                extraEnvVarsCM:
+                  description: ConfigMap name containing extra environment variables (Bitnami standard)
+                  type: string
+                extraEnvVarsSecret:
+                  description: Secret name containing extra environment variables (Bitnami standard)
+                  type: string
+                sqlcontrollers:
+                  description: SQL Controllers configuration
+                  type: array
+                  items:
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                externaloperations:
+                  description: External Operations configuration
+                  type: array
+                  items:
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                customcontrollerdirs:
+                  description: Custom controller directories
+                  type: string
+                customservicedirs:
+                  description: Custom service directories
+                  type: string
+                groupby:
+                  description: Enable GROUP BY support
+                  type: boolean
+                  default: false
+                logging:
+                  description: Logging configurations
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                security:
+                  description: Security configurations
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                audit:
+                  description: Audit configurations
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+
+                application:
+                  description: Application-level configuration for the grapi microservice
+                  type: object
+                  properties:
+                    name:
+                      description: grapi application name
+                      type: string
+                    appVersion:
+                      description: Application version
+                      type: string
+                    asname:
+                      description: Parent applicationset name
+                      type: string
+                    organization:
+                      description: Organization name
+                      type: string
+                    email:
+                      description: Organization email
+                      type: string
+                    grapiversion:
+                      description: Grapi framework version
+                      type: string
+                    dev:
+                      description: DEV mode flag
+                      type: boolean
+                    apiregistry:
+                      description: Enable API registry
+                      type: boolean
+                    graphql:
+                      description: Enable GraphQL interface
+                      type: boolean
+                    disableexplorer:
+                      description: Disable API explorer
+                      type: boolean
+                    translations:
+                      description: Enable translations
+                      type: boolean
+                    troubleshooting:
+                      description: Enable troubleshooting mode
+                      type: boolean
+                    waitfords:
+                      description: Wait for datasources
+                      type: boolean
+
+                networking:
+                  description: Networking and Ingress configuration for grapi
+                  type: object
+                  properties:
+                    ingress:
+                      description: Enable Ingress
+                      type: boolean
+                    clusterdomain:
+                      description: Target cluster domain
+                      type: string
+                    ssl:
+                      description: Override SSL / TLS on ingress (true/false)
+                      type: boolean
+                    sslissuer:
+                      description: Cert-manager SSL issuer name
+                      type: string
+                    customheader:
+                      description: Custom protection header
+                      type: string
+                    corsurls:
+                      description: Allowed CORS URLs
+                      type: string
+
+                authentication:
+                  description: Authentication configuration for grapi
+                  type: object
+                  properties:
+                    auth:
+                      description: Generic auth settings
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    basic:
+                      description: Basic authentication settings
+                      type: object
+                      properties:
+                        config:
+                          type: string
+                        secretName:
+                          type: string
+                    profile:
+                      description: Authentication profile
+                      type: object
+                      properties:
+                        profile:
+                          type: string
+                        settings:
+                          type: string
+
+                deployment:
+                  description: Deployment lifecycle and maintenance configuration
+                  type: object
+                  properties:
+                    automigrate:
+                      description: Auto-migrate datasources (npm run migrate)
+                      type: boolean
+                    autorestartgruim:
+                      description: Auto-restart connected UI module on changes
+                      type: boolean
+                    schedule:
+                      description: Cron schedule for checks
+                      type: string
+                    monitoring:
+                      description: Enable Prometheus monitoring endpoint
+                      type: boolean
+
+                scaling:
+                  description: Pod autoscaling and replica configuration
+                  type: object
+                  properties:
+                    enabled:
+                      type: boolean
+                    replicas:
+                      type: integer
+                    replicaCount:
+                      type: integer
+                    minReplicas:
+                      type: integer
+                    maxReplicas:
+                      type: integer
+                    targetCPUUtilizationPercentage:
+                      type: integer
+                    targetMemoryUtilizationPercentage:
+                      type: integer
+                    hpa:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+
+                runtime:
+                  description: Pod runtime, container probes, environment and init-containers
+                  type: object
+                  properties:
+                    podAnnotations:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    podSecurityContext:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    securityContext:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    nodeSelector:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    tolerations:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    affinity:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    livenessProbe:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    readinessProbe:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    startupProbe:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    env:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    extraEnvVars:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    extraEnvVarsCM:
+                      type: string
+                    extraEnvVarsSecret:
+                      type: string
+                    initContainers:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+
+                storage:
+                  description: Storage volumes and mounts
+                  type: object
+                  properties:
+                    volumes:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    volumeMounts:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+
+                secrets:
+                  description: Secrets configuration for grapi
+                  type: object
+                  properties:
+                    externalsecrets:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    extraSecrets:
+                      type: array
+                      items:
+                        type: string
+
+                images:
+                  description: Build, pre-built and runtime container image definitions
+                  type: object
+                  properties:
+                    buildimages:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    deployimages:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    runimages:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    buildimagecache:
+                      type: boolean
+                    imagetag:
+                      type: string
+
+                generation:
+                  description: Code generation specifications (datasources, models, relations, etc.)
+                  type: object
+                  properties:
+                    datasources:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    discoveries:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    discoveredrepos:
+                      type: boolean
+                    models:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    relations:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    repositories:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    restcruds:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    controllers:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    serviceproviders:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    services:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    openapis:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    cacheconfigs:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    fuzzysearch:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    sqlcontrollers:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    externaloperations:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    customcontrollerdirs:
+                      type: string
+                    customservicedirs:
+                      type: string
+                    groupby:
+                      type: boolean
+                    logging:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    security:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    audit:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+
+                patches:
+                  description: Custom shell patches executed at code generation stages
+                  type: object
+                  properties:
+                    prepatches:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    prediscoverypatches:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    prerelationpatches:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    postpatches:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
