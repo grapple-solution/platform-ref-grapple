@@ -1,5 +1,5 @@
 apiVersion: multik8s.platformref.crossplane.io/v1alpha1
-kind: Cluster
+kind: CompositeCluster
 metadata:
   name: multik8s-cluster-gcp
 spec:

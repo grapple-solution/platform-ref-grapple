@@ -4,17 +4,13 @@ metadata:
   name: compositegrappleresources.grsf.grpl.io
 spec:
   defaultCompositeDeletePolicy: Foreground
-  claimNames:
-    kind: GrappleResource
-    plural: grappleresources
-    shortNames:
-    - gr
-    - gresoure
   group: grsf.grpl.io
   names:
     kind: CompositeGrappleResource
     plural: compositegrappleresources
     shortNames:
+    - gr
+    - gresoure
     - xgr
     - xgresoure
   versions:

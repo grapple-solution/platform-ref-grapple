@@ -53,23 +53,32 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 	}
 
 	// Define defaults from GRAS spec
-	parentClaimRef, _ := spec["claimRef"].(map[string]interface{})
-	parentClaimName, _ := parentClaimRef["name"].(string)
-	parentNamespace, _ := parentClaimRef["namespace"].(string)
+	parentName, _ := spec["name"].(string)
+	if parentName == "" {
+		parentName = xr.Resource.GetName()
+	}
+	parentNamespace := ""
+	if writeSecret, ok := spec["writeConnectionSecretToRef"].(map[string]interface{}); ok {
+		parentNamespace, _ = writeSecret["namespace"].(string)
+	} else if ns, ok := spec["namespace"].(string); ok && ns != "" {
+		parentNamespace = ns
+	} else if parentClaimRef, ok := spec["claimRef"].(map[string]interface{}); ok {
+		parentNamespace, _ = parentClaimRef["namespace"].(string)
+	}
 
 	// Use configurable asname pattern if missing from spec
 	asname, _ := spec["asname"].(string)
 	if asname == "" && in.AsnameNamingScheme != "" {
 		res, err := f.renderTemplate(in.AsnameNamingScheme, map[string]string{
-			"parent": parentClaimName,
+			"parent": parentName,
 		})
 		if err == nil {
 			asname = res
 		}
 	}
-	// Fallback to parentClaimName if no scheme is provided (as a safety measure)
+	// Fallback to parentName if no scheme is provided (as a safety measure)
 	// if asname == "" {
-	// 	asname = parentClaimName
+	// 	asname = parentName
 	// }
 
 	grasDefaults := map[string]interface{}{
@@ -112,18 +121,18 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 			// Apply defaults
 			applyDefaults(grapiSpec, grasDefaults)
 
-			// Propagate claimRef for patches in child compositions
 			childName := name
-			if name != parentClaimName && !strings.HasPrefix(name, parentClaimName+"-") {
-				childName = fmt.Sprintf("%s-%s", parentClaimName, name)
+			if name != parentName && !strings.HasPrefix(name, parentName+"-") {
+				childName = fmt.Sprintf("%s-%s", parentName, name)
 			}
 			grapiMap[name] = childName // Store for gruims
 
-			grapiSpec["claimRef"] = map[string]interface{}{
-				"apiVersion": "grsf.grpl.io/v1alpha1",
-				"kind":       "GrappleApi",
-				"namespace":  parentNamespace,
-				"name":       childName,
+			grapiSpec["name"] = childName
+			if parentNamespace != "" {
+				grapiSpec["writeConnectionSecretToRef"] = map[string]interface{}{
+					"namespace": parentNamespace,
+					"name":      fmt.Sprintf("%s-grapi-secret", childName),
+				}
 			}
 
 			// Create CompositeGrappleApi resource
@@ -164,10 +173,9 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 			// Apply defaults
 			applyDefaults(gruimSpec, grasDefaults)
 
-			// Propagate claimRef for patches in child compositions
 			childName := name
-			if name != parentClaimName && !strings.HasPrefix(name, parentClaimName+"-") {
-				childName = fmt.Sprintf("%s-%s", parentClaimName, name)
+			if name != parentName && !strings.HasPrefix(name, parentName+"-") {
+				childName = fmt.Sprintf("%s-%s", parentName, name)
 			}
 
 			// Use configurable mapi pattern if provided
@@ -182,11 +190,12 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 				}
 			}
 			gruimSpec["mapi"] = mapi
-			gruimSpec["claimRef"] = map[string]interface{}{
-				"apiVersion": "grsf.grpl.io/v1alpha1",
-				"kind":       "GrappleUiModule",
-				"namespace":  parentNamespace,
-				"name":       childName,
+			gruimSpec["name"] = childName
+			if parentNamespace != "" {
+				gruimSpec["writeConnectionSecretToRef"] = map[string]interface{}{
+					"namespace": parentNamespace,
+					"name":      fmt.Sprintf("%s-gruim-secret", childName),
+				}
 			}
 
 			// Create CompositeGrappleUiModule resource
@@ -224,11 +233,77 @@ func applyDefaults(childSpec map[string]interface{}, defaults map[string]interfa
 		if v == nil {
 			continue
 		}
-		// If field is missing or null in child, use default from parent
-		if val, exists := childSpec[k]; !exists || val == nil {
+		val, exists := childSpec[k]
+		if !exists || val == nil {
 			childSpec[k] = v
+			continue
+		}
+
+		// Handle merging of initContainers lists
+		if k == "initContainers" {
+			if childList, ok := val.([]interface{}); ok {
+				if defList, ok := v.([]interface{}); ok {
+					childSpec[k] = mergeInitContainers(defList, childList)
+					continue
+				}
+			}
+		}
+
+		// Recursive merge for sub-maps (e.g. runtime, networking, scaling)
+		childMap, isChildMap := val.(map[string]interface{})
+		defMap, isDefMap := v.(map[string]interface{})
+		if isChildMap && isDefMap {
+			applyDefaults(childMap, defMap)
 		}
 	}
+}
+
+func mergeInitContainers(defaults, child []interface{}) []interface{} {
+	nameMap := make(map[string]bool)
+	var merged []interface{}
+
+	getContainerName := func(item interface{}) string {
+		m, ok := item.(map[string]interface{})
+		if !ok {
+			return ""
+		}
+		if name, ok := m["name"].(string); ok && name != "" {
+			return name
+		}
+		if spec, ok := m["spec"].(map[string]interface{}); ok {
+			if name, ok := spec["name"].(string); ok {
+				return name
+			}
+		}
+		return ""
+	}
+
+	for _, item := range defaults {
+		name := getContainerName(item)
+		if name != "" {
+			nameMap[name] = true
+		}
+		merged = append(merged, item)
+	}
+
+	for _, item := range child {
+		name := getContainerName(item)
+		if name != "" && nameMap[name] {
+			for i, defItem := range merged {
+				if getContainerName(defItem) == name {
+					merged[i] = item
+					break
+				}
+			}
+		} else {
+			if name != "" {
+				nameMap[name] = true
+			}
+			merged = append(merged, item)
+		}
+	}
+
+	return merged
 }
 
 // renderTemplate renders a string template with the given data

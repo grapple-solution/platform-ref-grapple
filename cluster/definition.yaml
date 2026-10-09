@@ -94,9 +94,6 @@ metadata:
           validation:
           - required: false
 spec:
-  claimNames:
-    kind: Cluster
-    plural: clusters
   connectionSecretKeys:
   - kubeconfig
   group: multik8s.platformref.crossplane.io
