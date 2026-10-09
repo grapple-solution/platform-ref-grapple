@@ -529,7 +529,7 @@ spec:
                           force:
                             description: Force overwrite if datasource already exists
                             type: boolean
-                            default: false
+                            default: true
                           mysql:
                             description: Please specify the specs for datasource type mysql
                             type: object
@@ -537,7 +537,7 @@ spec:
                               force:
                                 description: Force overwrite if datasource already exists
                                 type: boolean
-                                default: false
+                                default: true
                               name:
                                 description: Please provide a name for the datasource
                                 type: string
@@ -570,7 +570,7 @@ spec:
                               force:
                                 description: Force overwrite if datasource already exists
                                 type: boolean
-                                default: false
+                                default: true
                               name:
                                 description: Please provide a name for the datasource
                                 type: string
@@ -603,7 +603,7 @@ spec:
                               force:
                                 description: Force overwrite if datasource already exists
                                 type: boolean
-                                default: false
+                                default: true
                               name:
                                 description: Please provide a name for the datasource
                                 type: string
@@ -633,7 +633,7 @@ spec:
                               force:
                                 description: Force overwrite if datasource already exists
                                 type: boolean
-                                default: false
+                                default: true
                               name:
                                 description: Please provide a name for the datasource
                                 type: string
@@ -648,7 +648,7 @@ spec:
                               force:
                                 description: Force overwrite if datasource already exists
                                 type: boolean
-                                default: false
+                                default: true
                               name:
                                 description: Please provide a name for the datasource
                                 type: string
@@ -693,7 +693,7 @@ spec:
                           force:
                             description: Force overwrite if discovery already exists
                             type: boolean
-                            default: false
+                            default: true
                           views:
                             description: Boolean to discover views
                             type: boolean
@@ -756,7 +756,7 @@ spec:
                           force:
                             description: Force overwrite if model already exists
                             type: boolean
-                            default: false
+                            default: true
                           table:
                             description: If discovering a model from a dataSource, specify the name of its table/view
                             type: string
@@ -836,7 +836,7 @@ spec:
                           force:
                             description: Force overwrite if relation already exists
                             type: boolean
-                            default: false
+                            default: true
                           destinationModel:
                             description: Destination model key
                             type: string
@@ -926,7 +926,7 @@ spec:
                           force:
                             description: Force overwrite if openapi already exists
                             type: boolean
-                            default: false
+                            default: true
                           url:
                             description: URL or file path of the OpenAPI spec
                             type: string
@@ -1029,7 +1029,7 @@ spec:
                           force:
                             description: Force overwrite if restcrud already exists
                             type: boolean
-                            default: false
+                            default: true
                           model:
                             description: A valid model name
                             type: string
@@ -1067,7 +1067,7 @@ spec:
                           force:
                             description: Force overwrite if repository already exists
                             type: boolean
-                            default: false
+                            default: true
                           model:
                             description: A valid model name
                             type: string
@@ -1108,7 +1108,7 @@ spec:
                           force:
                             description: Force overwrite if controller already exists
                             type: boolean
-                            default: false
+                            default: true
                           datasource:
                             description: Datasource for controller
                             type: string
