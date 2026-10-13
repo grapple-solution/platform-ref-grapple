@@ -82,6 +82,20 @@ spec:
                 name:
                   description: "This field can be used to tweak the name of the grapi. \nIt is optional and shall only be used if required.\n(Default: \"\")\n"
                   type: string
+                writeConnectionSecretToRef:
+                  description: |
+                    The secret to which this composite resource will write its connection details.
+                  type: object
+                  properties:
+                    name:
+                      description: Name of the secret.
+                      type: string
+                    namespace:
+                      description: Namespace of the secret.
+                      type: string
+                  required:
+                    - name
+                    - namespace
                 podAnnotations:
                   description: |
                     Please specify here the annotations to be added to the pod template.
@@ -1306,50 +1320,6 @@ spec:
                   type: object
                   x-kubernetes-preserve-unknown-fields: true
 
-                application:
-                  description: Application-level configuration for the grapi microservice
-                  type: object
-                  properties:
-                    name:
-                      description: grapi application name
-                      type: string
-                    appVersion:
-                      description: Application version
-                      type: string
-                    asname:
-                      description: Parent applicationset name
-                      type: string
-                    organization:
-                      description: Organization name
-                      type: string
-                    email:
-                      description: Organization email
-                      type: string
-                    grapiversion:
-                      description: Grapi framework version
-                      type: string
-                    dev:
-                      description: DEV mode flag
-                      type: boolean
-                    apiregistry:
-                      description: Enable API registry
-                      type: boolean
-                    graphql:
-                      description: Enable GraphQL interface
-                      type: boolean
-                    disableexplorer:
-                      description: Disable API explorer
-                      type: boolean
-                    translations:
-                      description: Enable translations
-                      type: boolean
-                    troubleshooting:
-                      description: Enable troubleshooting mode
-                      type: boolean
-                    waitfords:
-                      description: Wait for datasources
-                      type: boolean
-
                 networking:
                   description: Networking and Ingress configuration for grapi
                   type: object
@@ -1373,283 +1343,165 @@ spec:
                       description: Allowed CORS URLs
                       type: string
 
-                authentication:
-                  description: Authentication configuration for grapi
-                  type: object
-                  properties:
-                    auth:
-                      description: Generic auth settings
-                      type: object
-                      x-kubernetes-preserve-unknown-fields: true
-                    basic:
-                      description: Basic authentication settings
-                      type: object
-                      properties:
-                        config:
-                          type: string
-                        secretName:
-                          type: string
-                    profile:
-                      description: Authentication profile
-                      type: object
-                      properties:
-                        profile:
-                          type: string
-                        settings:
-                          type: string
-
-                deployment:
-                  description: Deployment lifecycle and maintenance configuration
-                  type: object
-                  properties:
-                    automigrate:
-                      description: Auto-migrate datasources (npm run migrate)
-                      type: boolean
-                    autorestartgruim:
-                      description: Auto-restart connected UI module on changes
-                      type: boolean
-                    schedule:
-                      description: Cron schedule for checks
-                      type: string
-                    monitoring:
-                      description: Enable Prometheus monitoring endpoint
-                      type: boolean
-
                 scaling:
                   description: Pod autoscaling and replica configuration
                   type: object
                   properties:
                     enabled:
+                      description: Enable or disable horizontal pod autoscaling (HPA)
                       type: boolean
                     replicas:
+                      description: "Number of replicas for the grapi deployment when autoscaling is disabled (Default: 1)"
                       type: integer
                     replicaCount:
+                      description: "Alias for replicas count (Default: 1)"
                       type: integer
                     minReplicas:
+                      description: "Minimum number of replicas for autoscaling (Default: 1)"
                       type: integer
                     maxReplicas:
+                      description: "Maximum number of replicas for autoscaling (Default: 20)"
                       type: integer
                     targetCPUUtilizationPercentage:
+                      description: "Target CPU utilization percentage for the HPA (Default: 60)"
                       type: integer
                     targetMemoryUtilizationPercentage:
+                      description: Target memory utilization percentage for the HPA
                       type: integer
                     hpa:
+                      description: Custom HPA configuration object. Verify against kubectl explain hpa.spec
                       type: object
                       x-kubernetes-preserve-unknown-fields: true
 
                 runtime:
-                  description: Pod runtime, container probes, environment and init-containers
+                  description: Pod runtime, container probes, and environment configurations
                   type: object
                   properties:
                     podAnnotations:
+                      description: |
+                        Please specify here the annotations to be added to the pod template.
+                        Used for Dapr sidecar injector annotations or custom pod metadata.
                       type: object
                       x-kubernetes-preserve-unknown-fields: true
                     podSecurityContext:
+                      description: |
+                        Pod security context for the grapi pod.
+                        Verify against: kubectl explain pod.spec.securityContext
                       type: object
                       x-kubernetes-preserve-unknown-fields: true
                     securityContext:
+                      description: |
+                        Container security context for the grapi container.
+                        Verify against: kubectl explain pod.spec.containers.securityContext
                       type: object
                       x-kubernetes-preserve-unknown-fields: true
                     nodeSelector:
+                      description: |
+                        Node selection constraints for pod scheduling.
+                        Verify against: kubectl explain pod.spec.nodeSelector
                       type: object
                       x-kubernetes-preserve-unknown-fields: true
                     tolerations:
+                      description: |
+                        Pod tolerations for node taints.
+                        Verify against: kubectl explain pod.spec.tolerations
                       type: array
                       items:
+                        description: Toleration rule. Verify against kubectl explain pod.spec.tolerations
                         type: object
                         x-kubernetes-preserve-unknown-fields: true
                     affinity:
+                      description: |
+                        Pod affinity and anti-affinity scheduling rules.
+                        Verify against: kubectl explain pod.spec.affinity
                       type: object
                       x-kubernetes-preserve-unknown-fields: true
                     livenessProbe:
+                      description: |
+                        Specify livenessProbe for the grapi container.
+                        Verify against: kubectl explain pod.spec.containers.livenessProbe
                       type: object
                       x-kubernetes-preserve-unknown-fields: true
                     readinessProbe:
+                      description: |
+                        Specify readinessProbe for the grapi container.
+                        Verify against: kubectl explain pod.spec.containers.readinessProbe
                       type: object
                       x-kubernetes-preserve-unknown-fields: true
                     startupProbe:
+                      description: |
+                        Specify startupProbe for the grapi container.
+                        Verify against: kubectl explain pod.spec.containers.startupProbe
                       type: object
                       x-kubernetes-preserve-unknown-fields: true
                     env:
+                      description: |
+                        Please add here the environment variables for this grapi (grapple API).
+                        All variables here become available to all containers (main and init).
+                        Documentation: https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/
+                        Example:
+                        env:
+                        - name: MY_VARIABLE
+                          value: "my-value"
+                        - name: DB_PASSWORD
+                          valueFrom:
+                            secretKeyRef:
+                              name: database-secret
+                              key: password
                       type: array
                       items:
                         type: object
-                        x-kubernetes-preserve-unknown-fields: true
+                        properties:
+                          name:
+                            description: Name of the environment variable
+                            type: string
+                          value:
+                            description: Value of the environment variable
+                            type: string
+                          valueFrom:
+                            description: Source for the environment variable's value
+                            type: object
+                            x-kubernetes-preserve-unknown-fields: true
                     extraEnvVars:
+                      description: Array of extra environment variables (Bitnami standard)
                       type: array
                       items:
+                        description: Extra environment variable entry
                         type: object
                         x-kubernetes-preserve-unknown-fields: true
                     extraEnvVarsCM:
+                      description: ConfigMap name containing extra environment variables (Bitnami standard)
                       type: string
                     extraEnvVarsSecret:
+                      description: Secret name containing extra environment variables (Bitnami standard)
                       type: string
-                    initContainers:
-                      type: array
-                      items:
-                        type: object
-                        x-kubernetes-preserve-unknown-fields: true
 
                 storage:
                   description: Storage volumes and mounts
                   type: object
                   properties:
                     volumes:
+                      description: |
+                        Specify additional volumes that shall be attached to the grapi (grapple API).
+                        Verify against: 
+                        kubectl explain pod.spec.volumes
                       type: array
                       items:
+                        description: |
+                          Specification for the grapi volume.
+                          Verify against: kubectl explain pod.spec.volumes
                         type: object
                         x-kubernetes-preserve-unknown-fields: true
                     volumeMounts:
+                      description: |
+                        Specify volumeMounts that shall be mounted to the grapi (grapple API).
+                        Verify against:
+                        kubectl explain pod.spec.containers.volumeMounts
                       type: array
                       items:
+                        description: |
+                          Specification for the grapi volumeMount.
+                          Verify against: kubectl explain pod.spec.containers.volumeMounts
                         type: object
                         x-kubernetes-preserve-unknown-fields: true
 
-                secrets:
-                  description: Secrets configuration for grapi
-                  type: object
-                  properties:
-                    externalsecrets:
-                      type: array
-                      items:
-                        type: object
-                        x-kubernetes-preserve-unknown-fields: true
-                    extraSecrets:
-                      type: array
-                      items:
-                        type: string
-
-                images:
-                  description: Build, pre-built and runtime container image definitions
-                  type: object
-                  properties:
-                    buildimages:
-                      type: object
-                      x-kubernetes-preserve-unknown-fields: true
-                    deployimages:
-                      type: object
-                      x-kubernetes-preserve-unknown-fields: true
-                    runimages:
-                      type: object
-                      x-kubernetes-preserve-unknown-fields: true
-                    buildimagecache:
-                      type: boolean
-                    imagetag:
-                      type: string
-
-                generation:
-                  description: Code generation specifications (datasources, models, relations, etc.)
-                  type: object
-                  properties:
-                    datasources:
-                      type: array
-                      items:
-                        type: object
-                        x-kubernetes-preserve-unknown-fields: true
-                    discoveries:
-                      type: array
-                      items:
-                        type: object
-                        x-kubernetes-preserve-unknown-fields: true
-                    discoveredrepos:
-                      type: boolean
-                    models:
-                      type: array
-                      items:
-                        type: object
-                        x-kubernetes-preserve-unknown-fields: true
-                    relations:
-                      type: array
-                      items:
-                        type: object
-                        x-kubernetes-preserve-unknown-fields: true
-                    repositories:
-                      type: array
-                      items:
-                        type: object
-                        x-kubernetes-preserve-unknown-fields: true
-                    restcruds:
-                      type: array
-                      items:
-                        type: object
-                        x-kubernetes-preserve-unknown-fields: true
-                    controllers:
-                      type: array
-                      items:
-                        type: object
-                        x-kubernetes-preserve-unknown-fields: true
-                    serviceproviders:
-                      type: array
-                      items:
-                        type: object
-                        x-kubernetes-preserve-unknown-fields: true
-                    services:
-                      type: array
-                      items:
-                        type: object
-                        x-kubernetes-preserve-unknown-fields: true
-                    openapis:
-                      type: array
-                      items:
-                        type: object
-                        x-kubernetes-preserve-unknown-fields: true
-                    cacheconfigs:
-                      type: array
-                      items:
-                        type: object
-                        x-kubernetes-preserve-unknown-fields: true
-                    fuzzysearch:
-                      type: array
-                      items:
-                        type: object
-                        x-kubernetes-preserve-unknown-fields: true
-                    sqlcontrollers:
-                      type: array
-                      items:
-                        type: object
-                        x-kubernetes-preserve-unknown-fields: true
-                    externaloperations:
-                      type: array
-                      items:
-                        type: object
-                        x-kubernetes-preserve-unknown-fields: true
-                    customcontrollerdirs:
-                      type: string
-                    customservicedirs:
-                      type: string
-                    groupby:
-                      type: boolean
-                    logging:
-                      type: object
-                      x-kubernetes-preserve-unknown-fields: true
-                    security:
-                      type: object
-                      x-kubernetes-preserve-unknown-fields: true
-                    audit:
-                      type: object
-                      x-kubernetes-preserve-unknown-fields: true
-
-                patches:
-                  description: Custom shell patches executed at code generation stages
-                  type: object
-                  properties:
-                    prepatches:
-                      type: array
-                      items:
-                        type: object
-                        x-kubernetes-preserve-unknown-fields: true
-                    prediscoverypatches:
-                      type: array
-                      items:
-                        type: object
-                        x-kubernetes-preserve-unknown-fields: true
-                    prerelationpatches:
-                      type: array
-                      items:
-                        type: object
-                        x-kubernetes-preserve-unknown-fields: true
-                    postpatches:
-                      type: array
-                      items:
-                        type: object
-                        x-kubernetes-preserve-unknown-fields: true
