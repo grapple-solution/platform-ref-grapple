@@ -57,6 +57,9 @@ spec:
                   description: Agent configuration mapping.
                   x-kubernetes-preserve-unknown-fields: true
                   properties:
+                    awsSecretStoreName:
+                      type: string
+                      description: 'Secret store key or AWS Secrets Manager secret name for external secrets (e.g. "grapple/gragent-secret").'
                     name:
                       type: string
                       description: Name of the agent.
