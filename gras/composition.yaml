@@ -1,0 +1,24 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  labels:
+    crossplane.io/xrd: compositegrappleapplicationsets.grsf.grpl.io
+    provider: gras
+  name: gras.grsf.grpl.io
+spec:
+  compositeTypeRef:
+    apiVersion: grsf.grpl.io/v1alpha1
+    kind: CompositeGrappleApplicationSet
+  mode: Pipeline
+  pipeline:
+  - step: gras-logic
+    functionRef:
+      name: grpl-gras
+    input:
+      apiVersion: template.fn.crossplane.io/v1beta1
+      kind: Input
+      asnameNamingScheme: "{{ .parent }}"
+      mapiNamingScheme: "{{ .asname }}-grapi-mapi"
+  - step: auto-ready
+    functionRef:
+      name: crossplane-contrib-function-auto-ready

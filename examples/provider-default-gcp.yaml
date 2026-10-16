@@ -7,6 +7,6 @@ spec:
     secretRef:
       key: credentials.json
       name: gcp-credentials
-      namespace: crossplane-system
+      namespace: grpl-system
     source: Secret
   projectID: crossplane-playground
