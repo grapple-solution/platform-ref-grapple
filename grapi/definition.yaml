@@ -51,14 +51,6 @@ spec:
     kind: CompositeGrappleApi
     plural: compositegrappleapis
     shortNames:
-      - grapi
-      - grapis
-      - api
-      - apis
-      - grplapi
-      - grplapis
-      - grappleapi
-      - grappleapis
       - xapi
       - xapis
       - xgrapi
@@ -68,7 +60,7 @@ spec:
       - xgrappleapi
       - xgrappleapis
   versions:
-    - name: v1alpha1
+    - name: v1alpha2
       served: true
       referenceable: true
       schema:

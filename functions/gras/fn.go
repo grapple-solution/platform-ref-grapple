@@ -119,7 +119,7 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 			}
 
 			// Apply defaults
-			applyDefaults(grapiSpec, grasDefaults)
+			applyGrapiDefaults(grapiSpec, grasDefaults)
 
 			childName := name
 			if name != parentName && !strings.HasPrefix(name, parentName+"-") {
@@ -139,7 +139,7 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 			res := &composed.Unstructured{
 				Unstructured: unstructured.Unstructured{
 					Object: map[string]interface{}{
-						"apiVersion": "grsf.grpl.io/v1alpha1",
+						"apiVersion": "grsf.grpl.io/v1alpha2",
 						"kind":       "CompositeGrappleApi",
 						"metadata": map[string]interface{}{
 							"name": childName,
@@ -226,6 +226,68 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 	}
 
 	return rsp, nil
+}
+
+func applyGrapiDefaults(childSpec map[string]interface{}, defaults map[string]interface{}) {
+	// First apply root defaults that are still at root in grapi v1alpha2:
+	rootKeys := []string{"asname", "grasversion", "dev", "resources"}
+	for _, k := range rootKeys {
+		if v, ok := defaults[k]; ok && v != nil {
+			if _, exists := childSpec[k]; !exists {
+				childSpec[k] = v
+			}
+		}
+	}
+
+	// Map networking defaults
+	var networking map[string]interface{}
+	if netRaw, ok := childSpec["networking"]; ok && netRaw != nil {
+		if nm, ok := netRaw.(map[string]interface{}); ok {
+			networking = nm
+		}
+	}
+	netKeys := []string{"clusterdomain", "customheader", "ingress", "ssl", "sslissuer"}
+	for _, k := range netKeys {
+		if v, ok := defaults[k]; ok && v != nil {
+			if networking == nil {
+				networking = make(map[string]interface{})
+				childSpec["networking"] = networking
+			}
+			if _, exists := networking[k]; !exists {
+				networking[k] = v
+			}
+		}
+	}
+
+	// Map scaling defaults from autoscaling
+	if autoScalingDef, ok := defaults["autoscaling"].(map[string]interface{}); ok && autoScalingDef != nil {
+		var scaling map[string]interface{}
+		if scRaw, ok := childSpec["scaling"]; ok && scRaw != nil {
+			if sm, ok := scRaw.(map[string]interface{}); ok {
+				scaling = sm
+			}
+		}
+		for k, v := range autoScalingDef {
+			if v != nil {
+				if scaling == nil {
+					scaling = make(map[string]interface{})
+					childSpec["scaling"] = scaling
+				}
+				if _, exists := scaling[k]; !exists {
+					scaling[k] = v
+				}
+			}
+		}
+	}
+
+	// Handle initContainers merging if any
+	if defList, ok := defaults["initContainers"].([]interface{}); ok && defList != nil {
+		if childList, ok := childSpec["initContainers"].([]interface{}); ok {
+			childSpec["initContainers"] = mergeInitContainers(defList, childList)
+		} else {
+			childSpec["initContainers"] = defList
+		}
+	}
 }
 
 func applyDefaults(childSpec map[string]interface{}, defaults map[string]interface{}) {

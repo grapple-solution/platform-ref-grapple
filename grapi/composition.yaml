@@ -8,7 +8,7 @@ metadata:
   name: grapi.grsf.grpl.io
 spec:
   compositeTypeRef:
-    apiVersion: grsf.grpl.io/v1alpha1
+    apiVersion: grsf.grpl.io/v1alpha2
     kind: CompositeGrappleApi
   mode: Pipeline
   pipeline:
@@ -427,50 +427,6 @@ spec:
         - fromFieldPath: spec.audit
           toFieldPath: spec.forProvider.values.audit
           type: FromCompositeFieldPath
-        - fromFieldPath: spec.application.name
-          toFieldPath: spec.forProvider.values.name
-          transforms:
-          - string:
-              fmt: '%s-grapi'
-              type: Format
-            type: string
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.application.appVersion
-          toFieldPath: spec.forProvider.values.appVersion
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.application.asname
-          toFieldPath: spec.forProvider.values.asname
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.application.organization
-          toFieldPath: spec.forProvider.values.organization
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.application.email
-          toFieldPath: spec.forProvider.values.email
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.application.grapiversion
-          toFieldPath: spec.forProvider.values.grapiversion
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.application.dev
-          toFieldPath: spec.forProvider.values.dev
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.application.apiregistry
-          toFieldPath: spec.forProvider.values.apiregistry
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.application.graphql
-          toFieldPath: spec.forProvider.values.graphql
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.application.disableexplorer
-          toFieldPath: spec.forProvider.values.disableexplorer
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.application.translations
-          toFieldPath: spec.forProvider.values.translations
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.application.troubleshooting
-          toFieldPath: spec.forProvider.values.troubleshooting
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.application.waitfords
-          toFieldPath: spec.forProvider.values.waitfords
-          type: FromCompositeFieldPath
         - fromFieldPath: spec.networking.ingress
           toFieldPath: spec.forProvider.values.ingress
           type: FromCompositeFieldPath
@@ -488,24 +444,6 @@ spec:
           type: FromCompositeFieldPath
         - fromFieldPath: spec.networking.corsurls
           toFieldPath: spec.forProvider.values.corsurls
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.authentication.auth
-          toFieldPath: spec.forProvider.values.auth
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.authentication.basic
-          toFieldPath: spec.forProvider.values.auth.basic
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.deployment.automigrate
-          toFieldPath: spec.forProvider.values.automigrate
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.deployment.autorestartgruim
-          toFieldPath: spec.forProvider.values.autorestartgruim
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.deployment.schedule
-          toFieldPath: spec.forProvider.values.schedule
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.deployment.monitoring
-          toFieldPath: spec.forProvider.values.monitoring
           type: FromCompositeFieldPath
         - fromFieldPath: spec.scaling.autoscaling
           toFieldPath: spec.forProvider.values.autoscaling
@@ -549,9 +487,6 @@ spec:
         - fromFieldPath: spec.runtime.extraEnvVarsSecret
           toFieldPath: spec.forProvider.values.extraEnvVarsSecret
           type: FromCompositeFieldPath
-        - fromFieldPath: spec.runtime.initContainers
-          toFieldPath: spec.forProvider.values.initContainers
-          type: FromCompositeFieldPath
         - fromFieldPath: spec.runtime.podAnnotations
           toFieldPath: spec.forProvider.values.podAnnotations
           type: FromCompositeFieldPath
@@ -575,101 +510,5 @@ spec:
           type: FromCompositeFieldPath
         - fromFieldPath: spec.storage.volumeMounts
           toFieldPath: spec.forProvider.values.volumeMounts
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.secrets.externalsecrets
-          toFieldPath: spec.forProvider.values.externalsecrets
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.secrets.extraSecrets
-          toFieldPath: spec.forProvider.values.extraSecrets
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.images.buildimages
-          toFieldPath: spec.forProvider.values.buildimages
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.images.deployimages
-          toFieldPath: spec.forProvider.values.deployimages
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.images.runimages
-          toFieldPath: spec.forProvider.values.runimages
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.images.buildimagecache
-          toFieldPath: spec.forProvider.values.buildimagecache
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.images.imagetag
-          toFieldPath: spec.forProvider.values.imagetag
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.generation.datasources
-          toFieldPath: spec.forProvider.values.datasources
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.generation.discoveries
-          toFieldPath: spec.forProvider.values.discoveries
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.generation.discoveredrepos
-          toFieldPath: spec.forProvider.values.discoveredrepos
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.generation.models
-          toFieldPath: spec.forProvider.values.models
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.generation.relations
-          toFieldPath: spec.forProvider.values.relations
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.generation.serviceproviders
-          toFieldPath: spec.forProvider.values.serviceproviders
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.generation.services
-          toFieldPath: spec.forProvider.values.services
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.generation.openapis
-          toFieldPath: spec.forProvider.values.openapis
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.generation.restcruds
-          toFieldPath: spec.forProvider.values.restcruds
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.generation.repositories
-          toFieldPath: spec.forProvider.values.repositories
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.generation.controllers
-          toFieldPath: spec.forProvider.values.controllers
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.generation.cacheconfigs
-          toFieldPath: spec.forProvider.values.cacheconfigs
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.generation.fuzzysearch
-          toFieldPath: spec.forProvider.values.fuzzysearch
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.generation.sqlcontrollers
-          toFieldPath: spec.forProvider.values.sqlcontrollers
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.generation.externaloperations
-          toFieldPath: spec.forProvider.values.externaloperations
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.generation.customcontrollerdirs
-          toFieldPath: spec.forProvider.values.customcontrollerdirs
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.generation.customservicedirs
-          toFieldPath: spec.forProvider.values.customservicedirs
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.generation.groupby
-          toFieldPath: spec.forProvider.values.groupby
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.generation.logging
-          toFieldPath: spec.forProvider.values.logging
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.generation.security
-          toFieldPath: spec.forProvider.values.security
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.generation.audit
-          toFieldPath: spec.forProvider.values.audit
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.patches.prepatches
-          toFieldPath: spec.forProvider.values.prepatches
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.patches.prediscoverypatches
-          toFieldPath: spec.forProvider.values.prediscoverypatches
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.patches.prerelationpatches
-          toFieldPath: spec.forProvider.values.prerelationpatches
-          type: FromCompositeFieldPath
-        - fromFieldPath: spec.patches.postpatches
-          toFieldPath: spec.forProvider.values.postpatches
           type: FromCompositeFieldPath
     step: patch-and-transform
