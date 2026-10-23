@@ -1,4 +1,4 @@
-apiVersion: apiextensions.crossplane.io/v1
+apiVersion: apiextensions.crossplane.io/v2
 kind: CompositeResourceDefinition
 metadata:
   name: compositegrappleapis.grsf.grpl.io
@@ -45,6 +45,7 @@ metadata:
   #         - required: true
   #           customError: Cluster ref is required.
 spec:
+  scope: Cluster
   defaultCompositeDeletePolicy: Foreground
   group: grsf.grpl.io
   names:
