@@ -1,4 +1,4 @@
-apiVersion: apiextensions.crossplane.io/v1
+apiVersion: apiextensions.crossplane.io/v2
 kind: CompositeResourceDefinition
 metadata:
   name: compositemanagedapis.grsf.grpl.io
@@ -45,14 +45,8 @@ metadata:
   #         - required: true
   #           customError: Cluster ref is required.
 spec:
+  scope: Cluster
   defaultCompositeDeletePolicy: Foreground
-  claimNames:
-    kind: ManagedApi
-    plural: managedapis
-    shortNames:
-    - mapi
-    - mapis
-    - managedapi
   group: grsf.grpl.io
   names:
     kind: CompositeManagedApi

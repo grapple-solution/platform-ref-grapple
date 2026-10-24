@@ -1,4 +1,4 @@
-apiVersion: apiextensions.crossplane.io/v1
+apiVersion: apiextensions.crossplane.io/v2
 kind: CompositeResourceDefinition
 metadata:
   name: compositemanageddatasources.grsf.grpl.io
@@ -45,15 +45,8 @@ metadata:
   #         - required: true
   #           customError: Cluster ref is required.
 spec:
+  scope: Cluster
   defaultCompositeDeletePolicy: Foreground
-  claimNames:
-    kind: ManagedDataSource
-    plural: manageddatasources
-    shortNames:
-    - mds
-    - mdatasource
-    - manageddatasource
-    - managedds
   group: grsf.grpl.io
   names:
     kind: CompositeManagedDataSource

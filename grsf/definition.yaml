@@ -1,12 +1,14 @@
-apiVersion: apiextensions.crossplane.io/v1
+apiVersion: apiextensions.crossplane.io/v2
 kind: CompositeResourceDefinition
 metadata:
   name: compositegrapplesolutionframeworks.grsf.grpl.io
 spec:
+  scope: Cluster
   defaultCompositeDeletePolicy: Foreground
-  claimNames:
-    kind: GrappleSolutionFramework
-    plural: grapplesolutionframeworks
+  group: grsf.grpl.io
+  names:
+    kind: CompositeGrappleSolutionFramework
+    plural: compositegrapplesolutionframeworks
     shortNames:
     - grsf
     - grsfs
@@ -14,11 +16,6 @@ spec:
     - grplsfs
     - grapplesf
     - grapplesolutionframework
-  group: grsf.grpl.io
-  names:
-    kind: CompositeGrappleSolutionFramework
-    plural: compositegrapplesolutionframeworks
-    shortNames:
     - xgrsf
     - xgrsfs
     - xgrplsf

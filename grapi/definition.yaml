@@ -1,4 +1,4 @@
-apiVersion: apiextensions.crossplane.io/v1
+apiVersion: apiextensions.crossplane.io/v2
 kind: CompositeResourceDefinition
 metadata:
   name: compositegrappleapis.grsf.grpl.io
@@ -45,23 +45,21 @@ metadata:
   #         - required: true
   #           customError: Cluster ref is required.
 spec:
+  scope: Cluster
   defaultCompositeDeletePolicy: Foreground
-  claimNames:
-    kind: GrappleApi
-    plural: grappleapis
-    shortNames:
-      - api
-      - apis
-      - grapi
-      - grapis
-      - grplapi
-      - grplapis
-      - grappleapi
   group: grsf.grpl.io
   names:
     kind: CompositeGrappleApi
     plural: compositegrappleapis
     shortNames:
+      - grapi
+      - grapis
+      - api
+      - apis
+      - grplapi
+      - grplapis
+      - grappleapi
+      - grappleapis
       - xapi
       - xapis
       - xgrapi
