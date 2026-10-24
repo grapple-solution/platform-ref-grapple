@@ -1,20 +1,17 @@
-apiVersion: apiextensions.crossplane.io/v1
+apiVersion: apiextensions.crossplane.io/v2
 kind: CompositeResourceDefinition
 metadata:
   name: compositegrappleresources.grsf.grpl.io
 spec:
+  scope: Cluster
   defaultCompositeDeletePolicy: Foreground
-  claimNames:
-    kind: GrappleResource
-    plural: grappleresources
-    shortNames:
-    - gr
-    - gresoure
   group: grsf.grpl.io
   names:
     kind: CompositeGrappleResource
     plural: compositegrappleresources
     shortNames:
+    - gr
+    - gresoure
     - xgr
     - xgresoure
   versions:

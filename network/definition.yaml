@@ -1,4 +1,4 @@
-apiVersion: apiextensions.crossplane.io/v1
+apiVersion: apiextensions.crossplane.io/v2
 kind: CompositeResourceDefinition
 metadata:
   name: compositenetworks.multik8s.platformref.crossplane.io
@@ -45,10 +45,8 @@ metadata:
           - required: true
             customError: Cluster ref is required.
 spec:
+  scope: Cluster
   defaultCompositeDeletePolicy: Foreground
-  claimNames:
-    kind: Network
-    plural: networks
   group: multik8s.platformref.crossplane.io
   names:
     kind: CompositeNetwork

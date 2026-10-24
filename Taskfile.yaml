@@ -11,13 +11,13 @@ vars:
   CURRENT_VERSION:
     sh: |
       if [ ! -f "{{.VERSION_FILE}}" ]; then
-        echo "0.3.22" > {{.VERSION_FILE}}
+        echo "0.3.24-pr-30" > {{.VERSION_FILE}}
       fi
       cat {{.VERSION_FILE}}
   BEBASEIMAGE: "grpl/loopback"
   BEBASEIMAGEVERSION: "0.3.9"
   UIBASEIMAGE: "grpl/gruim"
-  UIBASEIMAGEVERSION: "0.3.22"
+  UIBASEIMAGEVERSION: "0.3.24-pr-30"
   STAGE: '{{.STAGE | default "dev"}}'
   GIT_HASH:
     sh: git log -n 1 --format=%h 2>/dev/null || echo "local"
@@ -143,14 +143,13 @@ tasks:
         fi
 
   ensure-images:
-    desc: Ensure all required images (loopback and UI) are available
+    desc: Ensure all required images (loopback) are available
     cmds:
       - task: ensure-loopback-image
-      - task: ensure-ui-image
 
   create-crds:
     desc: Create CRDs from loopback image (DANGEROUS - requires image to be present!)
-    deps: [ensure-images]
+    deps: [ensure-loopback-image]
     cmds:
       - |
         set -e  # Exit on any error
@@ -422,14 +421,10 @@ tasks:
           SPACER=" '' "
         fi
         
-        {{.SED}} -i ${SPACER} "s,beimage:.*,beimage: {{.BEBASEIMAGE}},g" grapi/composition.yaml
-        {{.SED}} -i ${SPACER} "s,beimagetag:.*,beimagetag: {{.BEBASEIMAGEVERSION}},g" grapi/composition.yaml
-        {{.SED}} -i ${SPACER} "s,uiimage:.*,uiimage: {{.UIBASEIMAGE}},g" gruim/composition.yaml
-        {{.SED}} -i ${SPACER} "s,uiimagetag:.*,uiimagetag: {{.UIBASEIMAGEVERSION}},g" gruim/composition.yaml
-        
+        {{.SED}} -i ${SPACER} "s,beimage:.*,beimage: {{.BEBASEIMAGE}},g" grapi/composition*.yaml
+        {{.SED}} -i ${SPACER} "s,beimagetag:.*,beimagetag: {{.BEBASEIMAGEVERSION}},g" grapi/composition*.yaml
         if [ "$(uname -s)" = "Darwin" ]; then 
-          rm -f grapi/composition.yaml'' 2>/dev/null || true
-          rm -f gruim/composition.yaml'' 2>/dev/null || true
+          rm -f grapi/composition*.yaml'' 2>/dev/null || true
         fi
         echo "[OK] Image versions updated"
 
@@ -648,14 +643,15 @@ tasks:
         echo "Checking composition is available..."
         
         echo "Deploying test cases..."
-        cat <<EOF | kubectl apply -n {{.TESTNS}} -f -
+        cat <<EOF | kubectl apply -f -
         apiVersion: grsf.grpl.io/v1alpha1
-        kind: GrappleApi
+        kind: CompositeGrappleApi
         metadata:
           name: mygrapi
-          namespace: {{.TESTNS}}
         spec:
           name: mygrapiid
+          writeConnectionSecretToRef:
+            namespace: {{.TESTNS}}
         EOF
         
         echo "Deploying grapi test cases..."
@@ -665,7 +661,7 @@ tasks:
             n=$(echo ${i} | sed "s,.yaml,,g")
             ns=gat-${n:0:3}
             kubectl create ns ${ns} 2>/dev/null || true
-            kubectl apply -n ${ns} -f ${TESTPATH}/${i}
+            kubectl apply -f ${TESTPATH}/${i}
           done
         fi
         
@@ -682,12 +678,13 @@ tasks:
         echo "----"
         echo ""
         kubectl get composite
-        kubectl get claim -n {{.TESTNS}}
+        kubectl get compositegrappleapis
         echo ""
         echo "----"
         echo ""
         echo "Displaying status of test case..."
-        kubectl get grapi,all -n {{.TESTNS}}
+        kubectl get grapi
+        kubectl get all -n {{.TESTNS}}
         
         echo "[OK] Tests completed"
 
@@ -842,13 +839,13 @@ tasks:
         
         # Check kubectl crossplane plugin
         if ! command -v crossplane >/dev/null 2>&1; then
-          echo "Installing kubectl crossplane plugin v1.18.0..."
-          curl -sL "https://releases.crossplane.io/stable/v1.18.0/bin/linux_amd64/crank" -o crossplane
+          echo "Installing crossplane CLI..."
+          curl -sL "https://raw.githubusercontent.com/crossplane/crossplane/main/install.sh" | sh
           sudo mv crossplane /usr/local/bin/crossplane
           sudo chmod +x /usr/local/bin/crossplane
           # Create kubectl plugin symlink
           sudo ln -sf /usr/local/bin/crossplane /usr/local/bin/kubectl-crossplane
-          echo "crossplane CLI v1.18.0 installed"
+          echo "crossplane CLI installed"
         else
           CLI_VERSION=$(crossplane version 2>&1 | grep "Client Version" | awk '{print $3}' || echo 'unknown')
           echo "crossplane CLI is already installed (${CLI_VERSION})"

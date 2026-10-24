@@ -1,1189 +1,3198 @@
-apiVersion: apiextensions.crossplane.io/v1
+apiVersion: apiextensions.crossplane.io/v2
 kind: CompositeResourceDefinition
 metadata:
   name: compositegrappleapis.grsf.grpl.io
-  # annotations:
-  #   upbound.io/ui-schema: |-
-  #     ---
-  #     configSections:
-  #     - title: Network Info
-  #       description: Information about this network fabric
-  #       items:
-  #       - name: id
-  #         controlType: singleInput
-  #         type: string
-  #         path: ".spec.id"
-  #         title: Network ID
-  #         description: Network ID that other objects will use to refer (and connect) to this network fabric
-  #         default: multik8s-network
-  #         validation:
-  #         - required: true
-  #           customError: Network ID is required.
-  #       - name: provider
-  #         controlType: singleSelect
-  #         path: ".spec.compositionSelector.matchLabels[provider]"
-  #         title: Cloud Provider
-  #         description: Select which cloud provider this network should be created in.
-  #         default: AWS
-  #         enum:
-  #         - AWS
-  #         - GCP
-  #         validation:
-  #         - required: true
-  #           customError: Cloud provider is required.
-  #     - title: Cluster Info
-  #       description: The cluster used with this network fabric
-  #       items:
-  #       - name: clusterRef
-  #         controlType: singleInput
-  #         type: string
-  #         path: ".spec.clusterRef.id"
-  #         title: Cluster Ref
-  #         description: ID of the Cluster object that will use this network fabric
-  #         default: multik8s-cluster
-  #         validation:
-  #         - required: true
-  #           customError: Cluster ref is required.
 spec:
+  scope: Cluster
   defaultCompositeDeletePolicy: Foreground
-  claimNames:
-    kind: GrappleApi
-    plural: grappleapis
-    shortNames:
-      - api
-      - apis
-      - grapi
-      - grapis
-      - grplapi
-      - grplapis
-      - grappleapi
   group: grsf.grpl.io
   names:
     kind: CompositeGrappleApi
     plural: compositegrappleapis
     shortNames:
-      - xapi
-      - xapis
-      - xgrapi
-      - xgrapis
-      - xgrplapi
-      - xgrplapis
-      - xgrappleapi
-      - xgrappleapis
+    - grapi
+    - grapis
+    - api
+    - apis
+    - grplapi
+    - grplapis
+    - grappleapi
+    - grappleapis
+    - xapi
+    - xapis
+    - xgrapi
+    - xgrapis
+    - xgrplapi
+    - xgrplapis
+    - xgrappleapi
+    - xgrappleapis
   versions:
-    - name: v1alpha1
-      served: true
-      referenceable: true
-      schema:
-        openAPIV3Schema:
-          type: object
-          properties:
-            spec:
-              type: object
-              description: Specification of the desired behavior of the grapple API (grapi). grapi.spec is the specification of the desired behavior of the grapple API.
-              properties:
-                name:
-                  description: "This field can be used to tweak the name of the grapi. \nIt is optional and shall only be used if required.\n(Default: \"\")\n"
-                  type: string
-                podAnnotations:
-                  description: |
-                    Please specify here the annotations to be added to the pod template.
-                    Used for Dapr sidecar injector annotations.
-                  type: object
-                  x-kubernetes-preserve-unknown-fields: true
+  - name: v1alpha2
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            description: Specification of the desired behavior of the grapple API (grapi). grapi.spec is the specification of the desired behavior of the grapple API.
+            properties:
+              name:
+                description: "This field can be used to tweak the name of the grapi. \nIt is optional and shall only be used if required.\n(Default: \"\")\n"
+                type: string
+              writeConnectionSecretToRef:
+                description: 'The secret to which this composite resource will write its connection details.
 
-                livenessProbe:
-                  description: |
-                    Specify livenessProbe for the grapi container.
-                    Verify against: kubectl explain pod.spec.containers.livenessProbe
-                  type: object
-                  x-kubernetes-preserve-unknown-fields: true
-                readinessProbe:
-                  description: |
-                    Specify readinessProbe for the grapi container.
-                    Verify against: kubectl explain pod.spec.containers.readinessProbe
-                  type: object
-                  x-kubernetes-preserve-unknown-fields: true
-                startupProbe:
-                  description: |
-                    Specify startupProbe for the grapi container.
-                    Verify against: kubectl explain pod.spec.containers.startupProbe
-                  type: object
-                  x-kubernetes-preserve-unknown-fields: true
-
-                appVersion:
-                  description: |
-                    Please specify here the version of the application (info.version in OpenAPI).
-                    (Default: "")
-                  type: string
-                asname:
-                  description: |
-                    This field can be used to tweak the name of the parent gras (grapple ApplicationSet).
-                    It is optional and shall only be used if required.
-                    (Default: "")
-                  type: string
-                organization:
-                  description: |
-                    This field can be used to define the organization name displayed in the microservice.
-                    This value may be derived from the cluster config.
-                    (Default: "grapple solutions")
-                  type: string
-                email:
-                  description: |
-                    This field can be used to define the email address displayed in the microservice.
-                    This value may be derived from the cluster config.
-                    (Default: "info@grapple-solutions.com")
-                  type: string
-                grapiversion:
-                  description: 'Please specify here the version of grapple API (grapi)'
-                  type: string
-                clusterdomain:
-                  description: "Please specify here the clusterdomain of the target cluster. \nonly use this field if not specified in the grapple config or the gras (grapple ApplicationSet).\n(Default: \"\" - usually defined in the grapple config secret)\n"
-                  type: string
-                customheader:
-                  description: |
-                    Please specify here the custom header content protecting the grapi (grapple API)
-                    This value can be used to override the header specified in the gras (grapple ApplicationSet).
-                    (Default: "")
-                  type: string
-                dev:
-                  description: |
-                    Please specify here if the DEV mode shall be activated for this grapi (grapple API)
-                    this value can be used to override the header specified in the gras.
-                    (Default: false)
-                  type: boolean
-                ingress:
-                  description: |
-                    Please specify here if ingress shall be enabled for the grapi (grapple API service)
-                    (Default: true)
-                  type: boolean
-                ssl:
-                  description: |
-                    Please specify here if ssl shall be configured for the grapi (grapple API ingress)
-                    (Default: false)
-                  type: boolean
-                sslissuer:
-                  description: |
-                    Please specify here the ssl issuer for the grapi (grapple API ingress)
-                    (Default: "")
-                  type: string
-                disableexplorer:
-                  description: |
-                    Please specify "true" if you want to disable the explorer of the the grapi (grapple API) deployment
-                    (Default: false)
-                  type: boolean
-                corsurls:
-                  description: |
-                    Please specify here the allowed cors urls for protecting the grapi (grapple API)
-                    (e.g. "http://localhost:3000,http://localhost:2000")
-                    (Default: "")
-                  type: string
-                auth:
-                  description: |
-                    Please define here the authenticatino settings for this grapi (grapple API)
-                  type: object
-                  properties:
-                    basic:
-                      description: |
-                        Please define here the basic authenticatino settings for this grapi (grapple API)
-                        LICENSE: Starter
-                      type: object
-                      properties:
-                        config:
-                          description: |
-                            Please specify here if basic authentication config for the grapi (grapple API)
-                            Example: '{"auth": true, "writeonly": true, "exclude": "/invoices"}'
-                            Requires ENV "Users" to exist - use "auth.basic.secretName" to create Users
-                            LICENSE: Starter
-                          type: string
-                        secretName:
-                          description: |
-                            Please specify here secret containing basic authentication credentials for this grapi (grapple API)
-                            Example: mysecret
-                            Example: kubectl create secret generic authusers --from-literal Users='[{"username": "grapple", "email": "info@grapple-solutions.com", "password": "mysecretpw", "realm": "random"}, {"username": "sales", "email": "sales@grapple-solutions.com", "password": "mysalespw", "realm": "random"}]'
-                            LICENSE: Starter
-                          type: string
-                    profile:
-                      description: |
-                        Please define here the basic authenticatino settings for this grapi (grapple API)
-                        LICENSE: Pro
-                        (TODO: NOT YET IMPLEMENTED)
-                      type: object
-                      properties:
-                        profile:
-                          type: string
-                          description: |
-                            Please define here the authentication profile for this grapi (grapple API)
-                            LICENSE: Pro
-                            (TODO: NOT YET IMPLEMENTED)
-                        settings:
-                          type: string
-                          description: |
-                            Please define here the authentication profile settings for this grapi (grapple API)
-                            LICENSE: Pro
-                            (TODO: NOT YET IMPLEMENTED)
-                buildimages:
-                  description: |
-                    Build image configuration. Set enabled=true to build images for grapi.
-                    buildimages.tag is MANDATORY when enabled=true.
-                  type: object
-                  properties:
-                    enabled:
-                      description: |
-                        Set to true to build images for grapi (grapple API). (Default: false)
-                      type: boolean
-                    tag:
-                      description: |
-                        Image tag for built images. MANDATORY when enabled=true.
-                        (Default: "")
-                      type: string
-                    name:
-                      description: |
-                        Image name for built images.
-                        Falls back to local registry naming convention if not specified.
-                        (Default: "")
-                      type: string
-                    resources:
-                      description: |
-                        Resource definitions for the build job container.
-                        Default: requests 2Gi/500m, limits 4Gi/2cpu
-                      type: object
-                      x-kubernetes-preserve-unknown-fields: true
-                    resourcesNpmMem:
-                      description: |
-                        Node.js max_old_space_size for the build job (in MB).
-                        Should be <75% of memory limit. Default: 3072 (75% of 4Gi)
-                      type: string
-                    cache:
-                      description: |
-                        Shall a cache be used for building the images for this grapi (grapple API)?
-                        (Default: true)
-                      type: boolean
-                      default: true
-                runimages:
-                  description: |
-                    Runtime image configuration. Used when runimages.enabled=true (default).
-                    image and tag are also used as the base image when buildimages.enabled=true.
-                  type: object
-                  properties:
-                    enabled:
-                      description: |
-                        Shall the runtime image be deployed? (Default: true)
-                      type: boolean
-                    image:
-                      description: |
-                        Runtime/base image name.
-                        Used as: (1) Base image when buildimages.enabled=true
-                        (2) Runtime image when buildimages.enabled=false and deployimages.enabled=false
-                        (Default: grpl/grapi)
-                      type: string
-                    tag:
-                      description: |
-                        Tag for the runtime/base image.
-                        (Default: grapiversion)
-                      type: string
-                    resources:
-                      description: |
-                        Resource definitions for the runtime container.
-                        Default: requests 256Mi/250m, limits 3Gi/4000m
-                      type: object
-                      x-kubernetes-preserve-unknown-fields: true
-                    resourcesNpmMem:
-                      description: |
-                        Node.js max_old_space_size for the runtime container (in MB).
-                        Should be <75% of memory limit. Default: 2048 (75% of ~2.7Gi)
-                      type: string
-                deployimages:
-                  description: |
-                    Deploy pre-built image configuration.
-                    deployimages.name and deployimages.tag are MANDATORY when enabled=true and buildimages.enabled=false.
-                  type: object
-                  properties:
-                    enabled:
-                      description: |
-                        Shall the pre-built image be deployed? (Default: false)
-                      type: boolean
-                    name:
-                      description: |
-                        Pre-built image name to deploy.
-                        MANDATORY when enabled=true and buildimages.enabled=false.
-                        (Default: "")
-                      type: string
-                    tag:
-                      description: |
-                        Pre-built image tag to deploy.
-                        MANDATORY when enabled=true and buildimages.enabled=false.
-                        (Default: "")
-                      type: string
-                    resources:
-                      description: |
-                        Resource definitions for the deployed image container.
-                        Default: requests 256Mi/250m, limits 1Gi/2cpu
-                      type: object
-                      x-kubernetes-preserve-unknown-fields: true
-                    resourcesNpmMem:
-                      description: |
-                        Node.js max_old_space_size for the deployed image container (in MB).
-                        Should be <75% of memory limit. Default: 768 (75% of 1Gi)
-                      type: string
-                autoscaling:
-                  description: |
-                    Please define here the scaling definitions for this grapi (grapple API)
-                  type: object
-                  properties:
-                    replicas:
-                      description: |
-                        Please specify the number of replicas for the resources in this grapi (grapple API)
-                        Default: 1
-                      type: integer
-                    minReplicas:
-                      description: |
-                        Please specify the minimum number of replicas for the resources in this grapi (grapple API)
-                        Default: 1
-                      type: integer
-                    maxReplicas:
-                      description: |
-                        Please specify the maximum number of replicas for the resources in this grapi (grapple API)
-                        Default: 20
-                      type: integer
-                    targetCPUUtilizationPercentage:
-                      description: |
-                        Please specify the targetCPUUtilizationPercentage for the resources in this grapi (grapple API)
-                        Default: 60
-                      type: integer
-                      # targetMemoryUtilizationPercentage:
-                      #   description: | 
-                      #     Please specify the targetMemoryUtilizationPercentage for the resources in this grapi (grapple API)
-                      #     Default: undefined
-                      #   type: integer
-                # resources block removed - now inside buildimages/deployimages/runimages objects
-                # improve the implementation of translations: https://wolke7.atlassian.net/browse/GSF-71
-                # translations:
-                #   description: 'Please specify whether translations shall be enabled for the grapi (grapple API)'
-                #   type: boolean
-                # improve the implementation of translations - should be implemented using the mapi...
-                # apiregistry:
-                #   description: 'Please specify whether apiregistry shall be enabled'
-                #   type: boolean
-                graphql:
-                  description: |
-                    Please specify whether to deploy a graphql interface for the grapi (grapple API)?
-                    (Default: false)
-                  type: boolean
-                monitoring:
-                  description: |
-                    Please specify whether the extended monitoring endpoint should be enabled for this grapi (grapple API)?
-                    (Default: true)
-                  type: boolean
-                discoveredrepos:
-                  description: |
-                    Please specify whether to automatically discover the repositories for the models in this grapi (grapple API)?
-                    (Default: true)
-                  type: boolean
-                externalsecrets:
-                  description: |
-                    Please add here the externalsecrets for this grapi (grapple API)
-                    you can attach multiple externalsecrets specifications to your grapi (grapple API)
-                    all variables in the secret become available to the grapi (grapple API):
-                    https://external-secrets.io/
-                    example:
-                      externalsecrets:
-                      - name: classicmodelsas-auroramysql
-                        spec:
-                          refreshInterval: 1h
-                          secretStoreRef:
-                            name: aws-secretstore
-                            kind: ClusterSecretStore
-                          target:
-                            name: mytarget
-                            creationPolicy: Owner
-                          dataFrom:
-                          - extract:
-                              key: "mysecret"
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      name:
-                        description: please specify the name for the externalsecrets object
-                        type: string
-                      spec:
-                        description: |
-                          Please specify the spec for the externalsecrets
-                          verify against:
-                          kubectl explain externalsecrets.spec
-                          https://external-secrets.io/
-                        type: object
-                        # allows to specify anything in the object... no verification whatsoever...
-                        x-kubernetes-preserve-unknown-fields: true
-                extraSecrets:
-                  description: "Please add here the extraSecrets for this grapi (grapple API)\nyou can just reference the name of a secret and all parameters \nbecome available inside the grapi (grapple API) deployment as variables\n"
-                  type: array
-                  items:
+                  '
+                type: object
+                properties:
+                  name:
+                    description: Name of the secret.
                     type: string
-                automigrate:
-                  description: "Please specify whether to automatically migrate the datasource in this grapi (grapple API)? \nruns: \"npm run migrate\"\nfurther information:\nhttps://loopback.io/doc/en/lb4/Database-migrations.html\n"
-                  type: boolean
-                autorestartgruim:
-                  description: "auto-restart the gruim (grapple UI module) on a change in the grapi (grapple API) spec \nusing a kubernetes cronjob?\n(Default: false)\n"
-                  type: boolean
-                  default: false
-                schedule:
-                  description: "cron schedule for the openapi check (e.g. */10 * * * *)\n"
+                  namespace:
+                    description: Namespace of the secret.
+                    type: string
+                required:
+                - name
+                - namespace
+              podAnnotations:
+                description: 'Please specify here the annotations to be added to the pod template.
+
+                  Used for Dapr sidecar injector annotations.
+
+                  '
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              livenessProbe:
+                description: 'Specify livenessProbe for the grapi container.
+
+                  Verify against: kubectl explain pod.spec.containers.livenessProbe
+
+                  '
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              readinessProbe:
+                description: 'Specify readinessProbe for the grapi container.
+
+                  Verify against: kubectl explain pod.spec.containers.readinessProbe
+
+                  '
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              startupProbe:
+                description: 'Specify startupProbe for the grapi container.
+
+                  Verify against: kubectl explain pod.spec.containers.startupProbe
+
+                  '
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              appVersion:
+                description: 'Please specify here the version of the application (info.version in OpenAPI).
+
+                  (Default: "")
+
+                  '
+                type: string
+              asname:
+                description: 'This field can be used to tweak the name of the parent gras (grapple ApplicationSet).
+
+                  It is optional and shall only be used if required.
+
+                  (Default: "")
+
+                  '
+                type: string
+              organization:
+                description: 'This field can be used to define the organization name displayed in the microservice.
+
+                  This value may be derived from the cluster config.
+
+                  (Default: "grapple solutions")
+
+                  '
+                type: string
+              email:
+                description: 'This field can be used to define the email address displayed in the microservice.
+
+                  This value may be derived from the cluster config.
+
+                  (Default: "info@grapple-solutions.com")
+
+                  '
+                type: string
+              grapiversion:
+                description: Please specify here the version of grapple API (grapi)
+                type: string
+              clusterdomain:
+                description: "Please specify here the clusterdomain of the target cluster. \nonly use this field if not specified in the grapple config or the gras (grapple ApplicationSet).\n(Default: \"\" - usually defined in the grapple config secret)\n"
+                type: string
+              customheader:
+                description: 'Please specify here the custom header content protecting the grapi (grapple API)
+
+                  This value can be used to override the header specified in the gras (grapple ApplicationSet).
+
+                  (Default: "")
+
+                  '
+                type: string
+              dev:
+                description: 'Please specify here if the DEV mode shall be activated for this grapi (grapple API)
+
+                  this value can be used to override the header specified in the gras.
+
+                  (Default: false)
+
+                  '
+                type: boolean
+              ingress:
+                description: 'Please specify here if ingress shall be enabled for the grapi (grapple API service)
+
+                  (Default: true)
+
+                  '
+                type: boolean
+              ssl:
+                description: 'Please specify here if ssl shall be configured for the grapi (grapple API ingress)
+
+                  (Default: false)
+
+                  '
+                type: boolean
+              sslissuer:
+                description: 'Please specify here the ssl issuer for the grapi (grapple API ingress)
+
+                  (Default: "")
+
+                  '
+                type: string
+              disableexplorer:
+                description: 'Please specify "true" if you want to disable the explorer of the the grapi (grapple API) deployment
+
+                  (Default: false)
+
+                  '
+                type: boolean
+              corsurls:
+                description: 'Please specify here the allowed cors urls for protecting the grapi (grapple API)
+
+                  (e.g. "http://localhost:3000,http://localhost:2000")
+
+                  (Default: "")
+
+                  '
+                type: string
+              auth:
+                description: 'Please define here the authenticatino settings for this grapi (grapple API)
+
+                  '
+                type: object
+                properties:
+                  basic:
+                    description: 'Please define here the basic authenticatino settings for this grapi (grapple API)
+
+                      LICENSE: Starter
+
+                      '
+                    type: object
+                    properties:
+                      config:
+                        description: 'Please specify here if basic authentication config for the grapi (grapple API)
+
+                          Example: ''{"auth": true, "writeonly": true, "exclude": "/invoices"}''
+
+                          Requires ENV "Users" to exist - use "auth.basic.secretName" to create Users
+
+                          LICENSE: Starter
+
+                          '
+                        type: string
+                      secretName:
+                        description: 'Please specify here secret containing basic authentication credentials for this grapi (grapple API)
+
+                          Example: mysecret
+
+                          Example: kubectl create secret generic authusers --from-literal Users=''[{"username": "grapple", "email": "info@grapple-solutions.com", "password": "mysecretpw", "realm": "random"}, {"username": "sales", "email": "sales@grapple-solutions.com", "password": "mysalespw", "realm": "random"}]''
+
+                          LICENSE: Starter
+
+                          '
+                        type: string
+                  profile:
+                    description: 'Please define here the basic authenticatino settings for this grapi (grapple API)
+
+                      LICENSE: Pro
+
+                      (TODO: NOT YET IMPLEMENTED)
+
+                      '
+                    type: object
+                    properties:
+                      profile:
+                        type: string
+                        description: 'Please define here the authentication profile for this grapi (grapple API)
+
+                          LICENSE: Pro
+
+                          (TODO: NOT YET IMPLEMENTED)
+
+                          '
+                      settings:
+                        type: string
+                        description: 'Please define here the authentication profile settings for this grapi (grapple API)
+
+                          LICENSE: Pro
+
+                          (TODO: NOT YET IMPLEMENTED)
+
+                          '
+              buildimages:
+                description: 'Build image configuration. Set enabled=true to build images for grapi.
+
+                  buildimages.tag is MANDATORY when enabled=true.
+
+                  '
+                type: object
+                properties:
+                  enabled:
+                    description: 'Set to true to build images for grapi (grapple API). (Default: false)
+
+                      '
+                    type: boolean
+                  tag:
+                    description: 'Image tag for built images. MANDATORY when enabled=true.
+
+                      (Default: "")
+
+                      '
+                    type: string
+                  name:
+                    description: 'Image name for built images.
+
+                      Falls back to local registry naming convention if not specified.
+
+                      (Default: "")
+
+                      '
+                    type: string
+                  resources:
+                    description: 'Resource definitions for the build job container.
+
+                      Default: requests 2Gi/500m, limits 4Gi/2cpu
+
+                      '
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  resourcesNpmMem:
+                    description: 'Node.js max_old_space_size for the build job (in MB).
+
+                      Should be <75% of memory limit. Default: 3072 (75% of 4Gi)
+
+                      '
+                    type: string
+                  cache:
+                    description: 'Shall a cache be used for building the images for this grapi (grapple API)?
+
+                      (Default: true)
+
+                      '
+                    type: boolean
+                    default: true
+              runimages:
+                description: 'Runtime image configuration. Used when runimages.enabled=true (default).
+
+                  image and tag are also used as the base image when buildimages.enabled=true.
+
+                  '
+                type: object
+                properties:
+                  enabled:
+                    description: 'Shall the runtime image be deployed? (Default: true)
+
+                      '
+                    type: boolean
+                  image:
+                    description: 'Runtime/base image name.
+
+                      Used as: (1) Base image when buildimages.enabled=true
+
+                      (2) Runtime image when buildimages.enabled=false and deployimages.enabled=false
+
+                      (Default: grpl/grapi)
+
+                      '
+                    type: string
+                  tag:
+                    description: 'Tag for the runtime/base image.
+
+                      (Default: grapiversion)
+
+                      '
+                    type: string
+                  resources:
+                    description: 'Resource definitions for the runtime container.
+
+                      Default: requests 256Mi/250m, limits 3Gi/4000m
+
+                      '
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  resourcesNpmMem:
+                    description: 'Node.js max_old_space_size for the runtime container (in MB).
+
+                      Should be <75% of memory limit. Default: 2048 (75% of ~2.7Gi)
+
+                      '
+                    type: string
+              deployimages:
+                description: 'Deploy pre-built image configuration.
+
+                  deployimages.name and deployimages.tag are MANDATORY when enabled=true and buildimages.enabled=false.
+
+                  '
+                type: object
+                properties:
+                  enabled:
+                    description: 'Shall the pre-built image be deployed? (Default: false)
+
+                      '
+                    type: boolean
+                  name:
+                    description: 'Pre-built image name to deploy.
+
+                      MANDATORY when enabled=true and buildimages.enabled=false.
+
+                      (Default: "")
+
+                      '
+                    type: string
+                  tag:
+                    description: 'Pre-built image tag to deploy.
+
+                      MANDATORY when enabled=true and buildimages.enabled=false.
+
+                      (Default: "")
+
+                      '
+                    type: string
+                  resources:
+                    description: 'Resource definitions for the deployed image container.
+
+                      Default: requests 256Mi/250m, limits 1Gi/2cpu
+
+                      '
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  resourcesNpmMem:
+                    description: 'Node.js max_old_space_size for the deployed image container (in MB).
+
+                      Should be <75% of memory limit. Default: 768 (75% of 1Gi)
+
+                      '
+                    type: string
+              autoscaling:
+                description: 'Please define here the scaling definitions for this grapi (grapple API)
+
+                  '
+                type: object
+                properties:
+                  replicas:
+                    description: 'Please specify the number of replicas for the resources in this grapi (grapple API)
+
+                      Default: 1
+
+                      '
+                    type: integer
+                  minReplicas:
+                    description: 'Please specify the minimum number of replicas for the resources in this grapi (grapple API)
+
+                      Default: 1
+
+                      '
+                    type: integer
+                  maxReplicas:
+                    description: 'Please specify the maximum number of replicas for the resources in this grapi (grapple API)
+
+                      Default: 20
+
+                      '
+                    type: integer
+                  targetCPUUtilizationPercentage:
+                    description: 'Please specify the targetCPUUtilizationPercentage for the resources in this grapi (grapple API)
+
+                      Default: 60
+
+                      '
+                    type: integer
+              graphql:
+                description: 'Please specify whether to deploy a graphql interface for the grapi (grapple API)?
+
+                  (Default: false)
+
+                  '
+                type: boolean
+              monitoring:
+                description: 'Please specify whether the extended monitoring endpoint should be enabled for this grapi (grapple API)?
+
+                  (Default: true)
+
+                  '
+                type: boolean
+              discoveredrepos:
+                description: 'Please specify whether to automatically discover the repositories for the models in this grapi (grapple API)?
+
+                  (Default: true)
+
+                  '
+                type: boolean
+              externalsecrets:
+                description: "Please add here the externalsecrets for this grapi (grapple API)\nyou can attach multiple externalsecrets specifications to your grapi (grapple API)\nall variables in the secret become available to the grapi (grapple API):\nhttps://external-secrets.io/\nexample:\n  externalsecrets:\n  - name: classicmodelsas-auroramysql\n    spec:\n      refreshInterval: 1h\n      secretStoreRef:\n        name: aws-secretstore\n        kind: ClusterSecretStore\n      target:\n        name: mytarget\n        creationPolicy: Owner\n      dataFrom:\n      - extract:\n          key: \"mysecret\"\n"
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      description: please specify the name for the externalsecrets object
+                      type: string
+                    spec:
+                      description: 'Please specify the spec for the externalsecrets
+
+                        verify against:
+
+                        kubectl explain externalsecrets.spec
+
+                        https://external-secrets.io/
+
+                        '
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+              extraSecrets:
+                description: "Please add here the extraSecrets for this grapi (grapple API)\nyou can just reference the name of a secret and all parameters \nbecome available inside the grapi (grapple API) deployment as variables\n"
+                type: array
+                items:
                   type: string
-                env:
-                  description: |
-                    Please add here the environment variables for this grapi (grapple API).
-                    All variables here become available to all containers (main and init).
-                    Documentation: https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/
-                    Example:
-                    env:
-                    - name: MY_VARIABLE
-                      value: "my-value"
-                    - name: DB_PASSWORD
-                      valueFrom:
-                        secretKeyRef:
-                          name: database-secret
-                          key: password
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      name:
-                        type: string
-                      value:
-                        type: string
-                      valueFrom:
-                        type: object
-                        x-kubernetes-preserve-unknown-fields: true
-                initContainers:
-                  description: |
-                    specify initContainers that shall run successfully before starting the grapi (grapple API)
-                    example:
-                      initContainers:
-                      - name: init-db
-                        spec:
-                          command:
-                          - bash
-                          - -c
-                          - sleep 5; COMMAND_TO_EXECUTE
-                          image: mysql
-                          name: init-db
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      name:
-                        description: please specify the name for the initContainer
-                        type: string
-                      spec:
-                        description: |
-                          please specify the spec for the grapi (grapple API) initContainer
-                          verify against:
-                          kubectl explain pod.spec.initContainers
-                        type: object
-                        # allows to specify anything in the object... no verification whatsoever...
-                        x-kubernetes-preserve-unknown-fields: true
-                volumes:
-                  description: "Specify additional volumes that shall be attached to the grapi (grapple API)\nverify against: \nkubectl explain pod.spec.volumes\n"
-                  type: array
-                  items:
-                    description: |
-                      please specify the spec for the grapi (grapple API) volumes
-                      verify against:
-                      kubectl explain pod.spec.volumes
-                    type: object
-                    x-kubernetes-preserve-unknown-fields: true
-                volumeMounts:
-                  description: |
-                    specify volumeMounts that shall be mounted to the grapi (grapple API)
+              automigrate:
+                description: "Please specify whether to automatically migrate the datasource in this grapi (grapple API)? \nruns: \"npm run migrate\"\nfurther information:\nhttps://loopback.io/doc/en/lb4/Database-migrations.html\n"
+                type: boolean
+              autorestartgruim:
+                description: "auto-restart the gruim (grapple UI module) on a change in the grapi (grapple API) spec \nusing a kubernetes cronjob?\n(Default: false)\n"
+                type: boolean
+                default: false
+              schedule:
+                description: 'cron schedule for the openapi check (e.g. */10 * * * *)
+
+                  '
+                type: string
+              env:
+                description: "Please add here the environment variables for this grapi (grapple API).\nAll variables here become available to all containers (main and init).\nDocumentation: https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/\nExample:\nenv:\n- name: MY_VARIABLE\n  value: \"my-value\"\n- name: DB_PASSWORD\n  valueFrom:\n    secretKeyRef:\n      name: database-secret\n      key: password\n"
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    value:
+                      type: string
+                    valueFrom:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+              initContainers:
+                description: "specify initContainers that shall run successfully before starting the grapi (grapple API)\nexample:\n  initContainers:\n  - name: init-db\n    spec:\n      command:\n      - bash\n      - -c\n      - sleep 5; COMMAND_TO_EXECUTE\n      image: mysql\n      name: init-db\n"
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      description: please specify the name for the initContainer
+                      type: string
+                    spec:
+                      description: 'please specify the spec for the grapi (grapple API) initContainer
+
+                        verify against:
+
+                        kubectl explain pod.spec.initContainers
+
+                        '
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+              volumes:
+                description: "Specify additional volumes that shall be attached to the grapi (grapple API)\nverify against: \nkubectl explain pod.spec.volumes\n"
+                type: array
+                items:
+                  description: 'please specify the spec for the grapi (grapple API) volumes
+
                     verify against:
+
+                    kubectl explain pod.spec.volumes
+
+                    '
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+              volumeMounts:
+                description: 'specify volumeMounts that shall be mounted to the grapi (grapple API)
+
+                  verify against:
+
+                  kubectl explain pod.spec.containers.volumeMounts
+
+                  '
+                type: array
+                items:
+                  description: 'please specify the spec for the grapi (grapple API) volumeMounts
+
+                    verify against:
+
                     kubectl explain pod.spec.containers.volumeMounts
-                  type: array
-                  items:
-                    description: |
-                      please specify the spec for the grapi (grapple API) volumeMounts
-                      verify against:
-                      kubectl explain pod.spec.containers.volumeMounts
+
+                    '
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+              datasources:
+                description: 'Please add here all the datasources that shall be deployed within this grapi (grapple API)
+
+                  further information:
+
+                  https://loopback.io/doc/en/lb4/DataSource-generator.html
+
+                  '
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      description: please specify the name for the datasource
+                      type: string
+                    content:
+                      description: 'please specify the content for the datasource in form of a json string
+
+                        example:
+
+                        {"name":"classicmodels","connector":"mysql","url":"","host":"DBHOST","port":"DBPORT","user":"DBUSER","password":"DBPW","database":"DBSCHEMA"}
+
+                        or use the spec for yaml format
+
+                        '
+                      type: string
+                    spec:
+                      type: object
+                      properties:
+                        force:
+                          description: Force overwrite if datasource already exists
+                          type: boolean
+                          default: true
+                        mysql:
+                          description: Please specify the specs for datasource type mysql
+                          type: object
+                          properties:
+                            force:
+                              description: Force overwrite if datasource already exists
+                              type: boolean
+                              default: true
+                            name:
+                              description: Please provide a name for the datasource
+                              type: string
+                            connector:
+                              description: 'Please provide the connector type for the datasource - Default: mysql'
+                              type: string
+                              default: mysql
+                            database:
+                              description: Spec for database for datasource mysql
+                              type: string
+                            host:
+                              description: Spec for host for datasource mysql
+                              type: string
+                            password:
+                              description: Spec for password for datasource mysql
+                              type: string
+                            port:
+                              description: Spec for port for datasource mysql
+                              type: string
+                            url:
+                              description: Spec for url for datasource mysql
+                              type: string
+                            user:
+                              description: Spec for user for datasource mysql
+                              type: string
+                        postgresql:
+                          description: Please specify the specs for datasource type postgresql
+                          type: object
+                          properties:
+                            force:
+                              description: Force overwrite if datasource already exists
+                              type: boolean
+                              default: true
+                            name:
+                              description: Please provide a name for the datasource
+                              type: string
+                            connector:
+                              description: 'Please provide the connector type for the datasource - Default: postgresql'
+                              type: string
+                              default: postgresql
+                            database:
+                              description: Spec for database for datasource postgresql
+                              type: string
+                            host:
+                              description: Spec for host for datasource postgresql
+                              type: string
+                            password:
+                              description: Spec for password for datasource postgresql
+                              type: string
+                            port:
+                              description: Spec for port for datasource postgresql
+                              type: string
+                            url:
+                              description: Spec for url for datasource postgresql
+                              type: string
+                            user:
+                              description: Spec for user for datasource postgresql
+                              type: string
+                        kv-redis:
+                          description: Please specify the specs for datasource type kv-redis
+                          type: object
+                          properties:
+                            force:
+                              description: Force overwrite if datasource already exists
+                              type: boolean
+                              default: true
+                            name:
+                              description: Please provide a name for the datasource
+                              type: string
+                            connector:
+                              description: 'Please provide the connector type for the datasource - Default: kv-redis'
+                              type: string
+                              default: kv-redis
+                            db:
+                              description: Spec for db for datasource kv-redis
+                              type: string
+                            host:
+                              description: Spec for host for datasource kv-redis
+                              type: string
+                            password:
+                              description: Spec for password for datasource kv-redis
+                              type: string
+                            port:
+                              description: Spec for port for datasource kv-redis
+                              type: string
+                            url:
+                              description: Spec for url for datasource kv-redis
+                              type: string
+                        kv-memory:
+                          description: Please specify the specs for datasource type kv-memory
+                          type: object
+                          properties:
+                            force:
+                              description: Force overwrite if datasource already exists
+                              type: boolean
+                              default: true
+                            name:
+                              description: Please provide a name for the datasource
+                              type: string
+                            connector:
+                              description: 'Please provide the connector type for the datasource - Default: kv-memory'
+                              type: string
+                              default: kv-memory
+                        memory:
+                          description: Please specify the specs for datasource type memory
+                          type: object
+                          properties:
+                            force:
+                              description: Force overwrite if datasource already exists
+                              type: boolean
+                              default: true
+                            name:
+                              description: Please provide a name for the datasource
+                              type: string
+                            connector:
+                              description: 'Please provide the connector type for the datasource - Default: memory'
+                              type: string
+                              default: memory
+                            file:
+                              description: Spec for file for datasource memory
+                              type: string
+                            localStorage:
+                              description: Spec for localStorage for datasource memory
+                              type: string
+              discoveries:
+                description: 'Please add here all the discoveries that shall be executed within this grapi (grapple API)
+
+                  further information:
+
+                  https://loopback.io/doc/en/lb4/Discovering-models.html
+
+                  '
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      description: please specify the name for the discovery
+                      type: string
+                    content:
+                      description: 'please specify the content for the discovery in form of a json string
+
+                        example:
+
+                        {"dataSource":"classicmodels","schema":"DBSCHEMA","all":"true","disableCamelCase":false,"yes":"undefined"}
+
+                        or use the spec for yaml format
+
+                        '
+                      type: string
+                    spec:
+                      type: object
+                      properties:
+                        dataSource:
+                          description: The name of the datasource to discover
+                          type: string
+                        datasource:
+                          description: The name of the datasource to discover (alias for dataSource)
+                          type: string
+                        force:
+                          description: Force overwrite if discovery already exists
+                          type: boolean
+                          default: true
+                        views:
+                          description: Boolean to discover views
+                          type: boolean
+                        relations:
+                          description: Discover and create relations
+                          type: boolean
+                        schema:
+                          description: Schema to discover
+                          type: string
+                        all:
+                          description: Discover all models without prompting users to select
+                          type: boolean
+                        outDir:
+                          description: Specify the directory into which the `model.model.ts` files will be placed
+                          type: string
+                        models:
+                          description: Discover specific models without prompting users to select e.g:--models=table1,table2
+                          type: string
+                        optionalId:
+                          description: Boolean to mark id property as optional field
+                          type: boolean
+                        disableCamelCase:
+                          description: disableCamelCase
+                          type: boolean
+              models:
+                description: 'Please add here all the models that shall be deployed within this grapi (grapple API)
+
+                  further information:
+
+                  https://loopback.io/doc/en/lb4/Model-generator.html
+
+                  '
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      description: please specify the name for the model
+                      type: string
+                    content:
+                      description: 'please specify the content for the models in form of a json string
+
+                        example:
+
+                        {"base":"Entity","name":"customer","properties":{"id":{"type":"number","id":true,"required":true,"generated":true},"customername":{"type":"string"},"emaildomain":{"type":"string","required":true},"datecreated":{"type":"date","required":false},"datelastupdated":{"type":"date","required":false}}}
+
+                        or use the spec for yaml format
+
+                        '
+                      type: string
+                    spec:
+                      type: object
+                      properties:
+                        base:
+                          description: A valid based model
+                          type: string
+                        dataSource:
+                          description: The name of the dataSource which contains this model and suppots model discovery
+                          type: string
+                        datasource:
+                          description: The name of the dataSource which contains this model and supports model discovery (alias for dataSource)
+                          type: string
+                        allowAdditionalProperties:
+                          description: Allow additional properties on the model (default false)
+                          type: boolean
+                          default: false
+                        force:
+                          description: Force overwrite if model already exists
+                          type: boolean
+                          default: true
+                        table:
+                          description: If discovering a model from a dataSource, specify the name of its table/view
+                          type: string
+                        schema:
+                          description: If discovering a model from a dataSource, specify the schema which contains it
+                          type: string
+                        name:
+                          description: name
+                          type: string
+                        properties:
+                          description: properties
+                          type: object
+                          additionalProperties:
+                            type: object
+                            properties:
+                              type:
+                                description: Please define the type of the field (e.g. 'string', 'array', 'number')
+                                type: string
+                              itemType:
+                                description: Please define the type of the item if type = array (e.g. 'string', 'number')
+                                type: string
+                              id:
+                                description: Please define if the field is an ID (unique identifier for this model)
+                                type: boolean
+                              generated:
+                                description: Please define, if the field is autogenerated by the underlying system (e.g. database) (boolean, e.g. true / false) (false, if defaultFn is defined)
+                                type: boolean
+                              required:
+                                description: Please define whether the field is required (boolean, e.g. true / false) (if the field is generated, it is NOT required)
+                                type: boolean
+                              default:
+                                description: Please define the default value for the field (e.g. 'myvalue')
+                                type: string
+                              length:
+                                description: Please define the length of the field (e.g. 20 (for 20 characters))
+                                x-kubernetes-int-or-string: true
+                              defaultFn:
+                                description: Please define the default function for the field (e.g. 'uuid' (for ID string fields), 'now' (for date fields))
+                                type: string
+              relations:
+                description: 'Please add here all the relations that shall be deployed within this grapi (grapple API)
+
+                  further information:
+
+                  https://loopback.io/doc/en/lb4/Relation-generator.html
+
+                  '
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      description: please specify the name for the relation
+                      type: string
+                    content:
+                      description: 'please specify the content for the relation in form of a json string
+
+                        example:
+
+                        {"destinationModel":"Employees","foreignKeyName":"employeesId","registerInclusionResolver":true,"relationName":"employees","relationType":"belongsTo","sourceModel":"Customers"}
+
+                        or use the spec for yaml format
+
+                        '
+                      type: string
+                    spec:
+                      type: object
+                      properties:
+                        relationType:
+                          description: Relation type
+                          type: string
+                        sourceModel:
+                          description: Source model
+                          type: string
+                        customReferenceKeys:
+                          description: Destination model key or boolean flag
+                          x-kubernetes-preserve-unknown-fields: true
+                        customSourceModelKey:
+                          description: Custom source model key name
+                          type: string
+                        customTargetModelKey:
+                          description: Custom target model key name
+                          type: string
+                        force:
+                          description: Force overwrite if relation already exists
+                          type: boolean
+                          default: true
+                        destinationModel:
+                          description: Destination model key
+                          type: string
+                        throughModel:
+                          description: Through model
+                          type: string
+                        sourceModelPrimaryKey:
+                          description: Primary key on source model
+                          type: string
+                        sourceModelPrimaryKeyType:
+                          description: Type of the primary key on source model
+                          type: string
+                        destinationModelPrimaryKey:
+                          description: Primary key on destination model
+                          type: string
+                        destinationModelPrimaryKeyType:
+                          description: Type of the primary key on destination model
+                          type: string
+                        sourceKeyOnThrough:
+                          description: Foreign key references source model on through model
+                          type: string
+                        targetKeyOnThrough:
+                          description: Foreign key references target model on through model
+                          type: string
+                        defaultForeignKeyName:
+                          description: default foreign key name
+                          type: string
+                        foreignKeyName:
+                          description: Destination model foreign key name (optional, provide only when there is a custom foreign key)
+                          type: string
+                        relationName:
+                          description: Relation name
+                          type: string
+                        defaultRelationName:
+                          description: Default relation name
+                          type: string
+                        registerInclusionResolver:
+                          description: Allow <sourceModel> queries to include data from related <destinationModel>
+                          type: boolean
+              serviceproviders:
+                description: 'Please add here all the serviceproviders that shall be deployed within this grapi (grapple API)
+
+                  further information:
+
+                  https://loopback.io/doc/en/lb4/Service-generator.html
+
+                  '
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      description: please specify the name for the service
+                      type: string
+                    content:
+                      description: 'please specify the content for the service in form of a json string
+
+                        example:
+
+                        {"name": "serviceNameToBeGenerated","datasource": "validDataSourceName"}
+
+                        or use the spec for yaml format
+
+                        '
+                      type: string
+                    spec:
+                      type: object
+                      properties:
+                        serviceprovidersproperty:
+                          description: serviceprovidersproperty
+                          type: string
+              openapis:
+                description: 'Please add here all the openapis that shall be deployed within this grapi (grapple API)
+
+                  further information:
+
+                  https://loopback.io/doc/en/lb4/OpenAPI-generator.html
+
+                  '
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      description: please specify the name for the openapi
+                      type: string
+                    content:
+                      description: 'please specify the content for the openapi in form of a json string
+
+                        example:
+
+                        {"prefix":"cm","url":"URL_TO_OPENAPI_SPEC","client":true}
+
+                        or use the spec for yaml format
+
+                        '
+                      type: string
+                    spec:
+                      type: object
+                      properties:
+                        force:
+                          description: Force overwrite if openapi already exists
+                          type: boolean
+                          default: true
+                        url:
+                          description: URL or file path of the OpenAPI spec
+                          type: string
+                        validate:
+                          description: Validate the OpenAPI spec
+                          type: boolean
+                        server:
+                          description: Generate server-side controllers for the OpenAPI spec
+                          type: boolean
+                        client:
+                          description: Generate client-side service proxies for the OpenAPI spec
+                          type: boolean
+                        datasource:
+                          description: A valid datasource name for the OpenAPI endpoint
+                          type: string
+                        baseModel:
+                          description: Base model class
+                          type: string
+                        promote-anonymous-schemas:
+                          description: Promote anonymous schemas as models
+                          type: boolean
+                        prefix:
+                          description: Provide prefix to avoid duplication
+                          type: string
+                        readonly:
+                          description: Only include endpoints with provided regex.
+                          type: string
+                        external:
+                          description: Whether this OpenAPI is an external service. If true, skips waiting for info.version to match appVersion.
+                          type: boolean
+              cacheconfigs:
+                description: 'Please add here all the cache configurations that shall be deployed within this grapi (grapple API)
+
+                  '
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      description: please specify the name for the cache configuration
+                      type: string
+                    content:
+                      description: 'please specify the content for the cache configuration in form of a json string
+
+                        example:
+
+                        {"redisDS":"redisDS","cacheTTL":6000000,"openApis":"cm","exclude":"*:employees/*"}
+
+                        or use the spec for yaml format
+
+                        '
+                      type: string
+                    spec:
+                      type: object
+                      properties:
+                        redisDS:
+                          description: Please specify here the name of the cache datasource (kv-redis datasource) to be used as cache storage
+                          type: string
+                        cacheTTL:
+                          description: 'Please specify here the cache TTL for the cache storage in seconds
+
+                            example:
+
+                            60000'
+                          type: integer
+                        openApis:
+                          description: 'Please specify here the name of the openapi specification that shall be cached
+
+                            Only specify a reference to the name of the openapi resource in the grapi (grapple API)'
+                          type: string
+                        exclude:
+                          description: 'Please specify here, which endpoints shall be excluded from the cache
+
+                            example:
+
+                            *:employees/*'
+                          type: string
+                        include:
+                          description: 'Please specify here, which endpoints shall be included in the cache
+
+                            example:
+
+                            *:customers/*
+
+                            if specified, everything else is excluded.'
+                          type: string
+              restcruds:
+                description: 'Please add here all the restcruds that shall be generated within this grapi (grapple API)
+
+                  further information:
+
+                  https://loopback.io/doc/en/lb4/Rest-Crud-generator.html
+
+                  '
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      description: please specify the name for the restcrud
+                      type: string
+                    content:
+                      description: 'please specify the content for the restcrud in form of a json string
+
+                        example:
+
+                        {"datasource":"classicmodels"}
+
+                        or use the spec for yaml format
+
+                        '
+                      type: string
+                    spec:
+                      type: object
+                      properties:
+                        force:
+                          description: Force overwrite if restcrud already exists
+                          type: boolean
+                          default: true
+                        model:
+                          description: A valid model name
+                          type: string
+                        datasource:
+                          description: A valid datasource name
+                          type: string
+                        basePath:
+                          description: A valid base path
+                          type: string
+                        readonly:
+                          description: Create readonly APIs
+                          type: boolean
+              repositories:
+                description: 'Please add here all the repositories that shall be generated within this grapi (grapple API)
+
+                  further information:
+
+                  https://loopback.io/doc/en/lb4/Repository-generator.html
+
+                  '
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      description: please specify the name for the repository
+                      type: string
+                    content:
+                      description: 'please specify the content for the repository in form of a json string
+
+                        example:
+
+                        {"name": "repositoryNameToBeGenerated","datasource": "validDataSourceName","model": "validDModelName","id": "anOptionalNameForID","repositoryBaseClass": "validRepositoryBaseClass"}
+
+                        or use the spec for yaml format
+
+                        '
+                      type: string
+                    spec:
+                      type: object
+                      properties:
+                        force:
+                          description: Force overwrite if repository already exists
+                          type: boolean
+                          default: true
+                        model:
+                          description: A valid model name
+                          type: string
+                        id:
+                          description: A valid ID property name for the specified model
+                          type: string
+                        dataSource:
+                          description: A valid datasource name (alias for datasource)
+                          type: string
+                        datasource:
+                          description: A valid datasource name
+                          type: string
+                        repositoryBaseClass:
+                          description: A valid repository base class
+                          type: string
+              controllers:
+                description: 'Please add here all the controllers that shall be generated within this grapi (grapple API)
+
+                  further information:
+
+                  https://loopback.io/doc/en/lb4/Controller-generator.html
+
+                  '
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      description: please specify the name for the controller
+                      type: string
+                    content:
+                      description: 'please specify the content for the controller in form of a json string
+
+                        example:
+
+                        {"controllerType":"empty"}
+
+                        or use the spec for yaml format
+
+                        '
+                      type: string
+                    spec:
+                      type: object
+                      properties:
+                        force:
+                          description: Force overwrite if controller already exists
+                          type: boolean
+                          default: true
+                        datasource:
+                          description: Datasource for controller
+                          type: string
+                        controllerType:
+                          description: Type for the %s
+                          type: string
+              fuzzysearch:
+                description: 'Please add here all the fuzzy search configurations that shall be generated within this grapi (grapple API)
+
+                  '
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      description: please specify the name for the fuzzy search configuration
+                      type: string
+                    content:
+                      description: 'please specify the content for the fuzzy search configuration in form of a json string
+
+                        example:
+
+                        {"fuzzy":true,"centralFuzzy":true,"datasource":"classicmodels","appName":"Grpl","exclude":"employees"}
+
+                        or use the spec for yaml format
+
+                        '
+                      type: string
+                    spec:
+                      type: object
+                      properties:
+                        fuzzy:
+                          description: Please specify here if a fuzzy search should be made available for each endpoint
+                          type: boolean
+                          default: true
+                        centralFuzzy:
+                          description: Please specify here if a central fuzzy endpoint over all endpoints shall be made available
+                          type: boolean
+                          default: false
+                        datasource:
+                          description: 'Please specify here the name of the datasource for which
+
+                            the fuzzy search endpoint shall be generated
+
+                            Specify only the name of the datasource as a reference'
+                          type: string
+                        appName:
+                          description: Please specify here the application name for the fuzzy endpoint
+                          type: string
+                        include:
+                          description: 'Please specify here includes for the fuzzy endpoint
+
+                            example:
+
+                            *:customers/*'
+                          type: string
+                        exclude:
+                          description: 'Please specify here excludes for the fuzzy endpoint
+
+                            example:
+
+                            *:employees/*'
+                          type: string
+              prepatches:
+                description: "Please add here a patch script (base64 encoded) that shall run before datasource creation \nwithin this grapi (grapple API)\n"
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      description: please specify the name for the patch script
+                      type: string
+                    content:
+                      description: 'please specify the content for the patch script
+
+                        (base64 encoded string)
+
+                        example:
+
+                        bnBtIGkgdXVpZAo=
+
+                        '
+                      type: string
+              prediscoverypatches:
+                description: "Please add here a patch script (base64 encoded) that shall run before the discovery \nafter datasource creation within this grapi (grapple API)\n"
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      description: please specify the name for the patch script
+                      type: string
+                    content:
+                      description: 'please specify the content for the patch script
+
+                        (base64 encoded string)
+
+                        example:
+
+                        bnBtIGkgdXVpZAo=
+
+                        '
+                      type: string
+              prerelationpatches:
+                description: "Please add here a patch script (base64 encoded) that shall run before the creation of relations \nwithin this grapi (grapple API)\n"
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      description: please specify the name for the patch script
+                      type: string
+                    content:
+                      description: 'please specify the content for the patch script
+
+                        (base64 encoded string)
+
+                        example:
+
+                        bnBtIGkgdXVpZAo=
+
+                        '
+                      type: string
+              postpatches:
+                description: 'Please add here a patch script (base64 encoded) that shall run after backend creation
+
+                  within this grapi (grapple API)
+
+                  '
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      description: please specify the name for the patch script
+                      type: string
+                    content:
+                      description: 'please specify the content for the patch script
+
+                        (base64 encoded string)
+
+                        example:
+
+                        bnBtIGkgdXVpZAo=
+
+                        '
+                      type: string
+              services:
+                description: 'Please add here all the services that shall be generated within this grapi (grapple API)
+
+                  further information:
+
+                  https://loopback.io/doc/en/lb4/Service-generator.html
+
+                  '
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      description: please specify the name for the service
+                      type: string
+                    content:
+                      description: 'please specify the content for the service in form of a json string
+
+                        example:
+
+                        {"name":"serviceNameToBeGenerated","datasource":"validDataSourceName"}
+
+                        or use the spec for yaml format
+
+                        '
+                      type: string
+                    spec:
+                      type: object
+                      properties:
+                        type:
+                          description: Service type - proxy, class or provider
+                          type: string
+                        datasource:
+                          description: A valid datasource name
+                          type: string
+              extraEnvVars:
+                description: Array of extra environment variables (Bitnami standard)
+                type: array
+                items:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+              extraEnvVarsCM:
+                description: ConfigMap name containing extra environment variables (Bitnami standard)
+                type: string
+              extraEnvVarsSecret:
+                description: Secret name containing extra environment variables (Bitnami standard)
+                type: string
+              sqlcontrollers:
+                description: SQL Controllers configuration
+                type: array
+                items:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+              externaloperations:
+                description: External Operations configuration
+                type: array
+                items:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+              customcontrollerdirs:
+                description: Custom controller directories
+                type: string
+              customservicedirs:
+                description: Custom service directories
+                type: string
+              groupby:
+                description: Enable GROUP BY support
+                type: boolean
+                default: false
+              logging:
+                description: Logging configurations
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              security:
+                description: Security configurations
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              audit:
+                description: Audit configurations
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              networking:
+                description: Networking and Ingress configuration for grapi
+                type: object
+                properties:
+                  ingress:
+                    description: Enable Ingress
+                    type: boolean
+                  clusterdomain:
+                    description: Target cluster domain
+                    type: string
+                  ssl:
+                    description: Override SSL / TLS on ingress (true/false)
+                    type: boolean
+                  sslissuer:
+                    description: Cert-manager SSL issuer name
+                    type: string
+                  customheader:
+                    description: Custom protection header
+                    type: string
+                  corsurls:
+                    description: Allowed CORS URLs
+                    type: string
+              scaling:
+                description: Pod autoscaling and replica configuration
+                type: object
+                properties:
+                  enabled:
+                    description: Enable or disable horizontal pod autoscaling (HPA)
+                    type: boolean
+                  replicas:
+                    description: 'Number of replicas for the grapi deployment when autoscaling is disabled (Default: 1)'
+                    type: integer
+                  replicaCount:
+                    description: 'Alias for replicas count (Default: 1)'
+                    type: integer
+                  minReplicas:
+                    description: 'Minimum number of replicas for autoscaling (Default: 1)'
+                    type: integer
+                  maxReplicas:
+                    description: 'Maximum number of replicas for autoscaling (Default: 20)'
+                    type: integer
+                  targetCPUUtilizationPercentage:
+                    description: 'Target CPU utilization percentage for the HPA (Default: 60)'
+                    type: integer
+                  targetMemoryUtilizationPercentage:
+                    description: Target memory utilization percentage for the HPA
+                    type: integer
+                  hpa:
+                    description: Custom HPA configuration object. Verify against kubectl explain hpa.spec
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
-                datasources:
-                  description: |
-                    Please add here all the datasources that shall be deployed within this grapi (grapple API)
-                    further information:
-                    https://loopback.io/doc/en/lb4/DataSource-generator.html
-                  type: array
-                  items:
+              runtime:
+                description: Pod runtime, container probes, and environment configurations
+                type: object
+                properties:
+                  podAnnotations:
+                    description: 'Please specify here the annotations to be added to the pod template.
+
+                      Used for Dapr sidecar injector annotations or custom pod metadata.
+
+                      '
                     type: object
-                    properties:
-                      name:
-                        description: please specify the name for the datasource
-                        type: string
-                      content:
-                        description: |
-                          please specify the content for the datasource in form of a json string
-                          example:
-                          {"name":"classicmodels","connector":"mysql","url":"","host":"DBHOST","port":"DBPORT","user":"DBUSER","password":"DBPW","database":"DBSCHEMA"}
-                          or use the spec for yaml format
-                        type: string
-                      spec:
-                        type: object
-                        properties:
-                          mysql:
-                            description: Please specify the specs for datasource type mysql
-                            type: object
-                            properties:
-                              name:
-                                description: Please provide a name for the datasource
-                                type: string
-                              connector:
-                                description: 'Please provide the connector type for the datasource - Default: mysql'
-                                type: string
-                                default: mysql
-                              database:
-                                description: Spec for database for datasource mysql
-                                type: string
-                              host:
-                                description: Spec for host for datasource mysql
-                                type: string
-                              password:
-                                description: Spec for password for datasource mysql
-                                type: string
-                              port:
-                                description: Spec for port for datasource mysql
-                                type: string
-                              url:
-                                description: Spec for url for datasource mysql
-                                type: string
-                              user:
-                                description: Spec for user for datasource mysql
-                                type: string
-                          postgresql:
-                            description: Please specify the specs for datasource type postgresql
-                            type: object
-                            properties:
-                              name:
-                                description: Please provide a name for the datasource
-                                type: string
-                              connector:
-                                description: 'Please provide the connector type for the datasource - Default: postgresql'
-                                type: string
-                                default: postgresql
-                              database:
-                                description: Spec for database for datasource postgresql
-                                type: string
-                              host:
-                                description: Spec for host for datasource postgresql
-                                type: string
-                              password:
-                                description: Spec for password for datasource postgresql
-                                type: string
-                              port:
-                                description: Spec for port for datasource postgresql
-                                type: string
-                              url:
-                                description: Spec for url for datasource postgresql
-                                type: string
-                              user:
-                                description: Spec for user for datasource postgresql
-                                type: string
-                          kv-redis:
-                            description: Please specify the specs for datasource type kv-redis
-                            type: object
-                            properties:
-                              name:
-                                description: Please provide a name for the datasource
-                                type: string
-                              connector:
-                                description: 'Please provide the connector type for the datasource - Default: kv-redis'
-                                type: string
-                                default: kv-redis
-                              db:
-                                description: Spec for db for datasource kv-redis
-                                type: string
-                              host:
-                                description: Spec for host for datasource kv-redis
-                                type: string
-                              password:
-                                description: Spec for password for datasource kv-redis
-                                type: string
-                              port:
-                                description: Spec for port for datasource kv-redis
-                                type: string
-                              url:
-                                description: Spec for url for datasource kv-redis
-                                type: string
-                          kv-memory:
-                            description: Please specify the specs for datasource type kv-memory
-                            type: object
-                            properties:
-                              name:
-                                description: Please provide a name for the datasource
-                                type: string
-                              connector:
-                                description: 'Please provide the connector type for the datasource - Default: kv-memory'
-                                type: string
-                                default: kv-memory
-                          memory:
-                            description: Please specify the specs for datasource type memory
-                            type: object
-                            properties:
-                              name:
-                                description: Please provide a name for the datasource
-                                type: string
-                              connector:
-                                description: 'Please provide the connector type for the datasource - Default: memory'
-                                type: string
-                                default: memory
-                              file:
-                                description: Spec for file for datasource memory
-                                type: string
-                              localStorage:
-                                description: Spec for localStorage for datasource memory
-                                type: string
-                discoveries:
-                  description: |
-                    Please add here all the discoveries that shall be executed within this grapi (grapple API)
-                    further information:
-                    https://loopback.io/doc/en/lb4/Discovering-models.html
-                  type: array
-                  items:
+                    x-kubernetes-preserve-unknown-fields: true
+                  podSecurityContext:
+                    description: 'Pod security context for the grapi pod.
+
+                      Verify against: kubectl explain pod.spec.securityContext
+
+                      '
                     type: object
-                    properties:
-                      name:
-                        description: please specify the name for the discovery
-                        type: string
-                      content:
-                        description: |
-                          please specify the content for the discovery in form of a json string
-                          example:
-                          {"dataSource":"classicmodels","schema":"DBSCHEMA","all":"true","disableCamelCase":false,"yes":"undefined"}
-                          or use the spec for yaml format
-                        type: string
-                      spec:
-                        type: object
-                        properties:
-                          dataSource:
-                            description: The name of the datasource to discover
-                            type: string
-                          views:
-                            description: Boolean to discover views
-                            type: boolean
-                          relations:
-                            description: Discover and create relations
-                            type: boolean
-                          schema:
-                            description: Schema to discover
-                            type: string
-                          all:
-                            description: Discover all models without prompting users to select
-                            type: boolean
-                          outDir:
-                            description: Specify the directory into which the `model.model.ts` files will be placed
-                            type: string
-                          models:
-                            description: Discover specific models without prompting users to select e.g:--models=table1,table2
-                            type: string
-                          optionalId:
-                            description: Boolean to mark id property as optional field
-                            type: boolean
-                          disableCamelCase:
-                            description: disableCamelCase
-                            type: boolean
-                models:
-                  description: |
-                    Please add here all the models that shall be deployed within this grapi (grapple API)
-                    further information:
-                    https://loopback.io/doc/en/lb4/Model-generator.html
-                  type: array
-                  items:
+                    x-kubernetes-preserve-unknown-fields: true
+                  securityContext:
+                    description: 'Container security context for the grapi container.
+
+                      Verify against: kubectl explain pod.spec.containers.securityContext
+
+                      '
                     type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  nodeSelector:
+                    description: 'Node selection constraints for pod scheduling.
+
+                      Verify against: kubectl explain pod.spec.nodeSelector
+
+                      '
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  tolerations:
+                    description: 'Pod tolerations for node taints.
+
+                      Verify against: kubectl explain pod.spec.tolerations
+
+                      '
+                    type: array
+                    items:
+                      description: Toleration rule. Verify against kubectl explain pod.spec.tolerations
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                  affinity:
+                    description: 'Pod affinity and anti-affinity scheduling rules.
+
+                      Verify against: kubectl explain pod.spec.affinity
+
+                      '
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  livenessProbe:
+                    description: 'Specify livenessProbe for the grapi container.
+
+                      Verify against: kubectl explain pod.spec.containers.livenessProbe
+
+                      '
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  readinessProbe:
+                    description: 'Specify readinessProbe for the grapi container.
+
+                      Verify against: kubectl explain pod.spec.containers.readinessProbe
+
+                      '
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  startupProbe:
+                    description: 'Specify startupProbe for the grapi container.
+
+                      Verify against: kubectl explain pod.spec.containers.startupProbe
+
+                      '
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  env:
+                    description: "Please add here the environment variables for this grapi (grapple API).\nAll variables here become available to all containers (main and init).\nDocumentation: https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/\nExample:\nenv:\n- name: MY_VARIABLE\n  value: \"my-value\"\n- name: DB_PASSWORD\n  valueFrom:\n    secretKeyRef:\n      name: database-secret\n      key: password\n"
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          description: Name of the environment variable
+                          type: string
+                        value:
+                          description: Value of the environment variable
+                          type: string
+                        valueFrom:
+                          description: Source for the environment variable's value
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                  extraEnvVars:
+                    description: Array of extra environment variables (Bitnami standard)
+                    type: array
+                    items:
+                      description: Extra environment variable entry
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                  extraEnvVarsCM:
+                    description: ConfigMap name containing extra environment variables (Bitnami standard)
+                    type: string
+                  extraEnvVarsSecret:
+                    description: Secret name containing extra environment variables (Bitnami standard)
+                    type: string
+              storage:
+                description: Storage volumes and mounts
+                type: object
+                properties:
+                  volumes:
+                    description: "Specify additional volumes that shall be attached to the grapi (grapple API).\nVerify against: \nkubectl explain pod.spec.volumes\n"
+                    type: array
+                    items:
+                      description: 'Specification for the grapi volume.
+
+                        Verify against: kubectl explain pod.spec.volumes
+
+                        '
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                  volumeMounts:
+                    description: 'Specify volumeMounts that shall be mounted to the grapi (grapple API).
+
+                      Verify against:
+
+                      kubectl explain pod.spec.containers.volumeMounts
+
+                      '
+                    type: array
+                    items:
+                      description: 'Specification for the grapi volumeMount.
+
+                        Verify against: kubectl explain pod.spec.containers.volumeMounts
+
+                        '
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+  - name: v1alpha1
+    referenceable: false
+    schema:
+      openAPIV3Schema:
+        properties:
+          spec:
+            description: Specification of the desired behavior of the grapple API (grapi). grapi.spec is the specification of the desired behavior of the grapple API.
+            properties:
+              appVersion:
+                description: 'Please specify here the version of the application (info.version in OpenAPI).
+
+                  (Default: "")
+
+                  '
+                type: string
+              asname:
+                description: 'This field can be used to tweak the name of the parent gras (grapple ApplicationSet).
+
+                  It is optional and shall only be used if required.
+
+                  (Default: "")
+
+                  '
+                type: string
+              audit:
+                description: Audit configurations
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              auth:
+                description: 'Please define here the authenticatino settings for this grapi (grapple API)
+
+                  '
+                properties:
+                  basic:
+                    description: 'Please define here the basic authenticatino settings for this grapi (grapple API)
+
+                      LICENSE: Starter
+
+                      '
                     properties:
-                      name:
-                        description: please specify the name for the model
+                      config:
+                        description: 'Please specify here if basic authentication config for the grapi (grapple API)
+
+                          Example: ''{"auth": true, "writeonly": true, "exclude": "/invoices"}''
+
+                          Requires ENV "Users" to exist - use "auth.basic.secretName" to create Users
+
+                          LICENSE: Starter
+
+                          '
                         type: string
-                      content:
-                        description: |
-                          please specify the content for the models in form of a json string
-                          example:
-                          {"base":"Entity","name":"customer","properties":{"id":{"type":"number","id":true,"required":true,"generated":true},"customername":{"type":"string"},"emaildomain":{"type":"string","required":true},"datecreated":{"type":"date","required":false},"datelastupdated":{"type":"date","required":false}}}
-                          or use the spec for yaml format
+                      secretName:
+                        description: 'Please specify here secret containing basic authentication credentials for this grapi (grapple API)
+
+                          Example: mysecret
+
+                          Example: kubectl create secret generic authusers --from-literal Users=''[{"username": "grapple", "email": "info@grapple-solutions.com", "password": "mysecretpw", "realm": "random"}, {"username": "sales", "email": "sales@grapple-solutions.com", "password": "mysalespw", "realm": "random"}]''
+
+                          LICENSE: Starter
+
+                          '
                         type: string
-                      spec:
-                        type: object
-                        properties:
-                          base:
-                            description: A valid based model
-                            type: string
-                          dataSource:
-                            description: The name of the dataSource which contains this model and suppots model discovery
-                            type: string
-                          table:
-                            description: If discovering a model from a dataSource, specify the name of its table/view
-                            type: string
-                          schema:
-                            description: If discovering a model from a dataSource, specify the schema which contains it
-                            type: string
-                          name:
-                            description: name
-                            type: string
+                    type: object
+                  profile:
+                    description: 'Please define here the basic authenticatino settings for this grapi (grapple API)
+
+                      LICENSE: Pro
+
+                      (TODO: NOT YET IMPLEMENTED)
+
+                      '
+                    properties:
+                      profile:
+                        description: 'Please define here the authentication profile for this grapi (grapple API)
+
+                          LICENSE: Pro
+
+                          (TODO: NOT YET IMPLEMENTED)
+
+                          '
+                        type: string
+                      settings:
+                        description: 'Please define here the authentication profile settings for this grapi (grapple API)
+
+                          LICENSE: Pro
+
+                          (TODO: NOT YET IMPLEMENTED)
+
+                          '
+                        type: string
+                    type: object
+                type: object
+              automigrate:
+                description: "Please specify whether to automatically migrate the datasource in this grapi (grapple API)? \nruns: \"npm run migrate\"\nfurther information:\nhttps://loopback.io/doc/en/lb4/Database-migrations.html\n"
+                type: boolean
+              autorestartgruim:
+                default: false
+                description: "auto-restart the gruim (grapple UI module) on a change in the grapi (grapple API) spec \nusing a kubernetes cronjob?\n(Default: false)\n"
+                type: boolean
+              autoscaling:
+                description: 'Please define here the scaling definitions for this grapi (grapple API)
+
+                  '
+                properties:
+                  maxReplicas:
+                    description: 'Please specify the maximum number of replicas for the resources in this grapi (grapple API)
+
+                      Default: 20
+
+                      '
+                    type: integer
+                  minReplicas:
+                    description: 'Please specify the minimum number of replicas for the resources in this grapi (grapple API)
+
+                      Default: 1
+
+                      '
+                    type: integer
+                  replicas:
+                    description: 'Please specify the number of replicas for the resources in this grapi (grapple API)
+
+                      Default: 1
+
+                      '
+                    type: integer
+                  targetCPUUtilizationPercentage:
+                    description: 'Please specify the targetCPUUtilizationPercentage for the resources in this grapi (grapple API)
+
+                      Default: 60
+
+                      '
+                    type: integer
+                type: object
+              buildimages:
+                description: 'Build image configuration. Set enabled=true to build images for grapi.
+
+                  buildimages.tag is MANDATORY when enabled=true.
+
+                  '
+                properties:
+                  cache:
+                    default: true
+                    description: 'Shall a cache be used for building the images for this grapi (grapple API)?
+
+                      (Default: true)
+
+                      '
+                    type: boolean
+                  enabled:
+                    description: 'Set to true to build images for grapi (grapple API). (Default: false)
+
+                      '
+                    type: boolean
+                  name:
+                    description: 'Image name for built images.
+
+                      Falls back to local registry naming convention if not specified.
+
+                      (Default: "")
+
+                      '
+                    type: string
+                  resources:
+                    description: 'Resource definitions for the build job container.
+
+                      Default: requests 2Gi/500m, limits 4Gi/2cpu
+
+                      '
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  resourcesNpmMem:
+                    description: 'Node.js max_old_space_size for the build job (in MB).
+
+                      Should be <75% of memory limit. Default: 3072 (75% of 4Gi)
+
+                      '
+                    type: string
+                  tag:
+                    description: 'Image tag for built images. MANDATORY when enabled=true.
+
+                      (Default: "")
+
+                      '
+                    type: string
+                type: object
+              cacheconfigs:
+                description: 'Please add here all the cache configurations that shall be deployed within this grapi (grapple API)
+
+                  '
+                items:
+                  properties:
+                    content:
+                      description: 'please specify the content for the cache configuration in form of a json string
+
+                        example:
+
+                        {"redisDS":"redisDS","cacheTTL":6000000,"openApis":"cm","exclude":"*:employees/*"}
+
+                        or use the spec for yaml format
+
+                        '
+                      type: string
+                    name:
+                      description: please specify the name for the cache configuration
+                      type: string
+                    spec:
+                      properties:
+                        cacheTTL:
+                          description: 'Please specify here the cache TTL for the cache storage in seconds
+
+                            example:
+
+                            60000'
+                          type: integer
+                        exclude:
+                          description: 'Please specify here, which endpoints shall be excluded from the cache
+
+                            example:
+
+                            *:employees/*'
+                          type: string
+                        include:
+                          description: 'Please specify here, which endpoints shall be included in the cache
+
+                            example:
+
+                            *:customers/*
+
+                            if specified, everything else is excluded.'
+                          type: string
+                        openApis:
+                          description: 'Please specify here the name of the openapi specification that shall be cached
+
+                            Only specify a reference to the name of the openapi resource in the grapi (grapple API)'
+                          type: string
+                        redisDS:
+                          description: Please specify here the name of the cache datasource (kv-redis datasource) to be used as cache storage
+                          type: string
+                      type: object
+                  type: object
+                type: array
+              clusterdomain:
+                description: "Please specify here the clusterdomain of the target cluster. \nonly use this field if not specified in the grapple config or the gras (grapple ApplicationSet).\n(Default: \"\" - usually defined in the grapple config secret)\n"
+                type: string
+              controllers:
+                description: 'Please add here all the controllers that shall be generated within this grapi (grapple API)
+
+                  further information:
+
+                  https://loopback.io/doc/en/lb4/Controller-generator.html
+
+                  '
+                items:
+                  properties:
+                    content:
+                      description: 'please specify the content for the controller in form of a json string
+
+                        example:
+
+                        {"controllerType":"empty"}
+
+                        or use the spec for yaml format
+
+                        '
+                      type: string
+                    name:
+                      description: please specify the name for the controller
+                      type: string
+                    spec:
+                      properties:
+                        controllerType:
+                          description: Type for the %s
+                          type: string
+                        outDir:
+                          description: 'outDir, {type: String,description: Custom output directory for controller'
+                          type: string
+                      type: object
+                  type: object
+                type: array
+              corsurls:
+                description: 'Please specify here the allowed cors urls for protecting the grapi (grapple API)
+
+                  (e.g. "http://localhost:3000,http://localhost:2000")
+
+                  (Default: "")
+
+                  '
+                type: string
+              customcontrollerdirs:
+                description: Custom controller directories
+                type: string
+              customheader:
+                description: 'Please specify here the custom header content protecting the grapi (grapple API)
+
+                  This value can be used to override the header specified in the gras (grapple ApplicationSet).
+
+                  (Default: "")
+
+                  '
+                type: string
+              customservicedirs:
+                description: Custom service directories
+                type: string
+              datasources:
+                description: 'Please add here all the datasources that shall be deployed within this grapi (grapple API)
+
+                  further information:
+
+                  https://loopback.io/doc/en/lb4/DataSource-generator.html
+
+                  '
+                items:
+                  properties:
+                    content:
+                      description: 'please specify the content for the datasource in form of a json string
+
+                        example:
+
+                        {"name":"classicmodels","connector":"mysql","url":"","host":"DBHOST","port":"DBPORT","user":"DBUSER","password":"DBPW","database":"DBSCHEMA"}
+
+                        or use the spec for yaml format
+
+                        '
+                      type: string
+                    name:
+                      description: please specify the name for the datasource
+                      type: string
+                    spec:
+                      properties:
+                        kv-memory:
+                          description: Please specify the specs for datasource type kv-memory
                           properties:
-                            description: properties
+                            connector:
+                              default: kv-memory
+                              description: 'Please provide the connector type for the datasource - Default: kv-memory'
+                              type: string
+                            name:
+                              description: Please provide a name for the datasource
+                              type: string
+                          type: object
+                        kv-redis:
+                          description: Please specify the specs for datasource type kv-redis
+                          properties:
+                            connector:
+                              default: kv-redis
+                              description: 'Please provide the connector type for the datasource - Default: kv-redis'
+                              type: string
+                            db:
+                              description: Spec for db for datasource kv-redis
+                              type: string
+                            host:
+                              description: Spec for host for datasource kv-redis
+                              type: string
+                            name:
+                              description: Please provide a name for the datasource
+                              type: string
+                            password:
+                              description: Spec for password for datasource kv-redis
+                              type: string
+                            port:
+                              description: Spec for port for datasource kv-redis
+                              type: string
+                            url:
+                              description: Spec for url for datasource kv-redis
+                              type: string
+                          type: object
+                        memory:
+                          description: Please specify the specs for datasource type memory
+                          properties:
+                            connector:
+                              default: memory
+                              description: 'Please provide the connector type for the datasource - Default: memory'
+                              type: string
+                            file:
+                              description: Spec for file for datasource memory
+                              type: string
+                            localStorage:
+                              description: Spec for localStorage for datasource memory
+                              type: string
+                            name:
+                              description: Please provide a name for the datasource
+                              type: string
+                          type: object
+                        mysql:
+                          description: Please specify the specs for datasource type mysql
+                          properties:
+                            connector:
+                              default: mysql
+                              description: 'Please provide the connector type for the datasource - Default: mysql'
+                              type: string
+                            database:
+                              description: Spec for database for datasource mysql
+                              type: string
+                            host:
+                              description: Spec for host for datasource mysql
+                              type: string
+                            name:
+                              description: Please provide a name for the datasource
+                              type: string
+                            password:
+                              description: Spec for password for datasource mysql
+                              type: string
+                            port:
+                              description: Spec for port for datasource mysql
+                              type: string
+                            url:
+                              description: Spec for url for datasource mysql
+                              type: string
+                            user:
+                              description: Spec for user for datasource mysql
+                              type: string
+                          type: object
+                        postgresql:
+                          description: Please specify the specs for datasource type postgresql
+                          properties:
+                            connector:
+                              default: postgresql
+                              description: 'Please provide the connector type for the datasource - Default: postgresql'
+                              type: string
+                            database:
+                              description: Spec for database for datasource postgresql
+                              type: string
+                            host:
+                              description: Spec for host for datasource postgresql
+                              type: string
+                            name:
+                              description: Please provide a name for the datasource
+                              type: string
+                            password:
+                              description: Spec for password for datasource postgresql
+                              type: string
+                            port:
+                              description: Spec for port for datasource postgresql
+                              type: string
+                            url:
+                              description: Spec for url for datasource postgresql
+                              type: string
+                            user:
+                              description: Spec for user for datasource postgresql
+                              type: string
+                          type: object
+                      type: object
+                  type: object
+                type: array
+              deployimages:
+                description: 'Deploy pre-built image configuration.
+
+                  deployimages.name and deployimages.tag are MANDATORY when enabled=true and buildimages.enabled=false.
+
+                  '
+                properties:
+                  enabled:
+                    description: 'Shall the pre-built image be deployed? (Default: false)
+
+                      '
+                    type: boolean
+                  name:
+                    description: 'Pre-built image name to deploy.
+
+                      MANDATORY when enabled=true and buildimages.enabled=false.
+
+                      (Default: "")
+
+                      '
+                    type: string
+                  resources:
+                    description: 'Resource definitions for the deployed image container.
+
+                      Default: requests 256Mi/250m, limits 1Gi/2cpu
+
+                      '
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  resourcesNpmMem:
+                    description: 'Node.js max_old_space_size for the deployed image container (in MB).
+
+                      Should be <75% of memory limit. Default: 768 (75% of 1Gi)
+
+                      '
+                    type: string
+                  tag:
+                    description: 'Pre-built image tag to deploy.
+
+                      MANDATORY when enabled=true and buildimages.enabled=false.
+
+                      (Default: "")
+
+                      '
+                    type: string
+                type: object
+              dev:
+                description: 'Please specify here if the DEV mode shall be activated for this grapi (grapple API)
+
+                  this value can be used to override the header specified in the gras.
+
+                  (Default: false)
+
+                  '
+                type: boolean
+              disableexplorer:
+                description: 'Please specify "true" if you want to disable the explorer of the the grapi (grapple API) deployment
+
+                  (Default: false)
+
+                  '
+                type: boolean
+              discoveredrepos:
+                description: 'Please specify whether to automatically discover the repositories for the models in this grapi (grapple API)?
+
+                  (Default: true)
+
+                  '
+                type: boolean
+              discoveries:
+                description: 'Please add here all the discoveries that shall be executed within this grapi (grapple API)
+
+                  further information:
+
+                  https://loopback.io/doc/en/lb4/Discovering-models.html
+
+                  '
+                items:
+                  properties:
+                    content:
+                      description: 'please specify the content for the discovery in form of a json string
+
+                        example:
+
+                        {"dataSource":"classicmodels","schema":"DBSCHEMA","all":"true","disableCamelCase":false,"yes":"undefined"}
+
+                        or use the spec for yaml format
+
+                        '
+                      type: string
+                    name:
+                      description: please specify the name for the discovery
+                      type: string
+                    spec:
+                      properties:
+                        all:
+                          description: Discover all models without prompting users to select
+                          type: boolean
+                        dataSource:
+                          description: The name of the datasource to discover
+                          type: string
+                        datasource:
+                          description: The name of the datasource to discover
+                          type: string
+                        disableCamelCase:
+                          description: disableCamelCase
+                          type: boolean
+                        models:
+                          description: Discover specific models without prompting users to select e.g:--models=table1,table2
+                          type: string
+                        optionalId:
+                          description: Boolean to mark id property as optional field
+                          type: boolean
+                        outDir:
+                          description: Specify the directory into which the `model.model.ts` files will be placed
+                          type: string
+                        relations:
+                          description: Discover and create relations
+                          type: boolean
+                        schema:
+                          description: Schema to discover
+                          type: string
+                        views:
+                          description: Boolean to discover views
+                          type: boolean
+                      type: object
+                  type: object
+                type: array
+              email:
+                description: 'This field can be used to define the email address displayed in the microservice.
+
+                  This value may be derived from the cluster config.
+
+                  (Default: "info@grapple-solutions.com")
+
+                  '
+                type: string
+              env:
+                description: "Please add here the environment variables for this grapi (grapple API).\nAll variables here become available to all containers (main and init).\nDocumentation: https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/\nExample:\nenv:\n- name: MY_VARIABLE\n  value: \"my-value\"\n- name: DB_PASSWORD\n  valueFrom:\n    secretKeyRef:\n      name: database-secret\n      key: password\n"
+                items:
+                  properties:
+                    name:
+                      type: string
+                    value:
+                      type: string
+                    valueFrom:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                  type: object
+                type: array
+              externaloperations:
+                description: External Operations configuration
+                items:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                type: array
+              externalsecrets:
+                description: "Please add here the externalsecrets for this grapi (grapple API)\nyou can attach multiple externalsecrets specifications to your grapi (grapple API)\nall variables in the secret become available to the grapi (grapple API):\nhttps://external-secrets.io/\nexample:\n  externalsecrets:\n  - name: classicmodelsas-auroramysql\n    spec:\n      refreshInterval: 1h\n      secretStoreRef:\n        name: aws-secretstore\n        kind: ClusterSecretStore\n      target:\n        name: mytarget\n        creationPolicy: Owner\n      dataFrom:\n      - extract:\n          key: \"mysecret\"\n"
+                items:
+                  properties:
+                    name:
+                      description: please specify the name for the externalsecrets object
+                      type: string
+                    spec:
+                      description: 'Please specify the spec for the externalsecrets
+
+                        verify against:
+
+                        kubectl explain externalsecrets.spec
+
+                        https://external-secrets.io/
+
+                        '
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                  type: object
+                type: array
+              extraEnvVars:
+                description: Array of extra environment variables (Bitnami standard)
+                items:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                type: array
+              extraEnvVarsCM:
+                description: ConfigMap name containing extra environment variables (Bitnami standard)
+                type: string
+              extraEnvVarsSecret:
+                description: Secret name containing extra environment variables (Bitnami standard)
+                type: string
+              extraSecrets:
+                description: "Please add here the extraSecrets for this grapi (grapple API)\nyou can just reference the name of a secret and all parameters \nbecome available inside the grapi (grapple API) deployment as variables\n"
+                items:
+                  type: string
+                type: array
+              fuzzysearch:
+                description: 'Please add here all the fuzzy search configurations that shall be generated within this grapi (grapple API)
+
+                  '
+                items:
+                  properties:
+                    content:
+                      description: 'please specify the content for the fuzzy search configuration in form of a json string
+
+                        example:
+
+                        {"fuzzy":true,"centralFuzzy":true,"datasource":"classicmodels","appName":"Grpl","exclude":"employees"}
+
+                        or use the spec for yaml format
+
+                        '
+                      type: string
+                    name:
+                      description: please specify the name for the fuzzy search configuration
+                      type: string
+                    spec:
+                      properties:
+                        appName:
+                          description: Please specify here the application name for the fuzzy endpoint
+                          type: string
+                        centralFuzzy:
+                          default: false
+                          description: Please specify here if a central fuzzy endpoint over all endpoints shall be made available
+                          type: boolean
+                        datasource:
+                          description: 'Please specify here the name of the datasource for which
+
+                            the fuzzy search endpoint shall be generated
+
+                            Specify only the name of the datasource as a reference'
+                          type: string
+                        exclude:
+                          description: 'Please specify here excludes for the fuzzy endpoint
+
+                            example:
+
+                            *:employees/*'
+                          type: string
+                        fuzzy:
+                          default: true
+                          description: Please specify here if a fuzzy search should be made available for each endpoint
+                          type: boolean
+                        include:
+                          description: 'Please specify here includes for the fuzzy endpoint
+
+                            example:
+
+                            *:customers/*'
+                          type: string
+                      type: object
+                  type: object
+                type: array
+              graphql:
+                description: 'Please specify whether to deploy a graphql interface for the grapi (grapple API)?
+
+                  (Default: false)
+
+                  '
+                type: boolean
+              grapiversion:
+                description: Please specify here the version of grapple API (grapi)
+                type: string
+              groupby:
+                default: false
+                description: Enable GROUP BY support
+                type: boolean
+              ingress:
+                description: 'Please specify here if ingress shall be enabled for the grapi (grapple API service)
+
+                  (Default: true)
+
+                  '
+                type: boolean
+              initContainers:
+                description: "specify initContainers that shall run successfully before starting the grapi (grapple API)\nexample:\n  initContainers:\n  - name: init-db\n    spec:\n      command:\n      - bash\n      - -c\n      - sleep 5; COMMAND_TO_EXECUTE\n      image: mysql\n      name: init-db\n"
+                items:
+                  properties:
+                    name:
+                      description: please specify the name for the initContainer
+                      type: string
+                    spec:
+                      description: 'please specify the spec for the grapi (grapple API) initContainer
+
+                        verify against:
+
+                        kubectl explain pod.spec.initContainers
+
+                        '
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                  type: object
+                type: array
+              livenessProbe:
+                description: 'Specify livenessProbe for the grapi container.
+
+                  Verify against: kubectl explain pod.spec.containers.livenessProbe
+
+                  '
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              logging:
+                description: Logging configurations
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              models:
+                description: 'Please add here all the models that shall be deployed within this grapi (grapple API)
+
+                  further information:
+
+                  https://loopback.io/doc/en/lb4/Model-generator.html
+
+                  '
+                items:
+                  properties:
+                    content:
+                      description: 'please specify the content for the models in form of a json string
+
+                        example:
+
+                        {"base":"Entity","name":"customer","properties":{"id":{"type":"number","id":true,"required":true,"generated":true},"customername":{"type":"string"},"emaildomain":{"type":"string","required":true},"datecreated":{"type":"date","required":false},"datelastupdated":{"type":"date","required":false}}}
+
+                        or use the spec for yaml format
+
+                        '
+                      type: string
+                    name:
+                      description: please specify the name for the model
+                      type: string
+                    spec:
+                      properties:
+                        base:
+                          description: A valid based model
+                          type: string
+                        dataSource:
+                          description: The name of the dataSource which contains this model and suppots model discovery
+                          type: string
+                        name:
+                          description: name
+                          type: string
+                        properties:
+                          additionalProperties:
+                            properties:
+                              default:
+                                description: Please define the default value for the field (e.g. 'myvalue')
+                                type: string
+                              defaultFn:
+                                description: Please define the default function for the field (e.g. 'uuid' (for ID string fields), 'now' (for date fields))
+                                type: string
+                              generated:
+                                description: Please define, if the field is autogenerated by the underlying system (e.g. database) (boolean, e.g. true / false) (false, if defaultFn is defined)
+                                type: boolean
+                              id:
+                                description: Please define if the field is an ID (unique identifier for this model)
+                                type: boolean
+                              itemType:
+                                description: Please define the type of the item if type = array (e.g. 'string', 'number')
+                                type: string
+                              length:
+                                description: Please define the length of the field (e.g. 20 (for 20 characters))
+                                type: string
+                              required:
+                                description: Please define whether the field is required (boolean, e.g. true / false) (if the field is generated, it is NOT required)
+                                type: boolean
+                              type:
+                                description: Please define the type of the field (e.g. 'string', 'array', 'number')
+                                type: string
                             type: object
-                            additionalProperties:
-                              type: object
-                              properties:
-                                type:
-                                  description: Please define the type of the field (e.g. 'string', 'array', 'number')
-                                  type: string
-                                itemType:
-                                  description: Please define the type of the item if type = array (e.g. 'string', 'number')
-                                  type: string
-                                id:
-                                  description: Please define if the field is an ID (unique identifier for this model)
-                                  type: boolean
-                                generated:
-                                  description: Please define, if the field is autogenerated by the underlying system (e.g. database) (boolean, e.g. true / false) (false, if defaultFn is defined)
-                                  type: boolean
-                                required:
-                                  description: Please define whether the field is required (boolean, e.g. true / false) (if the field is generated, it is NOT required)
-                                  type: boolean
-                                default:
-                                  description: Please define the default value for the field (e.g. 'myvalue')
-                                  type: string
-                                length:
-                                  description: Please define the length of the field (e.g. 20 (for 20 characters))
-                                  type: string
-                                defaultFn:
-                                  description: Please define the default function for the field (e.g. 'uuid' (for ID string fields), 'now' (for date fields))
-                                  type: string
-                relations:
-                  description: |
-                    Please add here all the relations that shall be deployed within this grapi (grapple API)
-                    further information:
-                    https://loopback.io/doc/en/lb4/Relation-generator.html
-                  type: array
-                  items:
+                          description: properties
+                          type: object
+                        schema:
+                          description: If discovering a model from a dataSource, specify the schema which contains it
+                          type: string
+                        table:
+                          description: If discovering a model from a dataSource, specify the name of its table/view
+                          type: string
+                      type: object
+                  type: object
+                type: array
+              monitoring:
+                description: 'Please specify whether the extended monitoring endpoint should be enabled for this grapi (grapple API)?
+
+                  (Default: true)
+
+                  '
+                type: boolean
+              name:
+                description: "This field can be used to tweak the name of the grapi. \nIt is optional and shall only be used if required.\n(Default: \"\")\n"
+                type: string
+              networking:
+                description: Networking and Ingress configuration for grapi
+                properties:
+                  clusterdomain:
+                    description: Target cluster domain
+                    type: string
+                  corsurls:
+                    description: Allowed CORS URLs
+                    type: string
+                  customheader:
+                    description: Custom protection header
+                    type: string
+                  ingress:
+                    description: Enable Ingress
+                    type: boolean
+                  ssl:
+                    description: Override SSL / TLS on ingress (true/false)
+                    type: boolean
+                  sslissuer:
+                    description: Cert-manager SSL issuer name
+                    type: string
+                type: object
+              openapis:
+                description: 'Please add here all the openapis that shall be deployed within this grapi (grapple API)
+
+                  further information:
+
+                  https://loopback.io/doc/en/lb4/OpenAPI-generator.html
+
+                  '
+                items:
+                  properties:
+                    content:
+                      description: 'please specify the content for the openapi in form of a json string
+
+                        example:
+
+                        {"prefix":"cm","url":"URL_TO_OPENAPI_SPEC","client":true}
+
+                        or use the spec for yaml format
+
+                        '
+                      type: string
+                    name:
+                      description: please specify the name for the openapi
+                      type: string
+                    spec:
+                      properties:
+                        baseModel:
+                          description: Base model class
+                          type: string
+                        client:
+                          description: Generate client-side service proxies for the OpenAPI spec
+                          type: boolean
+                        datasource:
+                          description: A valid datasource name for the OpenAPI endpoint
+                          type: string
+                        external:
+                          description: Whether this OpenAPI is an external service. If true, skips waiting for info.version to match appVersion.
+                          type: boolean
+                        prefix:
+                          description: Provide prefix to avoid duplication
+                          type: string
+                        promote-anonymous-schemas:
+                          description: Promote anonymous schemas as models
+                          type: boolean
+                        readonly:
+                          description: Only include endpoints with provided regex.
+                          type: string
+                        server:
+                          description: Generate server-side controllers for the OpenAPI spec
+                          type: boolean
+                        url:
+                          description: URL or file path of the OpenAPI spec
+                          type: string
+                        validate:
+                          description: Validate the OpenAPI spec
+                          type: boolean
+                      type: object
+                  type: object
+                type: array
+              organization:
+                description: 'This field can be used to define the organization name displayed in the microservice.
+
+                  This value may be derived from the cluster config.
+
+                  (Default: "grapple solutions")
+
+                  '
+                type: string
+              podAnnotations:
+                description: 'Please specify here the annotations to be added to the pod template.
+
+                  Used for Dapr sidecar injector annotations.
+
+                  '
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              postpatches:
+                description: 'Please add here a patch script (base64 encoded) that shall run after backend creation
+
+                  within this grapi (grapple API)
+
+                  '
+                items:
+                  properties:
+                    content:
+                      description: 'please specify the content for the patch script
+
+                        (base64 encoded string)
+
+                        example:
+
+                        bnBtIGkgdXVpZAo=
+
+                        '
+                      type: string
+                    name:
+                      description: please specify the name for the patch script
+                      type: string
+                  type: object
+                type: array
+              prediscoverypatches:
+                description: "Please add here a patch script (base64 encoded) that shall run before the discovery \nafter datasource creation within this grapi (grapple API)\n"
+                items:
+                  properties:
+                    content:
+                      description: 'please specify the content for the patch script
+
+                        (base64 encoded string)
+
+                        example:
+
+                        bnBtIGkgdXVpZAo=
+
+                        '
+                      type: string
+                    name:
+                      description: please specify the name for the patch script
+                      type: string
+                  type: object
+                type: array
+              prepatches:
+                description: "Please add here a patch script (base64 encoded) that shall run before datasource creation \nwithin this grapi (grapple API)\n"
+                items:
+                  properties:
+                    content:
+                      description: 'please specify the content for the patch script
+
+                        (base64 encoded string)
+
+                        example:
+
+                        bnBtIGkgdXVpZAo=
+
+                        '
+                      type: string
+                    name:
+                      description: please specify the name for the patch script
+                      type: string
+                  type: object
+                type: array
+              prerelationpatches:
+                description: "Please add here a patch script (base64 encoded) that shall run before the creation of relations \nwithin this grapi (grapple API)\n"
+                items:
+                  properties:
+                    content:
+                      description: 'please specify the content for the patch script
+
+                        (base64 encoded string)
+
+                        example:
+
+                        bnBtIGkgdXVpZAo=
+
+                        '
+                      type: string
+                    name:
+                      description: please specify the name for the patch script
+                      type: string
+                  type: object
+                type: array
+              readinessProbe:
+                description: 'Specify readinessProbe for the grapi container.
+
+                  Verify against: kubectl explain pod.spec.containers.readinessProbe
+
+                  '
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              relations:
+                description: 'Please add here all the relations that shall be deployed within this grapi (grapple API)
+
+                  further information:
+
+                  https://loopback.io/doc/en/lb4/Relation-generator.html
+
+                  '
+                items:
+                  properties:
+                    content:
+                      description: 'please specify the content for the relation in form of a json string
+
+                        example:
+
+                        {"destinationModel":"Employees","foreignKeyName":"employeesId","registerInclusionResolver":true,"relationName":"employees","relationType":"belongsTo","sourceModel":"Customers"}
+
+                        or use the spec for yaml format
+
+                        '
+                      type: string
+                    name:
+                      description: please specify the name for the relation
+                      type: string
+                    spec:
+                      properties:
+                        customReferenceKeys:
+                          description: Destination model key
+                          type: string
+                        defaultForeignKeyName:
+                          description: default foreign key name
+                          type: string
+                        defaultRelationName:
+                          description: Default relation name
+                          type: string
+                        destinationModel:
+                          description: Destination model key
+                          type: string
+                        destinationModelPrimaryKey:
+                          description: Primary key on destination model
+                          type: string
+                        destinationModelPrimaryKeyType:
+                          description: Type of the primary key on destination model
+                          type: string
+                        foreignKeyName:
+                          description: Destination model foreign key name (optional, provide only when there is a custom foreign key)
+                          type: string
+                        registerInclusionResolver:
+                          description: Allow <sourceModel> queries to include data from related <destinationModel>
+                          type: boolean
+                        relationName:
+                          description: Relation name
+                          type: string
+                        relationType:
+                          description: Relation type
+                          type: string
+                        sourceKeyOnThrough:
+                          description: Foreign key references source model on through model
+                          type: string
+                        sourceModel:
+                          description: Source model
+                          type: string
+                        sourceModelPrimaryKey:
+                          description: Primary key on source model
+                          type: string
+                        sourceModelPrimaryKeyType:
+                          description: Type of the primary key on source model
+                          type: string
+                        targetKeyOnThrough:
+                          description: Foreign key references target model on through model
+                          type: string
+                        throughModel:
+                          description: Through model
+                          type: string
+                      type: object
+                  type: object
+                type: array
+              repositories:
+                description: 'Please add here all the repositories that shall be generated within this grapi (grapple API)
+
+                  further information:
+
+                  https://loopback.io/doc/en/lb4/Repository-generator.html
+
+                  '
+                items:
+                  properties:
+                    content:
+                      description: 'please specify the content for the repository in form of a json string
+
+                        example:
+
+                        {"name": "repositoryNameToBeGenerated","datasource": "validDataSourceName","model": "validDModelName","id": "anOptionalNameForID","repositoryBaseClass": "validRepositoryBaseClass"}
+
+                        or use the spec for yaml format
+
+                        '
+                      type: string
+                    name:
+                      description: please specify the name for the repository
+                      type: string
+                    spec:
+                      properties:
+                        datasource:
+                          description: A valid datasource name
+                          type: string
+                        id:
+                          description: A valid ID property name for the specified model
+                          type: string
+                        model:
+                          description: A valid model name
+                          type: string
+                        repositoryBaseClass:
+                          description: A valid repository base class
+                          type: string
+                      type: object
+                  type: object
+                type: array
+              restcruds:
+                description: 'Please add here all the restcruds that shall be generated within this grapi (grapple API)
+
+                  further information:
+
+                  https://loopback.io/doc/en/lb4/Rest-Crud-generator.html
+
+                  '
+                items:
+                  properties:
+                    content:
+                      description: 'please specify the content for the restcrud in form of a json string
+
+                        example:
+
+                        {"datasource":"classicmodels"}
+
+                        or use the spec for yaml format
+
+                        '
+                      type: string
+                    name:
+                      description: please specify the name for the restcrud
+                      type: string
+                    spec:
+                      properties:
+                        basePath:
+                          description: A valid base path
+                          type: string
+                        datasource:
+                          description: A valid datasource name
+                          type: string
+                        model:
+                          description: A valid model name
+                          type: string
+                        readonly:
+                          description: Create readonly APIs
+                          type: boolean
+                      type: object
+                  type: object
+                type: array
+              runimages:
+                description: 'Runtime image configuration. Used when runimages.enabled=true (default).
+
+                  image and tag are also used as the base image when buildimages.enabled=true.
+
+                  '
+                properties:
+                  enabled:
+                    description: 'Shall the runtime image be deployed? (Default: true)
+
+                      '
+                    type: boolean
+                  image:
+                    description: 'Runtime/base image name.
+
+                      Used as: (1) Base image when buildimages.enabled=true
+
+                      (2) Runtime image when buildimages.enabled=false and deployimages.enabled=false
+
+                      (Default: grpl/grapi)
+
+                      '
+                    type: string
+                  resources:
+                    description: 'Resource definitions for the runtime container.
+
+                      Default: requests 256Mi/250m, limits 3Gi/4000m
+
+                      '
                     type: object
-                    properties:
-                      name:
-                        description: please specify the name for the relation
-                        type: string
-                      content:
-                        description: |
-                          please specify the content for the relation in form of a json string
-                          example:
-                          {"destinationModel":"Employees","foreignKeyName":"employeesId","registerInclusionResolver":true,"relationName":"employees","relationType":"belongsTo","sourceModel":"Customers"}
-                          or use the spec for yaml format
-                        type: string
-                      spec:
-                        type: object
-                        properties:
-                          relationType:
-                            description: Relation type
-                            type: string
-                          sourceModel:
-                            description: Source model
-                            type: string
-                          customReferenceKeys:
-                            description: Destination model key
-                            type: string
-                          destinationModel:
-                            description: Destination model key
-                            type: string
-                          throughModel:
-                            description: Through model
-                            type: string
-                          sourceModelPrimaryKey:
-                            description: Primary key on source model
-                            type: string
-                          sourceModelPrimaryKeyType:
-                            description: Type of the primary key on source model
-                            type: string
-                          destinationModelPrimaryKey:
-                            description: Primary key on destination model
-                            type: string
-                          destinationModelPrimaryKeyType:
-                            description: Type of the primary key on destination model
-                            type: string
-                          sourceKeyOnThrough:
-                            description: Foreign key references source model on through model
-                            type: string
-                          targetKeyOnThrough:
-                            description: Foreign key references target model on through model
-                            type: string
-                          defaultForeignKeyName:
-                            description: default foreign key name
-                            type: string
-                          foreignKeyName:
-                            description: Destination model foreign key name (optional, provide only when there is a custom foreign key)
-                            type: string
-                          relationName:
-                            description: Relation name
-                            type: string
-                          defaultRelationName:
-                            description: Default relation name
-                            type: string
-                          registerInclusionResolver:
-                            description: Allow <sourceModel> queries to include data from related <destinationModel>
-                            type: boolean
-                serviceproviders:
-                  description: |
-                    Please add here all the serviceproviders that shall be deployed within this grapi (grapple API)
-                    further information:
-                    https://loopback.io/doc/en/lb4/Service-generator.html
-                  type: array
-                  items:
+                    x-kubernetes-preserve-unknown-fields: true
+                  resourcesNpmMem:
+                    description: 'Node.js max_old_space_size for the runtime container (in MB).
+
+                      Should be <75% of memory limit. Default: 2048 (75% of ~2.7Gi)
+
+                      '
+                    type: string
+                  tag:
+                    description: 'Tag for the runtime/base image.
+
+                      (Default: grapiversion)
+
+                      '
+                    type: string
+                type: object
+              runtime:
+                description: Pod runtime, container probes, and environment configurations
+                properties:
+                  affinity:
+                    description: 'Pod affinity and anti-affinity scheduling rules.
+
+                      Verify against: kubectl explain pod.spec.affinity
+
+                      '
                     type: object
-                    properties:
-                      name:
-                        description: please specify the name for the service
-                        type: string
-                      content:
-                        description: |
-                          please specify the content for the service in form of a json string
-                          example:
-                          {"name": "serviceNameToBeGenerated","datasource": "validDataSourceName"}
-                          or use the spec for yaml format
-                        type: string
-                      spec:
-                        type: object
-                        properties:
-                          serviceprovidersproperty:
-                            description: serviceprovidersproperty
-                            type: string
-                openapis:
-                  description: |
-                    Please add here all the openapis that shall be deployed within this grapi (grapple API)
-                    further information:
-                    https://loopback.io/doc/en/lb4/OpenAPI-generator.html
-                  type: array
-                  items:
+                    x-kubernetes-preserve-unknown-fields: true
+                  env:
+                    description: "Please add here the environment variables for this grapi (grapple API).\nAll variables here become available to all containers (main and init).\nDocumentation: https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/\nExample:\nenv:\n- name: MY_VARIABLE\n  value: \"my-value\"\n- name: DB_PASSWORD\n  valueFrom:\n    secretKeyRef:\n      name: database-secret\n      key: password\n"
+                    items:
+                      properties:
+                        name:
+                          description: Name of the environment variable
+                          type: string
+                        value:
+                          description: Value of the environment variable
+                          type: string
+                        valueFrom:
+                          description: Source for the environment variable's value
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                      type: object
+                    type: array
+                  extraEnvVars:
+                    description: Array of extra environment variables (Bitnami standard)
+                    items:
+                      description: Extra environment variable entry
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    type: array
+                  extraEnvVarsCM:
+                    description: ConfigMap name containing extra environment variables (Bitnami standard)
+                    type: string
+                  extraEnvVarsSecret:
+                    description: Secret name containing extra environment variables (Bitnami standard)
+                    type: string
+                  livenessProbe:
+                    description: 'Specify livenessProbe for the grapi container.
+
+                      Verify against: kubectl explain pod.spec.containers.livenessProbe
+
+                      '
                     type: object
-                    properties:
-                      name:
-                        description: please specify the name for the openapi
-                        type: string
-                      content:
-                        description: |
-                          please specify the content for the openapi in form of a json string
-                          example:
-                          {"prefix":"cm","url":"URL_TO_OPENAPI_SPEC","client":true}
-                          or use the spec for yaml format
-                        type: string
-                      spec:
-                        type: object
-                        properties:
-                          url:
-                            description: URL or file path of the OpenAPI spec
-                            type: string
-                          validate:
-                            description: Validate the OpenAPI spec
-                            type: boolean
-                          server:
-                            description: Generate server-side controllers for the OpenAPI spec
-                            type: boolean
-                          client:
-                            description: Generate client-side service proxies for the OpenAPI spec
-                            type: boolean
-                          datasource:
-                            description: A valid datasource name for the OpenAPI endpoint
-                            type: string
-                          baseModel:
-                            description: Base model class
-                            type: string
-                          promote-anonymous-schemas:
-                            description: Promote anonymous schemas as models
-                            type: boolean
-                          prefix:
-                            description: Provide prefix to avoid duplication
-                            type: string
-                          readonly:
-                            description: Only include endpoints with provided regex.
-                            type: string
-                          external:
-                            description: Whether this OpenAPI is an external service. If true, skips waiting for info.version to match appVersion.
-                            type: boolean
-                cacheconfigs:
-                  description: |
-                    Please add here all the cache configurations that shall be deployed within this grapi (grapple API)
-                  type: array
-                  items:
+                    x-kubernetes-preserve-unknown-fields: true
+                  nodeSelector:
+                    description: 'Node selection constraints for pod scheduling.
+
+                      Verify against: kubectl explain pod.spec.nodeSelector
+
+                      '
                     type: object
-                    properties:
-                      name:
-                        description: please specify the name for the cache configuration
-                        type: string
-                      content:
-                        description: |
-                          please specify the content for the cache configuration in form of a json string
-                          example:
-                          {"redisDS":"redisDS","cacheTTL":6000000,"openApis":"cm","exclude":"*:employees/*"}
-                          or use the spec for yaml format
-                        type: string
-                      spec:
-                        type: object
-                        properties:
-                          redisDS:
-                            description: Please specify here the name of the cache datasource (kv-redis datasource) to be used as cache storage
-                            type: string
-                          cacheTTL:
-                            description: |-
-                              Please specify here the cache TTL for the cache storage in seconds
-                              example:
-                              60000
-                            type: integer
-                          openApis:
-                            description: |-
-                              Please specify here the name of the openapi specification that shall be cached
-                              Only specify a reference to the name of the openapi resource in the grapi (grapple API)
-                            type: string
-                          exclude:
-                            description: |-
-                              Please specify here, which endpoints shall be excluded from the cache
-                              example:
-                              *:employees/*
-                            type: string
-                          include:
-                            description: |-
-                              Please specify here, which endpoints shall be included in the cache
-                              example:
-                              *:customers/*
-                              if specified, everything else is excluded.
-                            type: string
-                restcruds:
-                  description: |
-                    Please add here all the restcruds that shall be generated within this grapi (grapple API)
-                    further information:
-                    https://loopback.io/doc/en/lb4/Rest-Crud-generator.html
-                  type: array
-                  items:
+                    x-kubernetes-preserve-unknown-fields: true
+                  podAnnotations:
+                    description: 'Please specify here the annotations to be added to the pod template.
+
+                      Used for Dapr sidecar injector annotations or custom pod metadata.
+
+                      '
                     type: object
-                    properties:
-                      name:
-                        description: please specify the name for the restcrud
-                        type: string
-                      content:
-                        description: |
-                          please specify the content for the restcrud in form of a json string
-                          example:
-                          {"datasource":"classicmodels"}
-                          or use the spec for yaml format
-                        type: string
-                      spec:
-                        type: object
-                        properties:
-                          model:
-                            description: A valid model name
-                            type: string
-                          datasource:
-                            description: A valid datasource name
-                            type: string
-                          basePath:
-                            description: A valid base path
-                            type: string
-                          readonly:
-                            description: Create readonly APIs
-                            type: boolean
-                repositories:
-                  description: |
-                    Please add here all the repositories that shall be generated within this grapi (grapple API)
-                    further information:
-                    https://loopback.io/doc/en/lb4/Repository-generator.html
-                  type: array
-                  items:
+                    x-kubernetes-preserve-unknown-fields: true
+                  podSecurityContext:
+                    description: 'Pod security context for the grapi pod.
+
+                      Verify against: kubectl explain pod.spec.securityContext
+
+                      '
                     type: object
-                    properties:
-                      name:
-                        description: please specify the name for the repository
-                        type: string
-                      content:
-                        description: |
-                          please specify the content for the repository in form of a json string
-                          example:
-                          {"name": "repositoryNameToBeGenerated","datasource": "validDataSourceName","model": "validDModelName","id": "anOptionalNameForID","repositoryBaseClass": "validRepositoryBaseClass"}
-                          or use the spec for yaml format
-                        type: string
-                      spec:
-                        type: object
-                        properties:
-                          model:
-                            description: A valid model name
-                            type: string
-                          id:
-                            description: A valid ID property name for the specified model
-                            type: string
-                          datasource:
-                            description: A valid datasource name
-                            type: string
-                          repositoryBaseClass:
-                            description: A valid repository base class
-                            type: string
-                controllers:
-                  description: |
-                    Please add here all the controllers that shall be generated within this grapi (grapple API)
-                    further information:
-                    https://loopback.io/doc/en/lb4/Controller-generator.html
-                  type: array
-                  items:
+                    x-kubernetes-preserve-unknown-fields: true
+                  readinessProbe:
+                    description: 'Specify readinessProbe for the grapi container.
+
+                      Verify against: kubectl explain pod.spec.containers.readinessProbe
+
+                      '
                     type: object
-                    properties:
-                      name:
-                        description: please specify the name for the controller
-                        type: string
-                      content:
-                        description: |
-                          please specify the content for the controller in form of a json string
-                          example:
-                          {"controllerType":"empty"}
-                          or use the spec for yaml format
-                        type: string
-                      spec:
-                        type: object
-                        properties:
-                          controllerType:
-                            description: Type for the %s
-                            type: string
-                fuzzysearch:
-                  description: |
-                    Please add here all the fuzzy search configurations that shall be generated within this grapi (grapple API)
-                  type: array
-                  items:
+                    x-kubernetes-preserve-unknown-fields: true
+                  securityContext:
+                    description: 'Container security context for the grapi container.
+
+                      Verify against: kubectl explain pod.spec.containers.securityContext
+
+                      '
                     type: object
-                    properties:
-                      name:
-                        description: please specify the name for the fuzzy search configuration
-                        type: string
-                      content:
-                        description: |
-                          please specify the content for the fuzzy search configuration in form of a json string
-                          example:
-                          {"fuzzy":true,"centralFuzzy":true,"datasource":"classicmodels","appName":"Grpl","exclude":"employees"}
-                          or use the spec for yaml format
-                        type: string
-                      spec:
-                        type: object
-                        properties:
-                          fuzzy:
-                            description: Please specify here if a fuzzy search should be made available for each endpoint
-                            type: boolean
-                            default: true
-                          centralFuzzy:
-                            description: Please specify here if a central fuzzy endpoint over all endpoints shall be made available
-                            type: boolean
-                            default: false
-                          datasource:
-                            description: |-
-                              Please specify here the name of the datasource for which
-                              the fuzzy search endpoint shall be generated
-                              Specify only the name of the datasource as a reference
-                            type: string
-                          appName:
-                            description: Please specify here the application name for the fuzzy endpoint
-                            type: string
-                          include:
-                            description: |-
-                              Please specify here includes for the fuzzy endpoint
-                              example:
-                              *:customers/*
-                            type: string
-                          exclude:
-                            description: |-
-                              Please specify here excludes for the fuzzy endpoint
-                              example:
-                              *:employees/*
-                            type: string
-                prepatches:
-                  description: "Please add here a patch script (base64 encoded) that shall run before datasource creation \nwithin this grapi (grapple API)\n"
-                  type: array
-                  items:
+                    x-kubernetes-preserve-unknown-fields: true
+                  startupProbe:
+                    description: 'Specify startupProbe for the grapi container.
+
+                      Verify against: kubectl explain pod.spec.containers.startupProbe
+
+                      '
                     type: object
-                    properties:
-                      name:
-                        description: please specify the name for the patch script
-                        type: string
-                      content:
-                        description: |
-                          please specify the content for the patch script
-                          (base64 encoded string)
-                          example:
-                          bnBtIGkgdXVpZAo=
-                        type: string
-                prediscoverypatches:
-                  description: "Please add here a patch script (base64 encoded) that shall run before the discovery \nafter datasource creation within this grapi (grapple API)\n"
-                  type: array
-                  items:
+                    x-kubernetes-preserve-unknown-fields: true
+                  tolerations:
+                    description: 'Pod tolerations for node taints.
+
+                      Verify against: kubectl explain pod.spec.tolerations
+
+                      '
+                    items:
+                      description: Toleration rule. Verify against kubectl explain pod.spec.tolerations
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    type: array
+                type: object
+              scaling:
+                description: Pod autoscaling and replica configuration
+                properties:
+                  enabled:
+                    description: Enable or disable horizontal pod autoscaling (HPA)
+                    type: boolean
+                  hpa:
+                    description: Custom HPA configuration object. Verify against kubectl explain hpa.spec
                     type: object
-                    properties:
-                      name:
-                        description: please specify the name for the patch script
-                        type: string
-                      content:
-                        description: |
-                          please specify the content for the patch script
-                          (base64 encoded string)
-                          example:
-                          bnBtIGkgdXVpZAo=
-                        type: string
-                prerelationpatches:
-                  description: "Please add here a patch script (base64 encoded) that shall run before the creation of relations \nwithin this grapi (grapple API)\n"
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      name:
-                        description: please specify the name for the patch script
-                        type: string
-                      content:
-                        description: |
-                          please specify the content for the patch script
-                          (base64 encoded string)
-                          example:
-                          bnBtIGkgdXVpZAo=
-                        type: string
-                postpatches:
-                  description: |
-                    Please add here a patch script (base64 encoded) that shall run after backend creation
-                    within this grapi (grapple API)
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      name:
-                        description: please specify the name for the patch script
-                        type: string
-                      content:
-                        description: |
-                          please specify the content for the patch script
-                          (base64 encoded string)
-                          example:
-                          bnBtIGkgdXVpZAo=
-                        type: string
-                services:
-                  description: |
-                    Please add here all the services that shall be generated within this grapi (grapple API)
-                    further information:
-                    https://loopback.io/doc/en/lb4/Service-generator.html
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      name:
-                        description: please specify the name for the service
-                        type: string
-                      content:
-                        description: |
-                          please specify the content for the service in form of a json string
-                          example:
-                          {"name":"serviceNameToBeGenerated","datasource":"validDataSourceName"}
-                          or use the spec for yaml format
-                        type: string
-                      spec:
-                        type: object
-                        properties:
-                          type:
-                            description: Service type - proxy, class or provider
-                            type: string
-                          datasource:
-                            description: A valid datasource name
-                            type: string
+                    x-kubernetes-preserve-unknown-fields: true
+                  maxReplicas:
+                    description: 'Maximum number of replicas for autoscaling (Default: 20)'
+                    type: integer
+                  minReplicas:
+                    description: 'Minimum number of replicas for autoscaling (Default: 1)'
+                    type: integer
+                  replicaCount:
+                    description: 'Alias for replicas count (Default: 1)'
+                    type: integer
+                  replicas:
+                    description: 'Number of replicas for the grapi deployment when autoscaling is disabled (Default: 1)'
+                    type: integer
+                  targetCPUUtilizationPercentage:
+                    description: 'Target CPU utilization percentage for the HPA (Default: 60)'
+                    type: integer
+                  targetMemoryUtilizationPercentage:
+                    description: Target memory utilization percentage for the HPA
+                    type: integer
+                type: object
+              schedule:
+                description: 'cron schedule for the openapi check (e.g. */10 * * * *)
+
+                  '
+                type: string
+              security:
+                description: Security configurations
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              serviceproviders:
+                description: 'Please add here all the serviceproviders that shall be deployed within this grapi (grapple API)
+
+                  further information:
+
+                  https://loopback.io/doc/en/lb4/Service-generator.html
+
+                  '
+                items:
+                  properties:
+                    content:
+                      description: 'please specify the content for the service in form of a json string
+
+                        example:
+
+                        {"name": "serviceNameToBeGenerated","datasource": "validDataSourceName"}
+
+                        or use the spec for yaml format
+
+                        '
+                      type: string
+                    name:
+                      description: please specify the name for the service
+                      type: string
+                    spec:
+                      properties:
+                        serviceprovidersproperty:
+                          description: serviceprovidersproperty
+                          type: string
+                      type: object
+                  type: object
+                type: array
+              services:
+                description: 'Please add here all the services that shall be generated within this grapi (grapple API)
+
+                  further information:
+
+                  https://loopback.io/doc/en/lb4/Service-generator.html
+
+                  '
+                items:
+                  properties:
+                    content:
+                      description: 'please specify the content for the service in form of a json string
+
+                        example:
+
+                        {"name":"serviceNameToBeGenerated","datasource":"validDataSourceName"}
+
+                        or use the spec for yaml format
+
+                        '
+                      type: string
+                    name:
+                      description: please specify the name for the service
+                      type: string
+                    spec:
+                      properties:
+                        datasource:
+                          description: A valid datasource name
+                          type: string
+                        outDir:
+                          description: Custom output directory for Services
+                          type: string
+                        type:
+                          description: Service type - proxy, class or provider
+                          type: string
+                      type: object
+                  type: object
+                type: array
+              sqlcontrollers:
+                description: SQL Controllers configuration
+                items:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                type: array
+              ssl:
+                description: 'Please specify here if ssl shall be configured for the grapi (grapple API ingress)
+
+                  (Default: false)
+
+                  '
+                type: boolean
+              sslissuer:
+                description: 'Please specify here the ssl issuer for the grapi (grapple API ingress)
+
+                  (Default: "")
+
+                  '
+                type: string
+              startupProbe:
+                description: 'Specify startupProbe for the grapi container.
+
+                  Verify against: kubectl explain pod.spec.containers.startupProbe
+
+                  '
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              storage:
+                description: Storage volumes and mounts
+                properties:
+                  volumeMounts:
+                    description: 'Specify volumeMounts that shall be mounted to the grapi (grapple API).
+
+                      Verify against:
+
+                      kubectl explain pod.spec.containers.volumeMounts
+
+                      '
+                    items:
+                      description: 'Specification for the grapi volumeMount.
+
+                        Verify against: kubectl explain pod.spec.containers.volumeMounts
+
+                        '
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    type: array
+                  volumes:
+                    description: "Specify additional volumes that shall be attached to the grapi (grapple API).\nVerify against: \nkubectl explain pod.spec.volumes\n"
+                    items:
+                      description: 'Specification for the grapi volume.
+
+                        Verify against: kubectl explain pod.spec.volumes
+
+                        '
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    type: array
+                type: object
+              volumeMounts:
+                description: 'specify volumeMounts that shall be mounted to the grapi (grapple API)
+
+                  verify against:
+
+                  kubectl explain pod.spec.containers.volumeMounts
+
+                  '
+                items:
+                  description: 'please specify the spec for the grapi (grapple API) volumeMounts
+
+                    verify against:
+
+                    kubectl explain pod.spec.containers.volumeMounts
+
+                    '
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                type: array
+              volumes:
+                description: "Specify additional volumes that shall be attached to the grapi (grapple API)\nverify against: \nkubectl explain pod.spec.volumes\n"
+                items:
+                  description: 'please specify the spec for the grapi (grapple API) volumes
+
+                    verify against:
+
+                    kubectl explain pod.spec.volumes
+
+                    '
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                type: array
+              writeConnectionSecretToRef:
+                description: 'The secret to which this composite resource will write its connection details.
+
+                  '
+                properties:
+                  name:
+                    description: Name of the secret.
+                    type: string
+                  namespace:
+                    description: Namespace of the secret.
+                    type: string
+                required:
+                - name
+                - namespace
+                type: object
+            type: object
+        type: object
+    served: true

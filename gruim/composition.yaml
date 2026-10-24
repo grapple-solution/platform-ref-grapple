@@ -29,7 +29,7 @@ spec:
               chart:
                 name: gruim
                 repository: oci://public.ecr.aws/p7h7z5g3
-                version: 0.3.22
+                version: 0.3.24-pr-30
               namespace: null
               set:
               - name: gruimversion
@@ -94,7 +94,7 @@ spec:
                   enabled: false
                 dev: false
                 endpoint: ""
-                gruimversion: 0.3.22
+                gruimversion: 0.3.24-pr-30
                 imagetag: ""
                 ingress: true
                 mapi: ""
@@ -116,27 +116,27 @@ spec:
               namespace: null
         name: resource-0
         patches:
-        - fromFieldPath: spec.claimRef.namespace
+        - fromFieldPath: spec.writeConnectionSecretToRef.namespace
           policy:
             fromFieldPath: Required
           toFieldPath: spec.forProvider.namespace
           type: FromCompositeFieldPath
-        - fromFieldPath: spec.claimRef.namespace
+        - fromFieldPath: spec.writeConnectionSecretToRef.namespace
           policy:
             fromFieldPath: Required
           toFieldPath: spec.writeConnectionSecretToRef.namespace
           type: FromCompositeFieldPath
-        - fromFieldPath: spec.claimRef.name
+        - fromFieldPath: spec.name
           policy:
             fromFieldPath: Required
           toFieldPath: spec.writeConnectionSecretToRef.name
           transforms:
           - string:
-              fmt: "%s-gruim-secret"
+              fmt: "%s-gruim-release-secret"
               type: Format
             type: string
           type: FromCompositeFieldPath
-        - fromFieldPath: spec.claimRef.name
+        - fromFieldPath: spec.name
           policy:
             fromFieldPath: Required
           toFieldPath: metadata.annotations[crossplane.io/external-name]
@@ -146,7 +146,7 @@ spec:
               type: Format
             type: string
           type: FromCompositeFieldPath
-        - fromFieldPath: spec.claimRef.name
+        - fromFieldPath: spec.name
           policy:
             fromFieldPath: Required
           toFieldPath: spec.forProvider.values.name
