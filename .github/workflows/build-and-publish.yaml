@@ -74,7 +74,7 @@ jobs:
 
       - name: Ensure required images are available
         run: |
-          echo "Checking for required images (grapi and gruim)..."
+          echo "Checking for required images (loopback)..."
           task ensure-images
 
       - name: Build package

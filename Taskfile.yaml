@@ -143,14 +143,13 @@ tasks:
         fi
 
   ensure-images:
-    desc: Ensure all required images (loopback and UI) are available
+    desc: Ensure all required images (loopback) are available
     cmds:
       - task: ensure-loopback-image
-      - task: ensure-ui-image
 
   create-crds:
     desc: Create CRDs from loopback image (DANGEROUS - requires image to be present!)
-    deps: [ensure-images]
+    deps: [ensure-loopback-image]
     cmds:
       - |
         set -e  # Exit on any error
@@ -424,12 +423,8 @@ tasks:
         
         {{.SED}} -i ${SPACER} "s,beimage:.*,beimage: {{.BEBASEIMAGE}},g" grapi/composition*.yaml
         {{.SED}} -i ${SPACER} "s,beimagetag:.*,beimagetag: {{.BEBASEIMAGEVERSION}},g" grapi/composition*.yaml
-        {{.SED}} -i ${SPACER} "s,uiimage:.*,uiimage: {{.UIBASEIMAGE}},g" gruim/composition.yaml
-        {{.SED}} -i ${SPACER} "s,uiimagetag:.*,uiimagetag: {{.UIBASEIMAGEVERSION}},g" gruim/composition.yaml
-        
         if [ "$(uname -s)" = "Darwin" ]; then 
           rm -f grapi/composition*.yaml'' 2>/dev/null || true
-          rm -f gruim/composition.yaml'' 2>/dev/null || true
         fi
         echo "[OK] Image versions updated"
 
