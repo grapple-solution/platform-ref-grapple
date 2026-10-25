@@ -36,6 +36,16 @@ spec:
               properties:
                 name:
                   type: string
+                writeConnectionSecretToRef:
+                  description: 'The secret to which this composite resource will write its connection details.'
+                  type: object
+                  properties:
+                    name:
+                      description: Name of the secret.
+                      type: string
+                    namespace:
+                      description: Namespace of the secret.
+                      type: string
                 clusterdomain:
                   description: 'Please specify here the clusterdomain of the target cluster'
                   type: string

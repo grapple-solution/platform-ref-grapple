@@ -52,6 +52,16 @@ spec:
                     It is optional and shall only be used if required. 
                     Default: ""
                   type: string
+                writeConnectionSecretToRef:
+                  description: 'The secret to which this composite resource will write its connection details.'
+                  type: object
+                  properties:
+                    name:
+                      description: Name of the secret.
+                      type: string
+                    namespace:
+                      description: Namespace of the secret.
+                      type: string
                 asname:
                   description: | 
                     This field can be used to tweak the name of the parent gras (grapple ApplicationSet). 

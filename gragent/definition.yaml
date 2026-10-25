@@ -29,6 +29,16 @@ spec:
                 name:
                   type: string
                   description: Name of the gragent.
+                writeConnectionSecretToRef:
+                  description: 'The secret to which this composite resource will write its connection details.'
+                  type: object
+                  properties:
+                    name:
+                      description: Name of the secret.
+                      type: string
+                    namespace:
+                      description: Namespace of the secret.
+                      type: string
                 replicaCount:
                   type: integer
                   description: Number of replicas.
