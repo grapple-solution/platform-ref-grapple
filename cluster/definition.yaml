@@ -1,4 +1,4 @@
-apiVersion: apiextensions.crossplane.io/v2
+apiVersion: apiextensions.crossplane.io/v1
 kind: CompositeResourceDefinition
 metadata:
   name: compositeclusters.multik8s.platformref.crossplane.io
@@ -94,7 +94,6 @@ metadata:
           validation:
           - required: false
 spec:
-  scope: Cluster
   connectionSecretKeys:
   - kubeconfig
   group: multik8s.platformref.crossplane.io

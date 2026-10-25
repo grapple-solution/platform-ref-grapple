@@ -1,9 +1,8 @@
-apiVersion: apiextensions.crossplane.io/v2
+apiVersion: apiextensions.crossplane.io/v1
 kind: CompositeResourceDefinition
 metadata:
   name: compositegrappleapplicationsets.grsf.grpl.io
 spec:
-  scope: Cluster
   defaultCompositeDeletePolicy: Foreground
   group: grsf.grpl.io
   names:
