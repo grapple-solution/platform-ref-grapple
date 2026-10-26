@@ -29,7 +29,7 @@ spec:
               chart:
                 name: grsf
                 repository: oci://public.ecr.aws/p7h7z5g3
-                version: 0.3.22
+                version: 0.3.24-pr-30
               namespace: null
               values:
                 clusterdomain: null
@@ -41,17 +41,17 @@ spec:
               namespace: grpl-system
         name: resource-0
         patches:
-        - fromFieldPath: spec.claimRef.namespace
+        - fromFieldPath: spec.writeConnectionSecretToRef.namespace
           policy:
             fromFieldPath: Required
           toFieldPath: spec.forProvider.namespace
           type: FromCompositeFieldPath
-        - fromFieldPath: spec.claimRef.name
+        - fromFieldPath: spec.name
           policy:
             fromFieldPath: Required
           toFieldPath: metadata.annotations[crossplane.io/external-name]
           type: FromCompositeFieldPath
-        - fromFieldPath: spec.claimRef.name
+        - fromFieldPath: spec.name
           policy:
             fromFieldPath: Required
           toFieldPath: spec.forProvider.values.name
@@ -73,7 +73,7 @@ spec:
               chart:
                 name: grsf-config
                 repository: oci://public.ecr.aws/p7h7z5g3
-                version: 0.3.22
+                version: 0.3.24-pr-30
               namespace: null
               set:
               - name: external-secrets.webhook.certDir
@@ -97,7 +97,7 @@ spec:
               namespace: grpl-system
         name: resource-1
         patches:
-        - fromFieldPath: spec.claimRef.namespace
+        - fromFieldPath: spec.writeConnectionSecretToRef.namespace
           policy:
             fromFieldPath: Required
           toFieldPath: spec.forProvider.namespace

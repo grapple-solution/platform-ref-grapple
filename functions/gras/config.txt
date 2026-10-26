@@ -3,8 +3,8 @@
 docker buildx build --platform "linux/amd64" . --tag=myimage --load
 docker save myimage -o package/runtime-amd64.tar
 crossplane xpkg --verbose build -f package --embed-runtime-image-tarball=package/runtime-amd64.tar -o package/gras-function-amd64.xpkg
-crossplane xpkg --verbose push -f package/gras-function-amd64.xpkg docker.io/grpl/gras:v0.1.1
+crossplane xpkg --verbose push -f package/gras-function-amd64.xpkg docker.io/grpl/gras-v2:v0.1.2
 
 
-kubectl patch function grpl-gras --type='json' -p='[{"op": "replace", "path": "/spec/package", "value":"docker.io/grpl/gras:v0.0.24"}]'
+kubectl patch function grpl-gras-v2 --type='json' -p='[{"op": "replace", "path": "/spec/package", "value":"docker.io/grpl/gras-v2:v0.0.24"}]'
 

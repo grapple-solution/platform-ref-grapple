@@ -46,28 +46,25 @@ metadata:
   #           customError: Cluster ref is required.
 spec:
   defaultCompositeDeletePolicy: Foreground
-  claimNames:
-    kind: GrappleUiModule
-    plural: grappleuimodules
-    shortNames:
-    - uim
-    - uims
-    - uimodule
-    - uimodules
-    - gruim
-    - gruimodule
-    - gruims
-    - gruimodules
-    - grpluim
-    - grpluimodule
-    - grpluims
-    - grpluimodules
-    - grappleuimodule
   group: grsf.grpl.io
   names:
     kind: CompositeGrappleUiModule
     plural: compositegrappleuimodules
     shortNames:
+    - gruim
+    - gruims
+    - uim
+    - uims
+    - uimodule
+    - uimodules
+    - gruimodule
+    - gruimodules
+    - grpluim
+    - grpluims
+    - grpluimodule
+    - grpluimodules
+    - grappleuimodule
+    - grappleuimodules
     - xuim
     - xuims
     - xuimodule
@@ -97,6 +94,16 @@ spec:
                 name:
                   type: string
                   description: "This field can be used to tweak the name of the gruim (grapple UI modules). \nIt is optional and shall only be used if required.\n(Default: \"\")\n"
+                writeConnectionSecretToRef:
+                  description: 'The secret to which this composite resource will write its connection details.'
+                  type: object
+                  properties:
+                    name:
+                      description: Name of the secret.
+                      type: string
+                    namespace:
+                      description: Namespace of the secret.
+                      type: string
                 livenessProbe:
                   description: |
                     Specify livenessProbe for the gruim container.
