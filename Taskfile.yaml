@@ -648,14 +648,15 @@ tasks:
         echo "Checking composition is available..."
         
         echo "Deploying test cases..."
-        cat <<EOF | kubectl apply -n {{.TESTNS}} -f -
+        cat <<EOF | kubectl apply -f -
         apiVersion: grsf.grpl.io/v1alpha1
-        kind: GrappleApi
+        kind: CompositeGrappleApi
         metadata:
           name: mygrapi
-          namespace: {{.TESTNS}}
         spec:
           name: mygrapiid
+          writeConnectionSecretToRef:
+            namespace: {{.TESTNS}}
         EOF
         
         echo "Deploying grapi test cases..."
@@ -665,7 +666,7 @@ tasks:
             n=$(echo ${i} | sed "s,.yaml,,g")
             ns=gat-${n:0:3}
             kubectl create ns ${ns} 2>/dev/null || true
-            kubectl apply -n ${ns} -f ${TESTPATH}/${i}
+            kubectl apply -f ${TESTPATH}/${i}
           done
         fi
         
@@ -682,12 +683,13 @@ tasks:
         echo "----"
         echo ""
         kubectl get composite
-        kubectl get claim -n {{.TESTNS}}
+        kubectl get compositegrappleapis
         echo ""
         echo "----"
         echo ""
         echo "Displaying status of test case..."
-        kubectl get grapi,all -n {{.TESTNS}}
+        kubectl get grapi
+        kubectl get all -n {{.TESTNS}}
         
         echo "[OK] Tests completed"
 
@@ -842,13 +844,13 @@ tasks:
         
         # Check kubectl crossplane plugin
         if ! command -v crossplane >/dev/null 2>&1; then
-          echo "Installing kubectl crossplane plugin v1.18.0..."
-          curl -sL "https://releases.crossplane.io/stable/v1.18.0/bin/linux_amd64/crank" -o crossplane
+          echo "Installing crossplane CLI..."
+          curl -sL "https://raw.githubusercontent.com/crossplane/crossplane/main/install.sh" | sh
           sudo mv crossplane /usr/local/bin/crossplane
           sudo chmod +x /usr/local/bin/crossplane
           # Create kubectl plugin symlink
           sudo ln -sf /usr/local/bin/crossplane /usr/local/bin/kubectl-crossplane
-          echo "crossplane CLI v1.18.0 installed"
+          echo "crossplane CLI installed"
         else
           CLI_VERSION=$(crossplane version 2>&1 | grep "Client Version" | awk '{print $3}' || echo 'unknown')
           echo "crossplane CLI is already installed (${CLI_VERSION})"

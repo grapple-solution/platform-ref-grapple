@@ -4,9 +4,10 @@ metadata:
   name: compositegrapplesolutionframeworks.grsf.grpl.io
 spec:
   defaultCompositeDeletePolicy: Foreground
-  claimNames:
-    kind: GrappleSolutionFramework
-    plural: grapplesolutionframeworks
+  group: grsf.grpl.io
+  names:
+    kind: CompositeGrappleSolutionFramework
+    plural: compositegrapplesolutionframeworks
     shortNames:
     - grsf
     - grsfs
@@ -14,11 +15,6 @@ spec:
     - grplsfs
     - grapplesf
     - grapplesolutionframework
-  group: grsf.grpl.io
-  names:
-    kind: CompositeGrappleSolutionFramework
-    plural: compositegrapplesolutionframeworks
-    shortNames:
     - xgrsf
     - xgrsfs
     - xgrplsf

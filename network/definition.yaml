@@ -46,9 +46,6 @@ metadata:
             customError: Cluster ref is required.
 spec:
   defaultCompositeDeletePolicy: Foreground
-  claimNames:
-    kind: Network
-    plural: networks
   group: multik8s.platformref.crossplane.io
   names:
     kind: CompositeNetwork
