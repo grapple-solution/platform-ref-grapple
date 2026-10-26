@@ -46,6 +46,14 @@ metadata:
   #           customError: Cluster ref is required.
 spec:
   defaultCompositeDeletePolicy: Foreground
+  claimNames:
+    kind: ManagedDataSource
+    plural: manageddatasources
+    shortNames:
+    - mds
+    - mdatasource
+    - manageddatasource
+    - managedds
   group: grsf.grpl.io
   names:
     kind: CompositeManagedDataSource
