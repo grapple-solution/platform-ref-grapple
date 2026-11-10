@@ -218,10 +218,17 @@ tasks:
           docker run --rm {{.BEBASEIMAGE}}:{{.BEBASEIMAGEVERSION}} cat /usr/local/lib/node_modules/\@loopback/cli/generators/${cli}/index.js > ${cli}.js
           
           # Try to delete existing properties (may not exist, which is ok)
-          yq -i "del(${BASELOCATION}.${crd}.items.properties.spec.properties.*)" grapi/definition.yaml 2>/dev/null || true
-          
+          # relations are kept: grapi/definition.yaml is their source of truth
+          if [ "${crd}" != "relations" ]; then
+            yq -i "del(${BASELOCATION}.${crd}.items.properties.spec.properties.*)" grapi/definition.yaml 2>/dev/null || true
+          fi
+
           for i in $({{.GREP}} "this.option(" ${cli}.js | {{.SED}} "s,this.option(',," | {{.SED}} "s,'\, {.*,,g" | tr -d '\r'); do
             name=$i
+            # relations are declared in grapi/definition.yaml; generator options only add what is missing there
+            if [ "${crd}" = "relations" ] && [ "$(yq "${BASELOCATION}.${crd}.items.properties.spec.properties | has(\"${name}\")" grapi/definition.yaml)" = "true" ]; then
+              continue
+            fi
             type=$({{.GREP}} "this.option(.*${name}" -A6 ${cli}.js | {{.GREP}} -m1 "type:" | {{.SED}} "s,^.*type: ,,g" | {{.SED}} "s|,.*||g" | {{.SED}} "s|}.*||g" | tr '[:upper:]' '[:lower:]')
             desc=$({{.GREP}} "this.option(.*${name}" -A6 ${cli}.js | {{.GREP}} -m1 -A2 "description:" | {{.SED}} "s,^.*description: g.f(,,g" | {{.GREP}} -o "'.*'" | head -n 1 | {{.SED}} "s,',,g")
             echo "Patching: $name --- $type"
