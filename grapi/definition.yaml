@@ -1093,6 +1093,13 @@ spec:
                               example:
                               *:employees/*
                             type: string
+                          subPath:
+                            description: |-
+                              Please specify here the route prefix of the fuzzy endpoint
+                              example:
+                              jcs results in /jcs/<model>/fuzzy/{searchTerm}
+                              If omitted, the pluralised datasource name is used
+                            type: string
                 prepatches:
                   description: "Please add here a patch script (base64 encoded) that shall run before datasource creation \nwithin this grapi (grapple API)\n"
                   type: array

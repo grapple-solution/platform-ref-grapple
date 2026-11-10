@@ -400,7 +400,13 @@ tasks:
         type="string"
         echo "Patching: $name --- $type"
         yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${desc}\", \"type\": \"${type}\" } }" grapi/definition.yaml
-        
+
+        name="subPath"
+        desc="Please specify here the route prefix of the fuzzy endpoint\nexample:\njcs results in /jcs/<model>/fuzzy/{searchTerm}\nIf omitted, the pluralised datasource name is used"
+        type="string"
+        echo "Patching: $name --- $type"
+        yq -i "${BASELOCATION}.${crd}.items.properties.spec.properties += {\"${name}\": { \"description\": \"${desc}\", \"type\": \"${type}\" } }" grapi/definition.yaml
+
         echo "[OK] CRDs created successfully"
 
   cleanup-build:
