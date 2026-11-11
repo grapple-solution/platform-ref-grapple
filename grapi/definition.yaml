@@ -1049,6 +1049,9 @@ spec:
                     Please add here all the drilldown (cascading filter) configurations that shall be generated within this grapi (grapple API).
                     Each configuration generates GET /drilldowns/<name> (metadata) and GET /drilldowns/<name>/<field> (one per level),
                     where every level is narrowed by the values selected in the levels it depends on.
+                    Every level is searchable (q: the database matches the label or code, Fuse ranks the matches and catches typos)
+                    and bounded: at most `limit` values per request, a query timeout and a cap on concurrent queries,
+                    so the endpoints stay safe on tables of any size.
                   type: array
                   items:
                     type: object
@@ -1060,7 +1063,7 @@ spec:
                         description: |
                           please specify the content for the drilldown configuration in form of a json string
                           example:
-                          {"model":"Datecode2","levels":[{"field":"fza","label":"fzab"},{"field":"hst","label":"hstb"}],"limit":500,"search":"like"}
+                          {"model":"Datecode2","levels":[{"field":"fza","label":"fzab"},{"field":"hst","label":"hstb"}],"limit":1000}
                           or use the spec for yaml format
                         type: string
                       spec:
@@ -1086,30 +1089,25 @@ spec:
                                   type: array
                                   items:
                                     type: string
-                                search:
-                                  description: Overrides the drilldown search mode for this level
-                                  type: string
-                                  enum: ["off", "like", "fuzzy"]
                               required:
                                 - field
                           limit:
                             description: |-
-                              Maximum number of values returned per request by levels with fuzzy search.
-                              Levels without fuzzy search are never limited and always return all their values.
+                              Maximum number of values read from the database and returned per request, on every level.
+                              Users reach values beyond it by typing a search term (q).
                             type: integer
-                            default: 500
-                          search:
-                            description: |-
-                              How users can search a level:
-                              off - no search, like - label prefix or exact code in SQL,
-                              fuzzy - ranked in memory with Fuse.js; only fuzzy levels are limited
-                            type: string
-                            enum: ["off", "like", "fuzzy"]
-                            default: like
-                          maxScan:
-                            description: Maximum number of distinct values loaded for fuzzy ranking
+                            minimum: 1
+                            default: 1000
+                          timeoutMs:
+                            description: Maximum run time of one drilldown query in milliseconds; a slower query fails with 503
                             type: integer
-                            default: 20000
+                            minimum: 1
+                            default: 5000
+                          concurrency:
+                            description: Maximum number of drilldown queries running at once per grapi instance; further requests get 429
+                            type: integer
+                            minimum: 1
+                            default: 10
                         required:
                           - model
                           - levels
