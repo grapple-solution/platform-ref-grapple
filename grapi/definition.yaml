@@ -1089,6 +1089,12 @@ spec:
                                   type: array
                                   items:
                                     type: string
+                                optional:
+                                  description: |-
+                                    The levels below may be chosen without this one; choosing it still narrows them.
+                                    A level with no values for the current selection is skipped anyway.
+                                  type: boolean
+                                  default: false
                               required:
                                 - field
                           limit:
