@@ -1044,6 +1044,79 @@ spec:
                           controllerType:
                             description: Type for the %s
                             type: string
+                drilldownconfigs:
+                  description: |
+                    Please add here all the drilldown (cascading filter) configurations that shall be generated within this grapi (grapple API).
+                    Each configuration generates GET /drilldowns/<name> (metadata) and GET /drilldowns/<name>/<field> (one per level),
+                    where every level is narrowed by the values selected in the levels it depends on.
+                    Every level is searchable (q: the database matches the label or code, Fuse ranks the matches and catches typos)
+                    and bounded: at most `limit` values per request, a query timeout and a cap on concurrent queries,
+                    so the endpoints stay safe on tables of any size.
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        description: please specify the name of the drilldown; it is used in the endpoint paths and operationIds
+                        type: string
+                      content:
+                        description: |
+                          please specify the content for the drilldown configuration in form of a json string
+                          example:
+                          {"model":"Datecode2","levels":[{"field":"fza","label":"fzab"},{"field":"hst","label":"hstb"}],"limit":1000}
+                          or use the spec for yaml format
+                        type: string
+                      spec:
+                        type: object
+                        properties:
+                          model:
+                            description: Please specify the name of the model the drilldown reads its values from
+                            type: string
+                          levels:
+                            description: Please specify the levels of the drilldown, in order from top to bottom
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                field:
+                                  description: Property of the model holding the value that is selected and filtered on
+                                  type: string
+                                label:
+                                  description: Property of the model shown to the user; defaults to the field
+                                  type: string
+                                dependsOn:
+                                  description: Fields of earlier levels that narrow this level; defaults to every level above
+                                  type: array
+                                  items:
+                                    type: string
+                                optional:
+                                  description: |-
+                                    The levels below may be chosen without this one; choosing it still narrows them.
+                                    A level with no values for the current selection is skipped anyway.
+                                  type: boolean
+                                  default: false
+                              required:
+                                - field
+                          limit:
+                            description: |-
+                              Maximum number of values read from the database and returned per request, on every level.
+                              Users reach values beyond it by typing a search term (q).
+                            type: integer
+                            minimum: 1
+                            default: 1000
+                          timeoutMs:
+                            description: Maximum run time of one drilldown query in milliseconds; a slower query fails with 503
+                            type: integer
+                            minimum: 1
+                            default: 5000
+                          concurrency:
+                            description: Maximum number of drilldown queries running at once per grapi instance; further requests get 429
+                            type: integer
+                            minimum: 1
+                            default: 10
+                        required:
+                          - model
+                          - levels
                 fuzzysearch:
                   description: |
                     Please add here all the fuzzy search configurations that shall be generated within this grapi (grapple API)
