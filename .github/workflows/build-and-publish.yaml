@@ -72,11 +72,6 @@ jobs:
         run: |
           task info STAGE=${{ steps.stage.outputs.stage }}
 
-      - name: Ensure required images are available
-        run: |
-          echo "Checking for required images (grapi and gruim)..."
-          task ensure-images
-
       - name: Build package
         run: |
           echo "Building package for stage: ${{ steps.stage.outputs.stage }}"
