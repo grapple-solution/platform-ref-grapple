@@ -1047,75 +1047,147 @@ spec:
                 drilldownconfigs:
                   description: |
                     Please add here all the drilldown (cascading filter) configurations that shall be generated within this grapi (grapple API).
-                    Each configuration generates GET /drilldowns/<name> (metadata) and GET /drilldowns/<name>/<field> (one per level),
-                    where every level is narrowed by the values selected in the levels it depends on.
-                    Every level is searchable (q: the database matches the label or code, Fuse ranks the matches and catches typos)
-                    and bounded: at most `limit` values per request, a query timeout and a cap on concurrent queries,
-                    so the endpoints stay safe on tables of any size.
+                    Each configuration generates GET /drilldowns/<name> (metadata) and GET /drilldowns/<name>/<level name> (one per level).
+                    Every level reads its own model (one table for all levels, or one table per level) and is narrowed by the
+                    keys selected in its parent levels (`parents`). The result table shown under the dropdowns is the model of the
+                    BOTTOM level (the last level). Each selection filters it: the bottom level on its own keyColumn, any other level
+                    on the column the bottom level declares for it in `parents`; a level that is not a parent of the bottom level
+                    only narrows the dropdowns (grapi warns at startup). GET /drilldowns/<name> publishes this computed column
+                    per level as `resultColumn` (null when the level does not filter the table); it cannot be configured.
+                    Every level is searchable (q: the database matches the display or key column, Fuse ranks the matches and catches typos)
+                    and bounded: at most `limit` values per request (one page; further pages are loaded with a cursor),
+                    a query timeout and a cap on concurrent queries, so the endpoints stay safe on tables of any size.
+                    A "None" entry is offered when the level's own key column is empty in some rows, or when a child level has rows
+                    whose column for this level is empty; it appears only on the first page, never in search results.
+                    Levels below are asked for those rows by naming the parent level in the `nulls` query parameter (nulls=<parent level name>).
+                    With `multiselect` a level's dropdown accepts several values (None may be picked together with values);
+                    its children receive them as repeated query parameters.
                   type: array
                   items:
                     type: object
                     properties:
                       name:
-                        description: please specify the name of the drilldown; it is used in the endpoint paths and operationIds
+                        description: |-
+                          please specify the name of the drilldown (lowercase letters, digits and dashes);
+                          it is used in the endpoint paths and operationIds
                         type: string
+                        pattern: '^[a-z0-9]([a-z0-9-]*[a-z0-9])?$'
                       content:
                         description: |
-                          please specify the content for the drilldown configuration in form of a json string
-                          example:
-                          {"model":"Datecode2","levels":[{"field":"fza","label":"fzab"},{"field":"hst","label":"hstb"}],"limit":1000}
+                          please specify the content for the drilldown configuration in form of a json string (the json of spec)
+                          example (single table, every level reads the same model):
+                          {"levels":[{"name":"fza","model":"Datecode2","keyColumn":"fza","displayColumn":"fzab","title":"Vehicle type"},{"name":"hst","model":"Datecode2","keyColumn":"hst","displayColumn":"hstb","title":"Manufacturer","parents":[{"level":"fza","column":"fza"}],"multiselect":{"enable":true}}],"limit":1000}
+                          example (multi table, one model per level):
+                          {"levels":[{"name":"country","model":"Country","keyColumn":"id","displayColumn":"name"},{"name":"city","model":"City","keyColumn":"id","displayColumn":"name","parents":[{"level":"country","column":"countryId"}],"multiselect":{"enable":true}},{"name":"dealer","model":"Dealer","keyColumn":"id","displayColumn":"name","parents":[{"level":"city","column":"cityId"},{"level":"country","column":"countryId"}]}]}
                           or use the spec for yaml format
                         type: string
                       spec:
                         type: object
                         properties:
-                          model:
-                            description: Please specify the name of the model the drilldown reads its values from
-                            type: string
                           levels:
                             description: Please specify the levels of the drilldown, in order from top to bottom
                             type: array
+                            minItems: 1
                             items:
                               type: object
                               properties:
-                                field:
-                                  description: Property of the model holding the value that is selected and filtered on
+                                name:
+                                  description: |-
+                                    Identifier of the level: the URL segment of its endpoint, the query parameter name used by child levels,
+                                    and the value referenced in parents[].level and in the `nulls` query parameter.
+                                    Must be unique within the drilldown; q, limit, cursor and nulls are reserved.
                                   type: string
-                                label:
-                                  description: Property of the model shown to the user; defaults to the field
+                                  pattern: '^[A-Za-z_][A-Za-z0-9_]*$'
+                                model:
+                                  description: Name of the LoopBack model (table) this level reads its values from
                                   type: string
-                                dependsOn:
-                                  description: Fields of earlier levels that narrow this level; defaults to every level above
-                                  type: array
-                                  items:
-                                    type: string
+                                keyColumn:
+                                  description: Property of the level's model whose values are selected and passed down to the levels below
+                                  type: string
+                                displayColumn:
+                                  description: Property of the level's model holding the text shown for each value; defaults to keyColumn
+                                  type: string
+                                title:
+                                  description: Heading of the level's dropdown shown to the user; defaults to the level name (an app translation overrides it)
+                                  type: string
                                 optional:
                                   description: |-
                                     The levels below may be chosen without this one; choosing it still narrows them.
                                     A level with no values for the current selection is skipped anyway.
                                   type: boolean
                                   default: false
+                                multiselect:
+                                  description: |-
+                                    Lets the user pick several values in this level's dropdown ("None" can be picked together with values,
+                                    matching rows where the parent is empty OR in the values). The levels below receive the picked keys
+                                    as repeated query parameters.
+                                  type: object
+                                  properties:
+                                    enable:
+                                      description: Turns the dropdown into a multi-select
+                                      type: boolean
+                                      default: false
+                                    maxLimit:
+                                      description: |-
+                                        Maximum number of values that can be picked in this dropdown; grapi rejects requests carrying
+                                        more with 400. Independently of it, gruim refuses to send a request whose query string would
+                                        exceed about 6 KB and asks the user to remove some selections, so a cap applies automatically
+                                        when the API URL would get too long.
+                                      type: integer
+                                      minimum: 1
+                                      maximum: 500
+                                      default: 100
+                                parents:
+                                  description: |-
+                                    Levels above that narrow this level. Each entry names a parent level and the property of
+                                    THIS level's model that holds the parent's selected key; that column should have the same type as
+                                    the parent level's keyColumn (grapi warns otherwise). Empty for the top level.
+                                    List every ancestor that can be None or skipped (e.g. dealer → country, not only dealer → city),
+                                    otherwise grapi warns that the level is not narrowed by it.
+                                    The bottom level's parents also define the result table filters: each listed level's selection
+                                    filters the result table (the bottom level's model) on the given column; levels the bottom level
+                                    does not list only narrow the dropdowns.
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      level:
+                                        description: Name of a parent level (a level above this one)
+                                        type: string
+                                      column:
+                                        description: Property of this level's model holding the parent level's selected key
+                                        type: string
+                                    required:
+                                      - level
+                                      - column
                               required:
-                                - field
+                                - name
+                                - model
+                                - keyColumn
                           limit:
                             description: |-
-                              Maximum number of values read from the database and returned per request, on every level.
-                              Users reach values beyond it by typing a search term (q).
+                              Maximum number of values read from the database and returned per request (one page), on every level.
+                              Users reach values beyond it by loading the next page (cursor) or by typing a search term (q).
                             type: integer
                             minimum: 1
                             default: 1000
                           timeoutMs:
-                            description: Maximum run time of one drilldown query in milliseconds; a slower query fails with 503
+                            description: |-
+                              Maximum run time of one drilldown query in milliseconds; a slower query fails with 503.
+                              MySQL stops the query itself; on other databases grapi stops waiting but the query may keep running.
+                              Also caps how long a request waits for a free slot (then 429) and the 'None' checks (skipped when too slow).
                             type: integer
                             minimum: 1
                             default: 5000
                           concurrency:
-                            description: Maximum number of drilldown queries running at once per grapi instance; further requests get 429
+                            description: |-
+                              Maximum number of queries of this drilldown running at once in one grapi instance.
+                              Further requests wait in a queue of up to concurrency × 10 and get 429 when it is full or the wait exceeds timeoutMs.
+                              With several replicas the database can see replicas × concurrency queries.
                             type: integer
                             minimum: 1
                             default: 10
                         required:
-                          - model
                           - levels
                 fuzzysearch:
                   description: |
