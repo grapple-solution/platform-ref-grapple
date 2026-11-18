@@ -1187,38 +1187,6 @@ spec:
                             type: integer
                             minimum: 1
                             default: 10
-                          filters:
-                            description: |-
-                              Extra filters on the result table (the bottom level's model) for columns that are not drilldown levels.
-                              They are served by GET /drilldowns/<name>/results together with the level selections and are listed
-                              in GET /drilldowns/<name> (used e.g. by gruim's AI drilldown to narrow the results further).
-                              A number filter takes <name> (equals), <name>_min and <name>_max; a text filter takes <name> (equals)
-                              and <name>_like (contains, case-insensitive). A number filter on a text column compares it as a number.
-                              The generated parameter names must not clash with level names, other filters or q, limit, cursor, nulls.
-                            type: array
-                            items:
-                              type: object
-                              properties:
-                                name:
-                                  description: Identifier of the filter; the base name of its query parameters
-                                  type: string
-                                  pattern: '^[A-Za-z_][A-Za-z0-9_]*$'
-                                column:
-                                  description: Property of the bottom level's model that is filtered
-                                  type: string
-                                type:
-                                  description: How the column is compared (number = equals/min/max, text = equals/contains)
-                                  type: string
-                                  enum:
-                                    - number
-                                    - text
-                                description:
-                                  description: Meaning and value format of the column, shown in the API documentation and to AI agents
-                                  type: string
-                              required:
-                                - name
-                                - column
-                                - type
                         required:
                           - levels
                 fuzzysearch:
