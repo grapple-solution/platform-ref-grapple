@@ -13,7 +13,7 @@ spec:
   pipeline:
   - step: gras-logic
     functionRef:
-      name: grpl-gras
+      name: grpl-gras-v2
     input:
       apiVersion: template.fn.crossplane.io/v1beta1
       kind: Input

@@ -116,27 +116,27 @@ spec:
               namespace: null
         name: resource-0
         patches:
-        - fromFieldPath: spec.claimRef.namespace
+        - fromFieldPath: spec.writeConnectionSecretToRef.namespace
           policy:
             fromFieldPath: Required
           toFieldPath: spec.forProvider.namespace
           type: FromCompositeFieldPath
-        - fromFieldPath: spec.claimRef.namespace
+        - fromFieldPath: spec.writeConnectionSecretToRef.namespace
           policy:
             fromFieldPath: Required
           toFieldPath: spec.writeConnectionSecretToRef.namespace
           type: FromCompositeFieldPath
-        - fromFieldPath: spec.claimRef.name
+        - fromFieldPath: spec.name
           policy:
             fromFieldPath: Required
           toFieldPath: spec.writeConnectionSecretToRef.name
           transforms:
           - string:
-              fmt: "%s-gruim-secret"
+              fmt: "%s-gruim-release-secret"
               type: Format
             type: string
           type: FromCompositeFieldPath
-        - fromFieldPath: spec.claimRef.name
+        - fromFieldPath: spec.name
           policy:
             fromFieldPath: Required
           toFieldPath: metadata.annotations[crossplane.io/external-name]
@@ -146,7 +146,7 @@ spec:
               type: Format
             type: string
           type: FromCompositeFieldPath
-        - fromFieldPath: spec.claimRef.name
+        - fromFieldPath: spec.name
           policy:
             fromFieldPath: Required
           toFieldPath: spec.forProvider.values.name

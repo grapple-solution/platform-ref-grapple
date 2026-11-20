@@ -4,17 +4,13 @@ metadata:
   name: compositegrappleagents.grsf.grpl.io
 spec:
   defaultCompositeDeletePolicy: Foreground
-  claimNames:
-    kind: GrappleAgent
-    plural: grappleagents
-    shortNames:
-    - gragent
-    - gragents
   group: grsf.grpl.io
   names:
     kind: CompositeGrappleAgent
     plural: compositegrappleagents
     shortNames:
+    - gragent
+    - gragents
     - xgragent
     - xgragents
   versions:
@@ -29,6 +25,9 @@ spec:
               type: object
               description: Specification of the desired behavior of the gragent (grapple agent).
               properties:
+                name:
+                  type: string
+                  description: Name of the gragent.
                 replicaCount:
                   type: integer
                   description: Number of replicas.

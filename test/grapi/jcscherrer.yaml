@@ -1,9 +1,11 @@
 apiVersion: grsf.grpl.io/v1alpha1
-kind: GrappleApi
+kind: CompositeGrappleApi
 metadata:
   name: jcscherrer
 spec:
   name: jcscherrer
+  writeConnectionSecretToRef:
+    namespace: grpl-test
   clusterdomain: uat.cloud20x.com
   grapiversion: 1.0.0
   buildimagecache: false

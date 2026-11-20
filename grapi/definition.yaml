@@ -46,22 +46,19 @@ metadata:
   #           customError: Cluster ref is required.
 spec:
   defaultCompositeDeletePolicy: Foreground
-  claimNames:
-    kind: GrappleApi
-    plural: grappleapis
-    shortNames:
-      - api
-      - apis
-      - grapi
-      - grapis
-      - grplapi
-      - grplapis
-      - grappleapi
   group: grsf.grpl.io
   names:
     kind: CompositeGrappleApi
     plural: compositegrappleapis
     shortNames:
+      - grapi
+      - grapis
+      - api
+      - apis
+      - grplapi
+      - grplapis
+      - grappleapi
+      - grappleapis
       - xapi
       - xapis
       - xgrapi

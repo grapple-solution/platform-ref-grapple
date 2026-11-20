@@ -4,9 +4,10 @@ metadata:
   name: compositegrappleapplicationsets.grsf.grpl.io
 spec:
   defaultCompositeDeletePolicy: Foreground
-  claimNames:
-    kind: GrappleApplicationSet
-    plural: grappleapplicationsets
+  group: grsf.grpl.io
+  names:
+    kind: CompositeGrappleApplicationSet
+    plural: compositegrappleapplicationsets
     shortNames:
     - as
     - applicationset
@@ -19,11 +20,6 @@ spec:
     - grapplicationsets
     - grplapplicationsets
     - grappleapplicationsets
-  group: grsf.grpl.io
-  names:
-    kind: CompositeGrappleApplicationSet
-    plural: compositegrappleapplicationsets
-    shortNames:
     - xas
     - xapplicationset
     - xgras

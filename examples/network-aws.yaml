@@ -1,5 +1,5 @@
 apiVersion: multik8s.platformref.crossplane.io/v1alpha1
-kind: Network
+kind: CompositeNetwork
 metadata:
   name: network-aws
 spec:
