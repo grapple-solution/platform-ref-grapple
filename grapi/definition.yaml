@@ -786,7 +786,19 @@ spec:
                             description: Source model
                             type: string
                           customReferenceKeys:
-                            description: Destination model key
+                            description: Set to true to use custom keys (customSourceModelKey / customTargetModelKey) instead of the primary keys for a hasManyThrough relation
+                            type: boolean
+                          customSourceModelKey:
+                            description: Custom key on the source model used for the hasManyThrough relation (requires customReferenceKeys)
+                            type: string
+                          customTargetModelKey:
+                            description: Custom key on the target (destination) model used for the hasManyThrough relation (requires customReferenceKeys)
+                            type: string
+                          keyFrom:
+                            description: referencesMany only - property on the source model holding the array of referenced keys (e.g. 'kundeIds')
+                            type: string
+                          keyTo:
+                            description: Property on the destination model the keys are matched against (referencesMany, belongsTo; e.g. 'id')
                             type: string
                           destinationModel:
                             description: Destination model key
