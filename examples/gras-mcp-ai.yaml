@@ -1,30 +1,24 @@
-# GrappleApplicationSet: mcpConfigs / aiConfigs set on the gras are the default for every grapi in grapis.
-# A grapi that sets its own mcpConfigs / aiConfigs in grapis[].spec keeps its own value.
+# GrappleApplicationSet: mcpConfigs / aiConfigs are set per grapi in grapis[].spec (only where defined).
+# grapis[].spec is passed to the GrappleApi as is; see examples/grapi-mcp-ai.yaml for all fields.
 apiVersion: grsf.grpl.io/v1alpha1
 kind: GrappleApplicationSet
 metadata:
   name: dat
 spec:
-  mcpConfigs:
-    dat-search:
-      enable: true
-      defaultInclude:
-      - GET:dsearchtree/drilldowns/vehicle
-      - GET:dsearchtree/drilldowns/vehicle/*
-  aiConfigs:
-    vehicle:
-      type: drilldown
-      mode: managed
-      provider: google
-      model: gemini-2.5-flash
-      apiKeyEnv: GOOGLE_API_KEY
-      mcps:
-      - dat-search
   grapis:
   - name: grapi
     spec:
-      extraSecrets:
-      - dat-ai-keys
+      mcpConfigs:
+        dat-search:
+          enable: true
+          defaultInclude:
+          - GET:dsearchtree/drilldowns/vehicle
+          - GET:dsearchtree/drilldowns/vehicle/*
+      aiConfigs:
+        vehicle:
+          type: drilldown
+          mcps:
+          - dat-search
   gruims:
   - name: gruim
     spec: {}
