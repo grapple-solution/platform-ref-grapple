@@ -8,17 +8,18 @@ spec:
   mcpConfigs:
     dat-search:
       enable: true
-      auth: true
       defaultInclude:
-      - search*
-      - find*
+      - GET:dsearchtree/drilldowns/vehicle
+      - GET:dsearchtree/drilldowns/vehicle/*
   aiConfigs:
-    ai-chat:
-      catalogue:
-        mode: managed
-        provider: google
-        model: gemini-2.5-flash
-        apiKeyEnv: GOOGLE_API_KEY
+    vehicle:
+      type: drilldown
+      mode: managed
+      provider: google
+      model: gemini-2.5-flash
+      apiKeyEnv: GOOGLE_API_KEY
+      mcps:
+      - dat-search
   grapis:
   - name: grapi
     spec:
