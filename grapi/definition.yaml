@@ -951,6 +951,142 @@ spec:
                               *:customers/*
                               if specified, everything else is excluded.
                             type: string
+                mcpConfigs:
+                  description: |
+                    MCP (Model Context Protocol) servers exposed by this grapi (grapple API) at /mcp/<server>.
+                    A map of server name -> server config, written as plain YAML.
+                    The chart renders it as JSON into the MCP_CONFIGS env var. Empty or unset -> MCP_CONFIGS not set (default behaviour).
+                    Example:
+                      mcpConfigs:
+                        dat-search:
+                          enable: true
+                          auth: true
+                          permissions: ["dat:read"]
+                          defaultInclude: ["search*", "find*"]
+                          roleBased:
+                            admin:
+                              include: ["*"]
+                  type: object
+                  additionalProperties:
+                    type: object
+                    properties:
+                      enable:
+                        description: Whether this MCP server is enabled (served at /mcp/<server>).
+                        type: boolean
+                      auth:
+                        description: Whether calls to this MCP server require an authenticated user (bearer token).
+                        type: boolean
+                      permissions:
+                        description: Permissions the caller must have to use this MCP server.
+                        type: array
+                        items:
+                          type: string
+                      defaultInclude:
+                        description: |
+                          Tools included by default (for callers without a matching roleBased entry).
+                          A string (comma-separated patterns, e.g. "search*,find*") or a list of patterns
+                          (e.g. ["search*", "find*"]); a list is joined with "," by the chart.
+                        x-kubernetes-preserve-unknown-fields: true
+                      defaultExclude:
+                        description: |
+                          Tools excluded by default (for callers without a matching roleBased entry).
+                          A string (comma-separated patterns) or a list of patterns; a list is joined with "," by the chart.
+                        x-kubernetes-preserve-unknown-fields: true
+                      roleBased:
+                        description: |
+                          Per-role tool filters: a map of role name -> include/exclude tool patterns.
+                          A caller with a listed role gets that role's filter instead of defaultInclude/defaultExclude.
+                        type: object
+                        additionalProperties:
+                          type: object
+                          properties:
+                            include:
+                              description: Tool name patterns included for this role.
+                              type: array
+                              items:
+                                type: string
+                            exclude:
+                              description: Tool name patterns excluded for this role.
+                              type: array
+                              items:
+                                type: string
+                aiConfigs:
+                  description: |
+                    AI configurations served by this grapi (grapple API) and read by the gruim (grapple UI module) via /api.
+                    Written as plain YAML; the chart renders it as JSON into the AI_CONFIGS env var.
+                    Empty or unset -> AI_CONFIGS not set (default behaviour).
+                    API keys never go into this claim: put them in a secret, reference that secret in extraSecrets
+                    and set apiKeyEnv to the name of the env var that holds the key (e.g. GOOGLE_API_KEY).
+                    Example:
+                      aiConfigs:
+                        ai-chat:
+                          catalogue:
+                            mode: managed
+                            provider: google
+                            model: gemini-2.5-flash
+                            apiKeyEnv: GOOGLE_API_KEY
+                  type: object
+                  properties:
+                    ai-chat:
+                      description: AI chat configurations, a map of config key -> config.
+                      type: object
+                      additionalProperties:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                        properties:
+                          mode:
+                            description: |
+                              byok: the user brings their own API key (entered in the gruim).
+                              managed: grapi calls the provider with the key from apiKeyEnv.
+                            type: string
+                            enum: ["byok", "managed"]
+                          provider:
+                            description: The AI provider.
+                            type: string
+                            enum: ["google", "anthropic", "openai"]
+                          model:
+                            description: The default model of the provider (e.g. gemini-2.5-flash).
+                            type: string
+                          models:
+                            description: Models the user may choose from.
+                            type: array
+                            items:
+                              type: string
+                          apiKeyEnv:
+                            description: |
+                              NAME of the env var in the grapi deployment that holds the provider API key (e.g. GOOGLE_API_KEY).
+                              Never the key itself; provide the key through a secret listed in extraSecrets.
+                            type: string
+                    ai-drilldown:
+                      description: AI drilldown configurations, a map of config key -> config.
+                      type: object
+                      additionalProperties:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                        properties:
+                          mode:
+                            description: |
+                              byok: the user brings their own API key (entered in the gruim).
+                              managed: grapi calls the provider with the key from apiKeyEnv.
+                            type: string
+                            enum: ["byok", "managed"]
+                          provider:
+                            description: The AI provider.
+                            type: string
+                            enum: ["google", "anthropic", "openai"]
+                          model:
+                            description: The default model of the provider (e.g. gemini-2.5-flash).
+                            type: string
+                          models:
+                            description: Models the user may choose from.
+                            type: array
+                            items:
+                              type: string
+                          apiKeyEnv:
+                            description: |
+                              NAME of the env var in the grapi deployment that holds the provider API key (e.g. GOOGLE_API_KEY).
+                              Never the key itself; provide the key through a secret listed in extraSecrets.
+                            type: string
                 restcruds:
                   description: |
                     Please add here all the restcruds that shall be generated within this grapi (grapple API)

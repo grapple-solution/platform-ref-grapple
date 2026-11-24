@@ -85,6 +85,12 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 		"resources":     spec["resources"],
 	}
 
+	// Defaults that only apply to the grapis (not to the gruims)
+	grapiDefaults := map[string]interface{}{
+		"mcpConfigs": spec["mcpConfigs"],
+		"aiConfigs":  spec["aiConfigs"],
+	}
+
 	// Get existing desired resources to avoid overwriting others (like the license check step)
 	desired, err := request.GetDesiredComposedResources(req)
 	if err != nil {
@@ -111,6 +117,7 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 
 			// Apply defaults
 			applyDefaults(grapiSpec, grasDefaults)
+			applyDefaults(grapiSpec, grapiDefaults)
 
 			// Propagate claimRef for patches in child compositions
 			childName := name

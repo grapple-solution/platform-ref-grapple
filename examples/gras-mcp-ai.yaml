@@ -1,0 +1,29 @@
+# GrappleApplicationSet: mcpConfigs / aiConfigs set on the gras are the default for every grapi in grapis.
+# A grapi that sets its own mcpConfigs / aiConfigs in grapis[].spec keeps its own value.
+apiVersion: grsf.grpl.io/v1alpha1
+kind: GrappleApplicationSet
+metadata:
+  name: dat
+spec:
+  mcpConfigs:
+    dat-search:
+      enable: true
+      auth: true
+      defaultInclude:
+      - search*
+      - find*
+  aiConfigs:
+    ai-chat:
+      catalogue:
+        mode: managed
+        provider: google
+        model: gemini-2.5-flash
+        apiKeyEnv: GOOGLE_API_KEY
+  grapis:
+  - name: grapi
+    spec:
+      extraSecrets:
+      - dat-ai-keys
+  gruims:
+  - name: gruim
+    spec: {}

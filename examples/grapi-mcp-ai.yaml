@@ -1,0 +1,48 @@
+# GrappleApi claim with MCP servers and AI configs (DAT-like values).
+# mcpConfigs / aiConfigs are plain YAML; the grapi chart renders them as JSON into MCP_CONFIGS / AI_CONFIGS.
+# API keys never go into the claim: the secret "dat-ai-keys" (e.g. with key GOOGLE_API_KEY) is mounted via
+# extraSecrets, and apiKeyEnv only names the env var.
+apiVersion: grsf.grpl.io/v1alpha1
+kind: GrappleApi
+metadata:
+  name: dat
+spec:
+  name: dat
+  extraSecrets:
+  - dat-ai-keys
+  mcpConfigs:
+    dat-search:
+      enable: true
+      auth: true
+      permissions:
+      - dat:read
+      defaultInclude:
+      - search*
+      - find*
+      - count*
+      defaultExclude: "*delete*,*update*"
+      roleBased:
+        admin:
+          include:
+          - "*"
+        viewer:
+          include:
+          - search*
+          exclude:
+          - "*Secret*"
+  aiConfigs:
+    ai-chat:
+      catalogue:
+        mode: managed
+        provider: google
+        model: gemini-2.5-flash
+        models:
+        - gemini-2.5-flash
+        - gemini-2.5-pro
+        apiKeyEnv: GOOGLE_API_KEY
+        systemPrompt: You help users search the DAT catalogue.
+    ai-drilldown:
+      default:
+        mode: byok
+        provider: anthropic
+        model: claude-sonnet-4-5

@@ -116,6 +116,7 @@ spec:
                       cpu: "2"
                   resourcesNpmMem: "3072"
                 buildimagecache: true
+                aiConfigs: {}
                 cacheconfigs: {}
                 clusterdomain: ""
                 controllers: []
@@ -146,6 +147,7 @@ spec:
                 livenessProbe: {}
                 readinessProbe: {}
                 startupProbe: {}
+                mcpConfigs: {}
                 models: []
                 monitoring: false
                 name: null
@@ -301,6 +303,12 @@ spec:
           type: FromCompositeFieldPath
         - fromFieldPath: spec.cacheconfigs
           toFieldPath: spec.forProvider.values.cacheconfigs
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.mcpConfigs
+          toFieldPath: spec.forProvider.values.mcpConfigs
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.aiConfigs
+          toFieldPath: spec.forProvider.values.aiConfigs
           type: FromCompositeFieldPath
         - fromFieldPath: spec.fuzzysearch
           toFieldPath: spec.forProvider.values.fuzzysearch
