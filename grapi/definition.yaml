@@ -951,6 +951,140 @@ spec:
                               *:customers/*
                               if specified, everything else is excluded.
                             type: string
+                mcpConfigs:
+                  description: |
+                    MCP (Model Context Protocol) servers served by this grapi (grapple API) at /mcp/<server>.
+                    A map of server name -> server config, as plain YAML; the chart renders it as JSON into MCP_CONFIGS.
+                    Each server exposes the API routes that match its patterns as MCP tools.
+                    With 2 or more enabled servers grapi also serves /mcp/all, which combines them (tools named <server>__<tool>).
+                    Empty or unset -> MCP_CONFIGS not set (default behaviour).
+                    Example:
+                      mcpConfigs:
+                        dat-search:
+                          enable: true
+                          defaultInclude: ["GET:drilldowns/vehicle", "GET:drilldowns/vehicle/*"]
+                        admin-tools:
+                          enable: true
+                          auth: true
+                          permissions: ["admin"]
+                          defaultExclude: "DELETE:*"
+                  type: object
+                  additionalProperties:
+                    type: object
+                    properties:
+                      enable:
+                        description: Serve this MCP server at /mcp/<server>.
+                        type: boolean
+                      auth:
+                        description: Calls to this MCP server need a logged-in user (JWT bearer token).
+                        type: boolean
+                      permissions:
+                        description: Roles allowed to use this MCP server, e.g. ["admin","user"] or ["*"].
+                        type: array
+                        items:
+                          type: string
+                      defaultInclude:
+                        description: |
+                          Only routes matching these patterns become tools. A pattern is METHOD:path with * as wildcard
+                          and the path without the leading slash, e.g. "GET:skills/platypus*" or "*:*".
+                          A string (comma-separated) or a list; a list is joined with "," by the chart.
+                          Cannot be combined with defaultExclude.
+                        x-kubernetes-preserve-unknown-fields: true
+                      defaultExclude:
+                        description: |
+                          Routes matching these METHOD:path patterns are not exposed as tools, e.g. "DELETE:*".
+                          A string (comma-separated) or a list; a list is joined with "," by the chart.
+                          Cannot be combined with defaultInclude.
+                        x-kubernetes-preserve-unknown-fields: true
+                      roleBased:
+                        description: |
+                          Per-role patterns: role name -> include/exclude METHOD:path patterns. Used instead of
+                          defaultInclude/defaultExclude when the MCP client sends that role in the request (params.role).
+                        type: object
+                        additionalProperties:
+                          type: object
+                          properties:
+                            include:
+                              description: METHOD:path patterns included for this role, e.g. ["*:*"].
+                              type: array
+                              items:
+                                type: string
+                            exclude:
+                              description: METHOD:path patterns excluded for this role.
+                              type: array
+                              items:
+                                type: string
+                aiConfigs:
+                  description: |
+                    AI configurations served by this grapi (grapple API) at /ai-configs/<key> and used by the gruim (grapple UI module)
+                    AI chat (aiChat: "<key>") and AI drilldown (aiDrilldown: "<key>"). For type drilldown the key is the drilldown name.
+                    Plain YAML; the chart renders it as JSON into AI_CONFIGS. Empty or unset -> AI_CONFIGS not set and the gruim
+                    uses its own config (default behaviour).
+                    API keys never go into this claim: put them in a secret listed in extraSecrets and set apiKeyEnv to the env var name.
+                    Example:
+                      aiConfigs:
+                        vehicle:
+                          type: drilldown
+                          mode: managed
+                          provider: google
+                          model: gemini-2.5-flash
+                          apiKeyEnv: GOOGLE_API_KEY
+                          mcps: ["dat-search"]
+                          guidelines: "DAT vehicle catalogue (table datecode2). Labels are German."
+                          maxSteps: 10
+                          thinkingBudget: 512
+                        catalogue:
+                          mcps: ["dat-search", "https://external-domain.com/mcp"]
+                  type: object
+                  additionalProperties:
+                    type: object
+                    properties:
+                      type:
+                        description: "UI style: chat (AI chat) or drilldown (AI drilldown over the drilldown named by the key)."
+                        type: string
+                        enum: ["chat", "drilldown"]
+                        default: chat
+                      mode:
+                        description: |
+                          byok: the user enters their own API key in the gruim.
+                          managed: grapi calls the provider with the key from apiKeyEnv; the gruim hides credentials, settings and the MCP list.
+                        type: string
+                        enum: ["byok", "managed"]
+                        default: byok
+                      provider:
+                        description: AI provider (managed mode).
+                        type: string
+                        enum: ["google", "anthropic", "openai"]
+                      model:
+                        description: Model of the provider (managed mode), e.g. gemini-2.5-flash.
+                        type: string
+                      models:
+                        description: Extra models the user may choose from (managed mode).
+                        type: array
+                        items:
+                          type: string
+                      apiKeyEnv:
+                        description: NAME of the env var holding the provider API key (managed mode), e.g. GOOGLE_API_KEY. Never the key itself.
+                        type: string
+                      mcps:
+                        description: |
+                          MCP servers the AI uses: a server name of this grapi (e.g. dat-search -> /mcp/dat-search) or the full URL of an
+                          external MCP server. External servers are called from the browser: they must allow the gruim origin (CORS)
+                          and must not need a secret. A drilldown uses the first entry (required for drilldown).
+                        type: array
+                        items:
+                          type: string
+                      guidelines:
+                        description: Instructions for the AI (domain knowledge, rules), added to its prompt.
+                        type: string
+                      maxSteps:
+                        description: Maximum number of AI steps (model calls) per request.
+                        type: integer
+                        minimum: 1
+                      thinkingBudget:
+                        description: Thinking tokens for models that support it (0 = off).
+                        type: integer
+                        minimum: 0
                 restcruds:
                   description: |
                     Please add here all the restcruds that shall be generated within this grapi (grapple API)

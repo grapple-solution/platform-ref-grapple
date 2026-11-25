@@ -1,0 +1,24 @@
+# GrappleApplicationSet: mcpConfigs / aiConfigs are set per grapi in grapis[].spec (only where defined).
+# grapis[].spec is passed to the GrappleApi as is; see examples/grapi-mcp-ai.yaml for all fields.
+apiVersion: grsf.grpl.io/v1alpha1
+kind: GrappleApplicationSet
+metadata:
+  name: dat
+spec:
+  grapis:
+  - name: grapi
+    spec:
+      mcpConfigs:
+        dat-search:
+          enable: true
+          defaultInclude:
+          - GET:dsearchtree/drilldowns/vehicle
+          - GET:dsearchtree/drilldowns/vehicle/*
+      aiConfigs:
+        vehicle:
+          type: drilldown
+          mcps:
+          - dat-search
+  gruims:
+  - name: gruim
+    spec: {}

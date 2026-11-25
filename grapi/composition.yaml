@@ -29,7 +29,7 @@ spec:
               chart:
                 name: grapi
                 repository: oci://public.ecr.aws/p7h7z5g3
-                version: 0.3.24
+                version: 0.3.25
               namespace: null
               set:
               - name: grapiversion
@@ -116,6 +116,7 @@ spec:
                       cpu: "2"
                   resourcesNpmMem: "3072"
                 buildimagecache: true
+                aiConfigs: {}
                 cacheconfigs: {}
                 clusterdomain: ""
                 controllers: []
@@ -139,13 +140,14 @@ spec:
                 externalsecrets: []
                 extraSecrets: []
                 graphql: false
-                grapiversion: 0.3.24
+                grapiversion: 0.3.25
                 imagetag: ""
                 ingress: true
                 initContainers: []
                 livenessProbe: {}
                 readinessProbe: {}
                 startupProbe: {}
+                mcpConfigs: {}
                 models: []
                 monitoring: false
                 name: null
@@ -301,6 +303,12 @@ spec:
           type: FromCompositeFieldPath
         - fromFieldPath: spec.cacheconfigs
           toFieldPath: spec.forProvider.values.cacheconfigs
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.mcpConfigs
+          toFieldPath: spec.forProvider.values.mcpConfigs
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.aiConfigs
+          toFieldPath: spec.forProvider.values.aiConfigs
           type: FromCompositeFieldPath
         - fromFieldPath: spec.fuzzysearch
           toFieldPath: spec.forProvider.values.fuzzysearch
