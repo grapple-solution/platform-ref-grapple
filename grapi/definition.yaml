@@ -1056,13 +1056,8 @@ spec:
                         type: string
                         enum: ["google", "anthropic", "openai"]
                       model:
-                        description: Model of the provider (managed mode), e.g. gemini-2.5-flash.
+                        description: Default model of the provider, e.g. gemini-2.5-flash.
                         type: string
-                      models:
-                        description: Extra models the user may choose from (managed mode).
-                        type: array
-                        items:
-                          type: string
                       apiKeyEnv:
                         description: NAME of the env var holding the provider API key (managed mode), e.g. GOOGLE_API_KEY. Never the key itself.
                         type: string
