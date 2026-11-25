@@ -1056,7 +1056,7 @@ spec:
                         type: string
                         enum: ["google", "anthropic", "openai"]
                       model:
-                        description: Default model of the provider, e.g. gemini-2.5-flash. Managed mode also allows the provider's models from grapi's ai-models registry (POST /ai-models).
+                        description: Default model of the provider, e.g. gemini-2.5-flash.
                         type: string
                       apiKeyEnv:
                         description: NAME of the env var holding the provider API key (managed mode), e.g. GOOGLE_API_KEY. Never the key itself.
